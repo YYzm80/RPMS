@@ -10,8 +10,11 @@
                 src="https://pica.zhimg.com/v2-905513990381422285bd36ce1cbdc4f1_r.jpg?source=2c26e567"/>
     </div>
     <div class="welcome-title">
-      <div style="font-size: 30px;font-weight: bold">欢迎来到我们的XX学习平台</div>
-      <div style="margin-top: 10px">在这里你可以学习到Java，如何搭建网站，并且与Java之父密切交流</div>
+      <div style="font-size: 30px;font-weight: bold">欢迎来到我们的XX学习平台
+      </div>
+      <div style="margin-top: 10px">
+        在这里你可以学习到Java，如何搭建网站，并且与Java之父密切交流
+      </div>
     </div>
     <div style="width: 400px;background-color: white">
       <router-view/>
@@ -20,7 +23,7 @@
 </template>
 
 <style scoped>
-.welcome-title{
+.welcome-title {
   position: absolute;
   bottom: 30px;
   left: 30px;

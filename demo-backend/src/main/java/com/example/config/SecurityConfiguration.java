@@ -17,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 
@@ -40,6 +42,19 @@ public class SecurityConfiguration {
                 })
                 .logout(conf -> {
                     conf.logoutUrl("/api/auth/logout");
+                    conf.logoutSuccessHandler(this::onAuthenticationSuccess);
+                })
+                .cors(conf -> {
+                    CorsConfiguration cors = new CorsConfiguration();
+                    //添加前端站点地址
+                    cors.addAllowedOrigin("http://localhost:5173");
+                    cors.setAllowCredentials(true);
+                    cors.addAllowedHeader("*");
+                    cors.addAllowedMethod("*");
+                    cors.addExposedHeader("*");
+                    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                    source.registerCorsConfiguration("/**", cors);  //直接针对于所有地址生效
+                    conf.configurationSource(source);
                 })
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(conf -> {
@@ -68,7 +83,11 @@ public class SecurityConfiguration {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         response.setCharacterEncoding("utf-8");
-        response.getWriter().write(JSONObject.toJSONString(RestBean.success("登录成功！")));
+        if (request.getRequestURI().endsWith("/login"))
+            response.getWriter().write(JSONObject.toJSONString(RestBean.success("登录成功！")));
+        else if (request.getRequestURI().endsWith("/logout")) {
+            response.getWriter().write(JSONObject.toJSONString(RestBean.success("退出登录成功！")));
+        }
     }
 
     public void onAuthenticationFailure(HttpServletRequest request,
