@@ -17,9 +17,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 
 @Configuration
@@ -29,8 +32,12 @@ public class SecurityConfiguration {
     @Resource
     AuthorizeService authorizeService;
 
+    @Resource
+    DataSource dataSource;
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           PersistentTokenRepository repository) throws Exception {
         return http
                 .authorizeHttpRequests(conf -> {
                     conf.anyRequest().authenticated();
@@ -56,11 +63,24 @@ public class SecurityConfiguration {
                     source.registerCorsConfiguration("/**", cors);  //直接针对于所有地址生效
                     conf.configurationSource(source);
                 })
+                .rememberMe(conf -> {
+                    conf.rememberMeParameter("remember");
+                    conf.tokenRepository(repository);
+                    conf.tokenValiditySeconds(3600 * 24 * 7);
+                })
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(conf -> {
                     conf.authenticationEntryPoint(this::onAuthenticationFailure);
                 })
                 .build();
+    }
+
+    @Bean
+    public PersistentTokenRepository tokenRepository() {
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        jdbcTokenRepository.setCreateTableOnStartup(false);
+        return jdbcTokenRepository;
     }
 
     @Bean
@@ -71,11 +91,10 @@ public class SecurityConfiguration {
                 .userDetailsService(authorizeService)
                 .and()
                 .build();
-
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
