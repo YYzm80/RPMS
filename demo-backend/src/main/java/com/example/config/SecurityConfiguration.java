@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,6 +42,7 @@ public class SecurityConfiguration {
                                            PersistentTokenRepository repository) throws Exception {
         return http
                 .authorizeHttpRequests(conf -> {
+                    conf.requestMatchers("/api/auth/**").permitAll();
                     conf.anyRequest().authenticated();
                 })
                 .formLogin(conf -> {
@@ -84,13 +87,10 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity security) throws Exception {
-        //noinspection removal
-        return security
-                .getSharedObject((AuthenticationManagerBuilder.class))
-                .userDetailsService(authorizeService)
-                .and()
-                .build();
+    public AuthenticationManager authenticationManager() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        daoAuthenticationProvider.setUserDetailsService(authorizeService);
+        return new ProviderManager(daoAuthenticationProvider);
     }
 
     @Bean
