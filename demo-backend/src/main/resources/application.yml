@@ -4,7 +4,6 @@ spring:
     url: jdbc:mysql://localhost:3306/demo_db?useUnicode=true&characterEncoding=utf-8
     username: root
     password: 123456
-
   mail:
     host: smtp.163.com
     username: 18223818435@163.com
