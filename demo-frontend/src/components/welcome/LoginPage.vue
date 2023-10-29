@@ -59,7 +59,7 @@ const login = () => {
           <el-checkbox v-model="form.remember" label="记住我" size="small"/>
         </el-col>
         <el-col :span="12" style="text-align: right">
-          <el-link>忘记密码？</el-link>
+          <el-link @click="router.push('/forget')">忘记密码？</el-link>
         </el-col>
       </el-row>
 
@@ -72,10 +72,7 @@ const login = () => {
       <span style="color: gray">没有账号</span>
     </el-divider>
     <div style="color: orange">
-      <el-button @click="router.push('/register')" style="width: 250px"
-                 type="warning"
-                 plain>注册账号
-      </el-button>
+      <el-button @click="router.push('/register')" style="width: 250px" type="warning" plain>注册账号</el-button>
     </div>
   </div>
 </template>

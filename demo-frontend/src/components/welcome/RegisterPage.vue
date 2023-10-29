@@ -170,7 +170,7 @@ const validateEmail = () => {
             </el-col>
             <el-col :span="6">
               <el-button @click="validateEmail" type="success" :disabled="!isEmailValid || coldTime > 0">
-                  {{coldTime > 0 ? coldTime + '秒后可发送' : '获取验证码' }}</el-button>
+                  {{coldTime > 0 ? coldTime + '秒后可获取' : '获取验证码' }}</el-button>
             </el-col>
           </el-row>
         </el-form-item>
