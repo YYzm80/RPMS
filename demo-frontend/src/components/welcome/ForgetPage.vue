@@ -4,6 +4,7 @@ import {reactive, ref} from "vue";
 import {EditPen, Lock, Message} from "@element-plus/icons-vue";
 import {post} from "@/net";
 import {ElMessage} from "element-plus";
+import router from "@/router";
 
 const form = reactive({
     email: '',
@@ -52,6 +53,7 @@ const rules = {
     ]
 }
 
+const formRef = ref()
 const isEmailValid = ref(false)
 const coldTime = ref(0)
 const active = ref(0)
@@ -63,12 +65,42 @@ const onValidate = (prop, isValid) => {
 }
 
 const validateEmail = () => {
-    post('/api/auth/valid-email', {
+    post('/api/auth/valid-reset-email', {
         email: form.email
     }, (message) => {
         ElMessage.success(message)
         coldTime.value = 60
         setInterval(() => coldTime.value--, 1000)
+    })
+}
+
+const startReset = () => {
+    formRef.value.validate((isValid) => {
+        if (isValid) {
+            post('/api/auth/start-reset', {
+                email: form.email,
+                code: form.code
+            }, () => {
+                active.value++
+            })
+        } else {
+            ElMessage.warning('请完整填写验证信息！')
+        }
+    })
+}
+
+const doReset = () => {
+    formRef.value.validate((isValid) => {
+        if (isValid) {
+            post('/api/auth/do-reset', {
+                password: form.password
+            }, (message) => {
+                ElMessage.success(message)
+                router.push('/')
+            })
+        } else {
+            ElMessage.warning('请填写新密码！')
+        }
     })
 }
 </script>
@@ -118,7 +150,7 @@ const validateEmail = () => {
                     </el-form>
                 </div>
                 <div style="margin-top: 70px">
-                    <el-button @click="active = 1" style="width: 270px" type="danger"
+                    <el-button @click="startReset" style="width: 270px" type="danger"
                                plain>下一步
                     </el-button>
                 </div>
@@ -154,7 +186,7 @@ const validateEmail = () => {
                     </el-form>
                 </div>
                 <div style="margin-top: 70px">
-                    <el-button @click="active = 2" style="width: 270px" type="danger"
+                    <el-button @click="doReset" style="width: 270px" type="danger"
                                plain>立即重置密码
                     </el-button>
                 </div>
