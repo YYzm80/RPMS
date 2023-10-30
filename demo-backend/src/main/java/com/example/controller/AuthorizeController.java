@@ -76,9 +76,9 @@ public class AuthorizeController {
     public RestBean<String> resetPassword(@Length(min = 6, max = 16) @RequestParam("password") String password,
                                           HttpSession session) {
         String email = (String) session.getAttribute("reset-password");
-        if (email == null){
+        if (email == null) {
             return RestBean.failure(401, "请先完成邮箱验证");
-        } else if (service.resetPassword(password, email)){
+        } else if (service.resetPassword(password, email)) {
             session.removeAttribute("reset-password");
             return RestBean.success("密码重置成功");
         } else {

@@ -1,7 +1,7 @@
 <script setup>
 
 import {reactive, ref} from "vue";
-import {EditPen, Lock, Message} from "@element-plus/icons-vue";
+import {ArrowLeftBold, EditPen, Lock, Message} from "@element-plus/icons-vue";
 import {post} from "@/net";
 import {ElMessage} from "element-plus";
 import router from "@/router";
@@ -37,10 +37,10 @@ const rules = {
         },
     ],
     code: [
-        {required:true, message:'请输入验证码', trigger: ['blur', 'change']}
+        {required: true, message: '请输入验证码', trigger: ['blur', 'change']}
     ],
     password: [
-        {required:true, message:'请输入密码！', trigger: 'blur'},
+        {required: true, message: '请输入密码！', trigger: 'blur'},
         {
             min: 6,
             max: 16,
@@ -65,12 +65,15 @@ const onValidate = (prop, isValid) => {
 }
 
 const validateEmail = () => {
+    coldTime.value = 60
     post('/api/auth/valid-reset-email', {
         email: form.email
     }, (message) => {
         ElMessage.success(message)
-        coldTime.value = 60
         setInterval(() => coldTime.value--, 1000)
+    }, (message) =>{
+        ElMessage.warning(message)
+        coldTime.value = 0
     })
 }
 
@@ -107,10 +110,10 @@ const doReset = () => {
 
 <template>
     <div>
-        <div  style="margin: 30px 20px">
+        <div style="margin: 30px 20px">
             <el-steps :active="active" finish-status="success" align-center>
-                <el-step title="验证电子邮件" />
-                <el-step title="重设密码" />
+                <el-step title="验证电子邮件"/>
+                <el-step title="重设密码"/>
             </el-steps>
         </div>
         <transition name="el-fade-in-linear" mode="out-in">
@@ -143,7 +146,8 @@ const doReset = () => {
                                 </el-col>
                                 <el-col :span="6">
                                     <el-button @click="validateEmail" type="success" :disabled="!isEmailValid || coldTime > 0">
-                                        {{coldTime > 0 ? coldTime + '秒后可获取' : '获取验证码' }}</el-button>
+                                        {{ coldTime > 0 ? coldTime + '秒后可获取' : '获取验证码' }}
+                                    </el-button>
                                 </el-col>
                             </el-row>
                         </el-form-item>
@@ -157,8 +161,7 @@ const doReset = () => {
             </div>
         </transition>
         <transition name="el-fade-in-linear" mode="out-in">
-            <div style="text-align: center;margin: 0 20px;height: 100%" v-if="active
-         === 1">
+            <div style="text-align: center;margin: 0 20px;height: 100%" v-if="active === 1">
                 <div style="margin-top: 80px">
                     <div style="font-size: 25px;font-weight: bold">重置密码</div>
                     <div style="font-size: 14px;color: gray">请输入新密码</div>
@@ -186,12 +189,22 @@ const doReset = () => {
                     </el-form>
                 </div>
                 <div style="margin-top: 70px">
-                    <el-button @click="doReset" style="width: 270px" type="danger"
-                               plain>立即重置密码
+                    <el-button @click="doReset" style="width: 270px" type="danger" plain>
+                        立即重置密码
                     </el-button>
                 </div>
             </div>
         </transition>
+        <div style="margin: 50px 20px">
+            <el-link @click="router.push('/')" type="primary" style="width: 60px;">
+                <template #icon>
+                    <el-icon>
+                        <ArrowLeftBold/>
+                    </el-icon>
+                    <span> 返回 </span>
+                </template>
+            </el-link>
+        </div>
     </div>
 </template>
 

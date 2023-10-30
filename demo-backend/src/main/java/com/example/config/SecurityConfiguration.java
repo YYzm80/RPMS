@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -72,9 +71,7 @@ public class SecurityConfiguration {
                     conf.tokenValiditySeconds(3600 * 24 * 7);
                 })
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(conf -> {
-                    conf.authenticationEntryPoint(this::onAuthenticationFailure);
-                })
+                .exceptionHandling(conf -> conf.authenticationEntryPoint(this::onAuthenticationFailure))
                 .build();
     }
 
