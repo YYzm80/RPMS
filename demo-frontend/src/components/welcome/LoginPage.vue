@@ -5,7 +5,8 @@ import {reactive} from "vue";
 import {ElMessage} from "element-plus";
 import {get, post} from "@/net";
 import router from "@/router";
-import {useStore} from "@/stores";
+import {useStore} from "@/stores/userStore";
+
 
 const form = reactive({
     username: '',

@@ -1,7 +1,7 @@
 <script setup>
 import {get} from "@/net";
-import {useStore} from "@/stores";
 import router from "@/router";
+import {useStore} from "@/stores/userStore";
 
 const store = useStore()
 

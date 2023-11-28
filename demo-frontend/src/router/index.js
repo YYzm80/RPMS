@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import {useStore} from "@/stores";
+import {useStore} from "@/stores/userStore";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL), routes: [{
@@ -22,7 +22,12 @@ const router = createRouter({
     }, {
         path: '/index',
         name: 'index',
-        component: () => import('@/views/IndexView.vue')
+        component: () => import('@/views/IndexView.vue'),
+        children: [{
+            path: 'home',
+            name: 'index-home',
+            component: () => import('@/components/index/homePage.vue')
+        }]
     }]
 })
 
