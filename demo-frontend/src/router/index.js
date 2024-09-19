@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import {useStore} from "@/stores/userStore";
+import {unauthorized} from "@/net";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL), routes: [{
@@ -32,13 +32,11 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    const store = useStore()
-    if (store.auth.user != null && to.name.startsWith('welcome-')) {
+    const isUnauthorized = unauthorized()
+    if(to.name.startsWith('welcome') && !isUnauthorized) {
         next('/index')
-    } else if (store.auth.user == null && to.fullPath.startsWith('/index')) {
+    } else if(to.fullPath.startsWith('/index') && isUnauthorized) {
         next('/')
-    } else if (to.matched.length === 0){
-        next('/index')
     } else {
         next()
     }

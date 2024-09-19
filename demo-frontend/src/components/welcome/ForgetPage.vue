@@ -66,8 +66,7 @@ const onValidate = (prop, isValid) => {
 
 const validateEmail = () => {
     coldTime.value = 60
-    post('/api/auth/valid-reset-email', {
-        email: form.email
+    post(`/api/auth/ask-code?email=${form.email}&type=reset`, {
     }, (message) => {
         ElMessage.success(message)
         setInterval(() => coldTime.value--, 1000)
@@ -80,7 +79,7 @@ const validateEmail = () => {
 const startReset = () => {
     formRef.value.validate((isValid) => {
         if (isValid) {
-            post('/api/auth/start-reset', {
+            post('/api/auth/reset-confirm', {
                 email: form.email,
                 code: form.code
             }, () => {
@@ -95,7 +94,7 @@ const startReset = () => {
 const doReset = () => {
     formRef.value.validate((isValid) => {
         if (isValid) {
-            post('/api/auth/do-reset', {
+            post('/api/auth/reset-password', {
                 password: form.password
             }, (message) => {
                 ElMessage.success(message)

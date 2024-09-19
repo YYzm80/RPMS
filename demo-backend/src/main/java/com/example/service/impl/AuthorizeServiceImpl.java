@@ -1,7 +1,8 @@
 package com.example.service.impl;
 
-import com.example.entity.auth.Account;
-import com.example.mapper.UserMapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.entity.dto.auth.Account;
+import com.example.mapper.AccountMapper;
 import com.example.service.AuthorizeService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,13 +21,13 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class AuthorizeServiceImpl implements AuthorizeService {
+public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> implements AuthorizeService {
 
     @Value("${spring.mail.username}")
     String from;
 
     @Resource
-    UserMapper mapper;
+    AccountMapper mapper;
 
     @Resource
     MailSender mailSender;
@@ -38,15 +39,13 @@ public class AuthorizeServiceImpl implements AuthorizeService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (username == null)
-            throw new UsernameNotFoundException("用户名不能为空！");
         Account account = mapper.findAccountByNameOrEmail(username);
         if (account == null)
             throw new UsernameNotFoundException("用户名或密码错误！");
         return User
                 .withUsername(account.getUsername())
                 .password(account.getPassword())
-                .roles("user")
+                .roles(account.getRole())
                 .build();
     }
 
@@ -116,6 +115,11 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         } else {
             return "请先完成获取验证码！";
         }
+    }
+
+    @Override
+    public Account findAccountByNameOrEmail(String text) {
+        return mapper.findAccountByNameOrEmail(text);
     }
 
     @Override

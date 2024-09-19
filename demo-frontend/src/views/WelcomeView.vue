@@ -9,10 +9,10 @@
                       src="https://pica.zhimg.com/v2-905513990381422285bd36ce1cbdc4f1_r.jpg?source=2c26e567"/>
         </div>
         <div class="welcome-title">
-            <div style="font-size: 30px;font-weight: bold">欢迎来到我们的XX学习平台
+            <div style="font-size: 30px;font-weight: bold">欢迎来到学校运动会管理平台
             </div>
             <div style="margin-top: 10px">
-                在这里你可以学习到Java，如何搭建网站，并且与Java之父密切交流
+                在这里你可以参加各种运动会赛事，查询比赛结果，为班级和校园争荣誉
             </div>
         </div>
         <div style="width: 400px;background-color: white;z-index: 1">

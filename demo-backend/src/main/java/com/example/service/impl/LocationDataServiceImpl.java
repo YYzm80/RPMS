@@ -2,6 +2,7 @@ package com.example.service.impl;
 
 import com.example.entity.location.LocationData;
 import com.example.service.LocationDataService;
+import com.example.util.Const;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,10 @@ import java.io.IOException;
 public class LocationDataServiceImpl implements LocationDataService {
     @Resource
     RestTemplate restTemplate;
-    private final String LOCATION_API = "https://restapi.amap.com/v3/ip?key=077e7585e935dd09dcdf2098c801cad4";
 
     @Override
     public LocationData getDataByIP() {
-        return this.doGetLocationData(LOCATION_API);
+        return this.doGetLocationData(Const.LOCATION_API);
     }
 
     private LocationData doGetLocationData(String url) {

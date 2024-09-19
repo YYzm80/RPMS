@@ -1,20 +1,16 @@
 <script setup>
-import {get, post} from "@/net";
+import {get, logout, post} from "@/net";
 import {ElMessage} from "element-plus";
 import router from "@/router";
 import {reactive, ref} from "vue";
 import {weatherStore} from "@/stores/weatherStore";
-import {useStore} from "@/stores/userStore";
 import {locationStore} from "@/stores/locationStore";
 
-const store = useStore()
+const authItemName = "authorize"
+const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
 
-const logout = () => {
-    get('/api/auth/logout', (message) => {
-        ElMessage.success(message)
-        store.auth.user = null
-        router.push('/')
-    })
+function userLogout() {
+  logout(() => router.push("/"))
 }
 
 const form = reactive({
@@ -38,8 +34,7 @@ const weather = () => {
 
 const getWeather = () => {
     if (form.city_id) {
-        post('/api/weather/cityId', {
-            city_id: form.city_id
+        post(`/api/weather/cityId?city_id=${form.city_id}`, {
         }, (data) => {
             weather_store.api.weather = data
             active.value = 1
@@ -47,13 +42,12 @@ const getWeather = () => {
 }
 }
 
-
 </script>
 
 <template>
     <div style="width: 100vw;height: 100vh;overflow: hidden">
-        <div style="margin: 5px 5px">欢迎{{ store.auth.user.username }}进入学习平台！</div>
-        <el-button @click="logout()" type="danger">退出登录</el-button>
+        <div style="margin: 5px 5px">欢迎{{ user.username }}进入学习平台！</div>
+        <el-button @click="userLogout()" type="danger">退出登录</el-button>
         <div id="weather">
             <el-button @click="weather" type="success">{{ '查询天气' }}</el-button>
         </div>

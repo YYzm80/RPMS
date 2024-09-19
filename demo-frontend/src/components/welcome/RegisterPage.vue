@@ -102,14 +102,18 @@ const register = () => {
 
 const validateEmail = () => {
     coldTime.value = 60
-    post('/api/auth/valid-register-email', {
-        email: form.email
+    post(`/api/auth/ask-code?email=${form.email}&type=register`, {
     }, (message) => {
-        ElMessage.success(message)
-        setInterval(() => coldTime.value--, 1000)
-    }, (message) =>{
-        ElMessage.warning(message)
-        coldTime.value = 0
+      ElMessage.success(message)
+      const handle = setInterval(() => {
+        coldTime.value--
+        if(coldTime.value === 0) {
+          clearInterval(handle)
+        }
+      }, 1000)
+    }, (message) => {
+      ElMessage.warning(message)
+      coldTime.value = 0
     })
 }
 </script>
@@ -119,7 +123,7 @@ const validateEmail = () => {
         <div style="margin-top: 100px">
             <div style="font-size: 25px;font-weight: bold">注册新用户</div>
             <div style="font-size: 14px;color: gray">
-                欢迎注册我们的XX学习平台
+                欢迎注册我们的平台
             </div>
         </div>
         <div style="margin-top: 50px">
