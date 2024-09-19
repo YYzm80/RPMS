@@ -1,7 +1,7 @@
 package com.example.controller;
 
 import com.example.entity.RestBean;
-import com.example.entity.location.LocationData;
+import com.example.entity.vo.request.location.LocationData;
 import com.example.service.LocationDataService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;

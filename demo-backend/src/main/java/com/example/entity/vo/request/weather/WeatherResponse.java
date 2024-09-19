@@ -1,6 +1,5 @@
-package com.example.entity.weather;
+package com.example.entity.vo.request.weather;
 
-import com.example.entity.vo.request.LivesVO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 

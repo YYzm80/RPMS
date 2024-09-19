@@ -1,6 +1,6 @@
 package com.example.service.impl;
 
-import com.example.entity.location.LocationData;
+import com.example.entity.vo.request.location.LocationData;
 import com.example.service.LocationDataService;
 import com.example.util.Const;
 import com.fasterxml.jackson.databind.ObjectMapper;

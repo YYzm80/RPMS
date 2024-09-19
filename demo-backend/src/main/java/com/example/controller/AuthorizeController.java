@@ -1,12 +1,11 @@
 package com.example.controller;
 
 import com.example.entity.RestBean;
-import com.example.entity.vo.request.ConfirmResetVO;
-import com.example.entity.vo.request.EmailRegisterVO;
-import com.example.entity.vo.request.EmailResetVO;
+import com.example.entity.vo.request.email.ConfirmResetVO;
+import com.example.entity.vo.request.email.EmailRegisterVO;
+import com.example.entity.vo.request.email.EmailResetVO;
 import com.example.service.AuthorizeService;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -15,7 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
-import java.util.function.Supplier;
+
 @Validated
 @RestController
 @RequestMapping("/api/auth")

@@ -1,4 +1,4 @@
-package com.example.entity.location;
+package com.example.entity.vo.request.weather;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -8,12 +8,13 @@ import java.io.Serializable;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LocationData implements Serializable {
+public class LivesVO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    private String status;
-    private String info;
-    private String province;
     private String city;
-    private String adcode;
+    private String weather;
+    private String temperature;
+    private String winddirection;
+    private String windpower;
+
 }

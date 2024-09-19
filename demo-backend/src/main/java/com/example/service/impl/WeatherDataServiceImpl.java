@@ -1,6 +1,6 @@
 package com.example.service.impl;
 
-import com.example.entity.weather.WeatherResponse;
+import com.example.entity.vo.request.weather.WeatherResponse;
 import com.example.service.WeatherDataService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;

@@ -1,4 +1,4 @@
-package com.example.entity.vo.request;
+package com.example.entity.vo.request.email;
 
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
