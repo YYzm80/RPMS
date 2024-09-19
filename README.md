@@ -1,12 +1,23 @@
-## 前后端分离项目
+## 校园运动会管理系统
 
-包括基本的登录、注册、密码重置等等功能
+### 技术栈：
+* 前端：Vue3 + Vite + element-plus + axios
+* 后端：SpringBoot3 + SpringSecurity + MybatisPlus
+* 数据库：Mysql(5.6+) + Redis
+* JDK：Java17+
 
-* 登录功能（支持用户名、邮箱登录）
-* 注册用户（通过邮箱注册）
-* 重置密码（通过邮箱重置密码）
+### 介绍
+本项目是基于JWT令牌进行登录验证的前后端分离项目，
+包括基本的用户管理，权限管理，班级/学院管理，比赛类别管理，比赛管理，成绩管理，报名管理等功能，基本完善的后台管理。
 
-登录功能：
-1. 用户成功登录后，才能访问index下的页面。
-2. 用户如果没有完成登录，自动跳转到登录页面。
-3. 如果用户请求一个不存在的页面，依然强制返回登录页面，如果已经登录，那就返回到index页面。
+### 前端页面展示(部分)
+比赛管理：
+![img.png](demo-frontend/src/assets/img1.png)
+用户管理：
+![img.png](demo-frontend/src/assets/img3.png)
+报名管理：
+![img.png](demo-frontend/src/assets/img2.png)
+成绩查询：
+![img.png](demo-frontend/src/assets/img4.png)
+* 在本地部署项目请看部署手册
+* 数据库文件在包括在上传文件里
