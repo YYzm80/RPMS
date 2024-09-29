@@ -2,6 +2,7 @@ package com.example.service.impl;
 
 import com.example.entity.vo.request.weather.WeatherResponse;
 import com.example.service.WeatherDataService;
+import com.example.util.Const;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,10 @@ public class WeatherDataServiceImpl implements WeatherDataService {
 
     @Resource
     private RestTemplate restTemplate;
-    private final String WEATHER_API = "https://restapi.amap.com/v3/weather/weatherInfo?key=077e7585e935dd09dcdf2098c801cad4&";
 
     @Override
     public WeatherResponse getDataByCityId(String cityId) {
-        String uri = WEATHER_API + "city=" + cityId;
+        String uri = Const.LOCATION_API + "city=" + cityId;
         System.out.println(uri);
         return this.doGetWeatherData(uri);
     }

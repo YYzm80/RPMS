@@ -3,13 +3,11 @@ package com.example.entity.vo.response;
 import lombok.Data;
 
 @Data
-public class RegistrationVO {
-
-    private Integer rid;
+public class ScoreDetailVO {
+    private Integer id;
+    private Integer sid;
     private Integer uid;
-    private Integer gid;
     private String name;
     private String gName;
-    private String role;
-    private String state;
+    private Double score;
 }

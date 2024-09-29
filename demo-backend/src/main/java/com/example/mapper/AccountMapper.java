@@ -13,8 +13,8 @@ public interface AccountMapper extends BaseMapper<Account> {
     @Select("select * from users where username = #{text} or email = #{text}")
     Account findAccountByNameOrEmail(String text);
 
-    @Insert("insert into users(email, username, password) VALUES(#{email}, #{username}, #{password})")
-    int createAccount(String username, String password, String email);
+    @Insert("insert into users(email, username, password, role) VALUES(#{email}, #{username}, #{password}, #{role})")
+    int createAccount(String username, String password, String email, String role);
 
     @Update("update users set password = #{password} where email = #{email}")
     int resetPasswordByEmail(String password, String email);

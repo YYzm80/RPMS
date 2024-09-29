@@ -8,6 +8,7 @@ import java.util.Date;
 public class GamesVO {
 
     private Integer gid;
+    private Integer pid;
     private String pName;
     private String name;
     private String introduce;

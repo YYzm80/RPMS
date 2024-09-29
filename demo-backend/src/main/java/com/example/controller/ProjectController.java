@@ -1,16 +1,11 @@
 package com.example.controller;
 
 import com.example.entity.RestBean;
-import com.example.entity.dto.game.Games;
 import com.example.entity.dto.game.Project;
-import com.example.service.GamesService;
 import com.example.service.ProjectService;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

@@ -5,10 +5,8 @@ import com.example.entity.dto.game.Arrangement;
 import com.example.entity.vo.response.ArrangementVO;
 import com.example.service.ArrangementService;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,18 +33,21 @@ public class ArrangementController {
     }
 
     @PostMapping("/doArrangement")
+    @PreAuthorize("hasRole('admin')")
     public RestBean<String> doArrangement(Integer gid) {
         String s = service.doArrangement(gid);
         return s == null ? RestBean.success("自动安排完成，请查看详情确认") : RestBean.failure(400, s);
     }
 
     @PostMapping("/update")
+    @PreAuthorize("hasRole('admin')")
     public RestBean<String> update(Arrangement arrangement) {
         String s = service.updateArrangement(arrangement);
         return s == null ? RestBean.success("安排信息更新成功") : RestBean.failure(400, s);
     }
 
     @PostMapping("/delete")
+    @PreAuthorize("hasRole('admin')")
     public RestBean<String> delete(Integer aid) {
         String s = service.deleteArrangementByAid(aid);
         return s == null ? RestBean.success("安排信息删除成功") : RestBean.failure(400, s);

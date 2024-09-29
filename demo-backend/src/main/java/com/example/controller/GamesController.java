@@ -5,11 +5,9 @@ import com.example.entity.dto.game.Games;
 import com.example.entity.vo.response.GamesVO;
 import com.example.service.GamesService;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,7 +23,7 @@ public class GamesController {
     }
 
     @GetMapping("/gid")
-    private RestBean<GamesVO> gid(Integer gid) {
+    public RestBean<GamesVO> gid(Integer gid) {
         return RestBean.success(service.getGamesByGid(gid));
     }
 

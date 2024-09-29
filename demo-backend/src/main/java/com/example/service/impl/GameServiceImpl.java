@@ -2,11 +2,13 @@ package com.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.entity.dto.game.Arrangement;
 import com.example.entity.dto.game.Games;
 import com.example.entity.dto.game.Project;
+import com.example.entity.dto.score.ScoreDetail;
+import com.example.entity.dto.score.ScoreList;
 import com.example.entity.vo.response.GamesVO;
-import com.example.mapper.GamesMapper;
-import com.example.mapper.ProjectMapper;
+import com.example.mapper.*;
 import com.example.service.GamesService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,15 @@ public class GameServiceImpl extends ServiceImpl<GamesMapper, Games> implements 
     @Resource
     private ProjectMapper projectMapper;
 
+    @Resource
+    private ArrangementMapper arrMapper;
+
+    @Resource
+    private ScoreMapper scoreMapper;
+
+    @Resource
+    private ScoreDetailMapper detailMapper;
+
     @Override
     public List<GamesVO> getAllGames() {
         List<Games> games = mapper.selectList(null);
@@ -31,7 +42,7 @@ public class GameServiceImpl extends ServiceImpl<GamesMapper, Games> implements 
             gamesVOS.add(game.asViewObject(GamesVO.class,
                     v -> v.setPName(projectMapper.selectOne(
                             new QueryWrapper<Project>()
-                            .eq("pid", game.getPid())).getName())));
+                                    .eq("pid", game.getPid())).getName())));
         }
         return gamesVOS;
     }
@@ -42,7 +53,7 @@ public class GameServiceImpl extends ServiceImpl<GamesMapper, Games> implements 
         return game.asViewObject(GamesVO.class,
                 v -> v.setPName(projectMapper.selectOne(
                         new QueryWrapper<Project>()
-                        .eq("pid", game.getPid())).getName()));
+                                .eq("pid", game.getPid())).getName()));
     }
 
     @Override
@@ -65,6 +76,19 @@ public class GameServiceImpl extends ServiceImpl<GamesMapper, Games> implements 
 
     @Override
     public String deleteGamesByGid(Integer gid) {
-        return mapper.deleteById(gid) > 0 ? null : "删除比赛信息失败，请稍后再试";
+        List<Arrangement> arrList = arrMapper.selectList(new QueryWrapper<Arrangement>().eq("gid", gid));
+        String rs = null;
+        if (!arrList.isEmpty()) {
+            rs = arrMapper.delete(new QueryWrapper<Arrangement>().eq("gid", gid)) > 0 ? null : "删除比赛安排信息失败，请稍后再试";
+            ScoreList scoreList = scoreMapper.selectOne(new QueryWrapper<ScoreList>().eq("gid", gid));
+            if (scoreList != null) {
+                Integer sid = scoreList.getSid();
+                detailMapper.delete(new QueryWrapper<ScoreDetail>().eq("sid", sid));
+                rs = scoreMapper.delete(new QueryWrapper<ScoreList>().eq("gid", gid)) > 0 ? null : "删除比赛成绩信息失败，请稍后再试";
+            }
+        }
+        if (rs == null)
+            return mapper.deleteById(gid) > 0 ? null : "删除比赛信息失败，请稍后再试";
+        return rs;
     }
 }

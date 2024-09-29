@@ -48,7 +48,9 @@ public class ArrangementServiceImpl extends ServiceImpl<ArrangementMapper, Arran
 
     @Override
     public ArrangementVO getArrangementByAid(Integer aid) {
-        return mapper.selectById(aid).asViewObject(ArrangementVO.class, v -> v.setGName(gamesMapper.selectById(aid).getName()));
+        Arrangement arrangement = mapper.selectById(aid);
+        return arrangement.asViewObject(ArrangementVO.class, v ->
+                v.setGName(gamesMapper.selectById(arrangement.getGid()).getName()));
     }
 
     @Override

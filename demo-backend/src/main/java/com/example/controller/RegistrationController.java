@@ -6,10 +6,7 @@ import com.example.entity.vo.response.RegistrationVO;
 import com.example.service.RegistrationService;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

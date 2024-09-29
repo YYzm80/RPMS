@@ -1,8 +1,14 @@
 package com.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
+import com.example.entity.dto.game.Registration;
+import com.example.entity.vo.response.AccountVO;
+import com.example.mapper.AcademyMapper;
 import com.example.mapper.AccountMapper;
+import com.example.mapper.ClassMapper;
+import com.example.mapper.RegistrationMapper;
 import com.example.service.AuthorizeService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +22,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +36,15 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
 
     @Resource
     AccountMapper mapper;
+
+    @Resource
+    AcademyMapper academyMapper;
+
+    @Resource
+    ClassMapper classMapper;
+
+    @Resource
+    RegistrationMapper registrationMapper;
 
     @Resource
     MailSender mailSender;
@@ -77,7 +94,7 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
     }
 
     @Override
-    public String validateAndRegister(String username, String password, String email, String code, String sessionId) {
+    public String validateAndRegister(String username, String password, String email, String code, String role, String sessionId) {
         String key = "email:" + sessionId + ":" + email + ":false";
         if (Boolean.TRUE.equals(template.hasKey(key))) {
             String s = template.opsForValue().get(key);
@@ -87,7 +104,7 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
                 if (account != null) return "此用户名已被注册";
                 template.delete(key);
                 password = encoder.encode(password);
-                if (mapper.createAccount(username, password, email) > 0) {
+                if (mapper.createAccount(username, password, email, role) > 0) {
                     return null;
                 } else {
                     return "内部错误，请联系管理员";
@@ -126,5 +143,41 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
     public boolean resetPassword(String password, String email) {
         password = encoder.encode(password);
         return mapper.resetPasswordByEmail(password, email) > 0;
+    }
+
+    @Override
+    public List<AccountVO> getAllUsers() {
+        List<Account> accounts = mapper.selectList(null);
+        List<AccountVO> vos = new ArrayList<>();
+        accounts.forEach(account -> {
+            AccountVO vo = account.asViewObject(AccountVO.class, v -> {
+                if (account.getAid() != null && account.getCid() != null) {
+                    v.setAcademy(academyMapper.getAcademyByAId(account.getAid()).getName());
+                    v.setClazz(classMapper.selectById(account.getCid()).getName());
+                } else {
+                    v.setAcademy("-");
+                    v.setClazz("-");
+                }
+            });
+            vos.add(vo);
+        });
+        return vos;
+    }
+
+    @Override
+    public AccountVO getUserByUid(Integer uid) {
+        return mapper.selectById(uid).asViewObject(AccountVO.class);
+    }
+
+    @Override
+    public String updateUser(Account account) {
+        return mapper.updateById(account) > 0 ? null : "修改用户信息失败，请稍后再试";
+    }
+
+    @Override
+    public String deleteUserByUid(Integer uid) {
+        if (registrationMapper.selectList(new QueryWrapper<Registration>().eq("uid", uid)).isEmpty())
+            return mapper.deleteById(uid) > 0 ? null : "删除用户失败，请稍后再试";
+        return "删除用户失败，请先删除该用户的其它信息";
     }
 }

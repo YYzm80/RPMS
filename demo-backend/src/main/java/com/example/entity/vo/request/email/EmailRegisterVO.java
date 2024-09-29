@@ -14,6 +14,7 @@ public class EmailRegisterVO {
     @Pattern(regexp = "^[a-zA-Z0-9\\u4e00-\\u9fa5]+$")
     @Length(min = 1, max = 10)
     String username;
-    @Length(min = 6, max = 20)
+    @Length(min = 6, max = 16)
     String password;
+    String role;
 }

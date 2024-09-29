@@ -10,7 +10,8 @@ const defaultFailure = (message, status, url) => {
 
 const accessHeader = () => {
     return {
-        'Authorization': `Bearer ${takeAccessToken()}`
+        'Authorization': `Bearer ${takeAccessToken()}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
     }
 }
 
@@ -33,8 +34,7 @@ function storeAccessToken(remember, token, expire, data){
         name: data.name,
         username: data.username,
         role: data.role,
-        aid: data.aid,
-        cid: data.cid
+        uid: data.uid,
     }
     const str = JSON.stringify(authObj)
     if(remember)

@@ -6,6 +6,8 @@ import lombok.Data;
 public class ArrangementVO {
 
     private Integer aid;
+    private Integer gid;
+    private Integer uid;
     private String name;
     private String gName;
     private String role;
