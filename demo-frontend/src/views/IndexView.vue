@@ -1,10 +1,6 @@
 <script setup>
-import {get, logout, post} from "@/net";
-import {ElMessage} from "element-plus";
+import {logout} from "@/net";
 import router from "@/router";
-import {reactive, ref} from "vue";
-import {weatherStore} from "@/stores/weatherStore";
-import {locationStore} from "@/stores/locationStore";
 import logo from "@/assets/logo.png"
 import {Document, Monitor, School, Setting, User} from "@element-plus/icons-vue";
 

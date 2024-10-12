@@ -1,7 +1,7 @@
 <script setup>
 
 import {ref} from "vue";
-import {get, post} from "@/net";
+import {get} from "@/net";
 
 const authItemName = "authorize"
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))

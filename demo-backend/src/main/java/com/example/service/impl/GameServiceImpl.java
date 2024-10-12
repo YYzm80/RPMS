@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.game.Arrangement;
 import com.example.entity.dto.game.Games;
 import com.example.entity.dto.game.Project;
+import com.example.entity.dto.game.Registration;
 import com.example.entity.dto.score.ScoreDetail;
 import com.example.entity.dto.score.ScoreList;
 import com.example.entity.vo.response.GamesVO;
@@ -33,6 +34,9 @@ public class GameServiceImpl extends ServiceImpl<GamesMapper, Games> implements 
 
     @Resource
     private ScoreDetailMapper detailMapper;
+
+    @Resource
+    private RegistrationMapper registerMapper;
 
     @Override
     public List<GamesVO> getAllGames() {
@@ -76,6 +80,7 @@ public class GameServiceImpl extends ServiceImpl<GamesMapper, Games> implements 
 
     @Override
     public String deleteGamesByGid(Integer gid) {
+        registerMapper.delete(new QueryWrapper<Registration>().eq("gid", gid));
         List<Arrangement> arrList = arrMapper.selectList(new QueryWrapper<Arrangement>().eq("gid", gid));
         String rs = null;
         if (!arrList.isEmpty()) {
