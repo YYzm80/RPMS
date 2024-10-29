@@ -8,9 +8,12 @@ import java.util.Date;
 public class AuthorizeVO {
 
     private Integer uid;
+    private Integer cid;
     private String name;
     private String username;
     private String role;
+    private String avatar;
+    private String email;
     private String token;
     private Date expire;
 }

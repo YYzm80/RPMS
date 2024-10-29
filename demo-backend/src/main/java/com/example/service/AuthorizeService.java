@@ -13,8 +13,5 @@ public interface AuthorizeService extends UserDetailsService, IService<Account> 
     String validateOnly(String email, String code, String sessionId);
     Account findAccountByNameOrEmail(String text);
     boolean resetPassword(String password, String email);
-    List<AccountVO> getAllUsers();
-    AccountVO getUserByUid(Integer uid);
-    String updateUser(Account account);
-    String deleteUserByUid(Integer uid);
+
 }

@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @MapperScan("com.example.mapper")
 public class MybatisPlusConfig {
 
-
     /**
      * 自定义批量插入 SQL 注入器
      */

@@ -3,10 +3,11 @@ package com.example.controller;
 import com.example.entity.RestBean;
 import com.example.entity.dto.auth.Account;
 import com.example.entity.vo.response.AccountVO;
-import com.example.service.AuthorizeService;
+import com.example.service.UserService;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,11 +16,11 @@ import java.util.List;
 public class UserController {
 
     @Resource
-    private AuthorizeService service;
+    private UserService service;
 
     @GetMapping("/all")
     public RestBean<List<AccountVO>> all() {
-        return RestBean.success(service.getAllUsers());
+        return RestBean.success();
     }
 
     @GetMapping("/uid")
@@ -28,10 +29,10 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    @PreAuthorize("hasRole('admin')")
-    public RestBean<String> update(Account account) {
-        String s = service.updateUser(account);
-        return s == null ? RestBean.success("用户信息修改成功") : RestBean.failure(400, s);
+    public RestBean<String> update(@RequestParam(value = "file", required = false) MultipartFile file,
+                                   Account account) {
+        String s = service.updateUser(account, file);
+        return s == null ? RestBean.success("个人资料更新成功，新的头像图像将在您下次登录后生效显示") : RestBean.failure(400, s);
     }
 
     @PostMapping("/delete")

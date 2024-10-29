@@ -9,14 +9,13 @@ import java.util.Date;
 public class AccountVO {
 
     private Integer uid;
-    private Integer aid;
     private Integer cid;
-    private String academy;
-    private String clazz;
+    private String companyName;
     private String email;
     private String name;
     private String username;
     private String role;
+    private String avatar;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date create_time;

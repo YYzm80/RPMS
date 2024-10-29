@@ -8,15 +8,15 @@ const router = createRouter({
         component: () => import('@/views/WelcomeView.vue'),
         children: [{
             path: '',
-            name: 'welcome-login',
+            name: 'login',
             component: () => import('@/components/welcome/LoginPage.vue')
         }, {
-            path: 'register',
-            name: 'welcome-register',
+            path: '/welcome/register',
+            name: 'register',
             component: () => import('@/components/welcome/RegisterPage.vue')
         }, {
-            path: 'forget',
-            name: 'welcome-forget',
+            path: '/welcome/forget',
+            name: 'forget',
             component: () => import('@/components/welcome/ForgetPage.vue')
         }]
     }, {
@@ -25,52 +25,40 @@ const router = createRouter({
         component: () => import('@/views/IndexView.vue'),
         children: [{
             path: '',
-            name: 'index-game',
-            component: () => import('../components/index/GamePage.vue')
+            name: 'index-home',
+            component: () => import('../components/index/HomePage.vue')
         }, {
-            path: '/index/project',
-            name: 'index-project',
-            component: () => import('../components/index/ProjectPage.vue')
+            path: '/index/company',
+            name: 'index-company',
+            component: () => import('../components/index/CompanyPage.vue')
         }, {
-            path: '/index/manager',
-            name: 'index-manager',
-            component: () => import('../components/index/ManagerPage.vue')
+            path: '/index/tags',
+            name: 'index-tags',
+            component: () => import('../components/index/TagsPage.vue')
         }, {
-            path: '/index/academy',
-            name: 'index-academy',
-            component: () => import('../components/index/AcademyPage.vue')
+            path: '/index/personal',
+            name: 'index-personal',
+            component: () => import('../components/index/PersonalPage.vue')
         }, {
-            path: '/index/class',
-            name: 'index-class',
-            component: () => import('../components/index/ClassPage.vue')
+            path: '/index/resume',
+            name: 'index-resume',
+            component: () => import('../components/index/ResumePage.vue')
         }, {
-            path: '/index/registration',
-            name: 'index-registration',
-            component: () => import('../components/index/RegistrationPage.vue')
+            path: '/index/meeting',
+            name: 'index-meeting',
+            component: () => import('../components/index/MeetingPage.vue')
         }, {
-            path: '/index/myRegistration',
-            name: 'index-myRegistration',
-            component: () => import('../components/index/MyRegistrationPage.vue')
+            path: '/index/recruitment',
+            name: 'index-recruitment',
+            component: () => import('../components/index/RecruitmentPage.vue')
         }, {
-            path: '/index/arrange',
-            name: 'index-arrange',
-            component: () => import('../components/index/ArrangementPage.vue')
+            path: '/index/center',
+            name: 'index-center',
+            component: () => import('../components/index/CenterPage.vue')
         }, {
-            path: '/index/myArrange',
-            name: 'index-myArrange',
-            component: () => import('../components/index/MyArrangementPage.vue')
-        }, {
-            path: '/index/addScore',
-            name: 'index-addScore',
-            component: () => import('../components/index/AddScorePage.vue')
-        }, {
-            path: '/index/score',
-            name: 'index-score',
-            component: () => import('../components/index/ScorePage.vue')
-        }, {
-            path: '/index/myScore',
-            name: 'index-myScore',
-            component: () => import('../components/index/MyScorePage.vue')
+            path: '/index/static',
+            name: 'index-static',
+            component: () => import('../components/index/StaticPage.vue')
         }]
     }]
 })

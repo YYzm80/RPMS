@@ -1,165 +1,158 @@
 <script setup>
 import {logout} from "@/net";
 import router from "@/router";
-import logo from "@/assets/logo.png"
-import {Document, Monitor, School, Setting, User} from "@element-plus/icons-vue";
+import {
+  Comment,
+  Document,
+  House,
+  More,
+  OfficeBuilding,
+  PriceTag,
+  Suitcase
+} from "@element-plus/icons-vue";
+import {ref} from "vue";
 
 const authItemName = "authorize"
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
+const loading = ref(false)
 
 function userLogout() {
-  logout(() => router.push("/"))
+  loading.value = true
+  logout(() => {
+    loading.value = false
+    router.push("/")
+  })
 }
 
-// const form = reactive({
-//   city_id: '',
-// })
-
-// const weather_store = weatherStore()
-// const location_store = locationStore()
-// const active = ref(0);
-
-// const weather = () => {
-//   get('/api/location/get-location',
-//           (adcode) => {
-//             location_store.api.location = adcode
-//             form.city_id = location_store.api.location.adcode
-//             getWeather()
-//           }, () => {
-//             ElMessage.warning('获取位置信息失败，请检查网络')
-//           })
-// }
-
-// const getWeather = () => {
-//   if (form.city_id) {
-//     post(`/api/weather/cityId?city_id=${form.city_id}`, {}, (data) => {
-//       weather_store.api.weather = data
-//       active.value = 1
-//     })
-//   }
-// }
-
+const getImgSrc = (picName) => {
+  if (picName === null) {
+    return 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+  } else {
+    return `http://localhost:8080/uploaded/${picName}`
+  }
+}
 </script>
 
 <template>
-  <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex;flex-direction: row">
-    <div class="menu">
-      <el-row class="tac">
-        <el-col style="text-align: center">
-          <el-image :src="logo" :fit="'cover'" style="width: 150px;margin-top: 10px"></el-image>
-        </el-col>
-        <el-col>
-          <el-menu
-                  active-text-color="#6676f6"
-                  background-color="#304156"
-                  default-active="1"
-                  text-color="white"
-          >
-            <el-sub-menu index="1">
-              <template #title>
-                <el-icon>
-                  <Document/>
-                </el-icon>
-                <span>赛事中心</span>
-              </template>
-              <el-menu-item index="1-1" @click="router.push('/index/project')" v-if="user.role === 'admin'">
-                <el-icon>
-                  <setting/>
-                </el-icon>
-                <span>比赛项目</span>
-              </el-menu-item>
-              <el-menu-item index="1-2" @click="router.push('/index')">
-                <el-icon>
-                  <setting/>
-                </el-icon>
-                <span>比赛列表</span>
-              </el-menu-item>
-              <el-menu-item index="1-3" @click="router.push('/index/myArrange')">
-                <el-icon>
-                  <setting/>
-                </el-icon>
-                <span>我的比赛安排</span>
-              </el-menu-item>
-              <el-menu-item index="1-4" @click="router.push('/index/myScore')">
-                <el-icon>
-                  <setting/>
-                </el-icon>
-                <span>我的比赛成绩</span>
-              </el-menu-item>
-              <el-menu-item index="1-5" @click="router.push('/index/score')">
-                <el-icon>
-                  <setting/>
-                </el-icon>
-                <span>成绩查询</span>
-              </el-menu-item>
-            </el-sub-menu>
-            <el-menu-item index="2" @click="router.push('/index/manager')" v-if="user.role === 'admin'">
-              <template #title>
-                <el-icon>
-                  <User/>
-                </el-icon>
-                <span>用户管理</span>
-              </template>
+  <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex;flex-direction: column">
+    <div class="header">
+      <div class="title">
+        <span style="font-size: 28px;font-weight: bold;font-family: 'Segoe UI', serif;color: white">双选会</span>
+      </div>
+      <div class="menu">
+        <el-menu
+                active-text-color="#ffd04b"
+                background-color="#535b64"
+                default-active="1"
+                text-color="#fff"
+                mode="horizontal"
+                style="height: 100%;"
+        >
+          <el-menu-item index="1" @click="router.push('/index')">
+            <el-icon>
+              <House/>
+            </el-icon>
+            <span>首页</span>
+          </el-menu-item>
+          <el-menu-item index="2" @click="router.push('/index/meeting')">
+            <el-icon>
+              <OfficeBuilding/>
+            </el-icon>
+            <span>双选会专场</span>
+          </el-menu-item>
+          <el-menu-item index="3" @click="router.push('/index/resume')"
+                        v-if="user.role === 'student' || user.role === 'admin'">
+            <el-icon>
+              <document/>
+            </el-icon>
+            <span>个人简历</span>
+          </el-menu-item>
+          <el-menu-item index="4" @click="router.push('/index/company')">
+            <el-icon>
+              <Suitcase/>
+            </el-icon>
+            <span>公司</span>
+          </el-menu-item>
+          <el-sub-menu index="5" v-if="user.role !== 'student' && user.role !== 'counsellor'">
+            <template #title>
+              <el-icon>
+                <More/>
+              </el-icon>
+              <span>更多</span>
+            </template>
+            <el-menu-item index="5-1"
+                          style="padding: 0 15px 0 25px;"
+                          @click="router.push('/index/tags')"
+                          v-if="user.role === 'admin'">
+              <el-icon>
+                <PriceTag/>
+              </el-icon>
+              <span>标签管理</span>
             </el-menu-item>
-            <el-menu-item v-if="user.role === 'admin'" index="3" @click="router.push('/index/registration')">
-              <template #title>
-                <el-icon>
-                  <Monitor/>
-                </el-icon>
-                <span>报名管理</span>
-              </template>
+            <el-menu-item index="5-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/center')">
+              <el-icon>
+                <Comment/>
+              </el-icon>
+              <span>招聘中心</span>
             </el-menu-item>
-            <el-menu-item v-if="user.role === 'student' || user.role === 'teacher'" index="3" @click="router.push('/index/myRegistration')">
-              <template #title>
-                <el-icon>
-                  <Monitor/>
-                </el-icon>
-                <span>我的报名</span>
-              </template>
-            </el-menu-item>
-            <el-sub-menu index="4"  v-if="user.role === 'admin'">
-              <template #title>
-                <el-icon>
-                  <School/>
-                </el-icon>
-                <span>学校信息管理</span>
-              </template>
-              <el-menu-item index="4-1" @click="router.push('/index/academy')">
-                <el-icon>
-                  <setting/>
-                </el-icon>
-                <span>学院</span>
-              </el-menu-item>
-              <el-menu-item index="4-2" @click="router.push('/index/class')">
-                <el-icon>
-                  <setting/>
-                </el-icon>
-                <span>班级</span>
-              </el-menu-item>
-            </el-sub-menu>
-          </el-menu>
-        </el-col>
-      </el-row>
+          </el-sub-menu>
+        </el-menu>
+      </div>
+      <div style="width: 200px;">
+        <el-popover
+                :width="80"
+                popper-style="box-shadow: rgb(14 18 22 / 35%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px;"
+        >
+          <template #reference>
+            <el-avatar
+                    style="translate: 20px 9px"
+                    :src="getImgSrc(user.avatar)"/>
+          </template>
+          <template #default>
+            <div
+                    class="rich-content"
+                    style="display: flex; gap: 12px; flex-direction: column; text-align: center"
+            >
+              <el-avatar
+                      :size="50"
+                      :src="getImgSrc(user.avatar)"
+                      style="margin:auto"
+              />
+              <div>
+                <p v-if="user === null" style="margin: auto; font-weight: 500">
+                  未登录
+                </p>
+                <p v-if="user !== null" style="margin: auto; font-weight: 500">
+                  {{ user.username }}
+                </p>
+              </div>
+              <el-button v-if="user === null"
+                         type="success"
+                         size="small"
+                         @click="router.push('/')">登录/注册
+              </el-button>
+              <el-button v-if="user !== null"
+                         type="primary"
+                         size="small"
+                         @click="router.push('/index/personal')">个人中心
+              </el-button>
+              <el-button v-if="user !== null"
+                         type="danger"
+                         size="small"
+                         @click="userLogout"
+                         style="margin: 0" v-loading="loading">退出登录
+              </el-button>
+            </div>
+          </template>
+        </el-popover>
+      </div>
     </div>
     <div class="content">
-      <div class="header">
-        <el-row style="width: 100%;">
-          <el-col :span="16">
-            <span
-                    style="font-size: 18px;font-weight: bolder;position: relative;top: 3px">欢迎{{user.username}}进入运动会管理平台！</span>
-          </el-col>
-          <el-col :span="8">
-            <el-button @click="userLogout" type="danger" style="line-height: 50px">退出登录</el-button>
-          </el-col>
-        </el-row>
-      </div>
-      <el-scrollbar max-height="1600px">
-        <router-view v-slot="{ Component }">
-          <transition name="el-fade-in-linear" mode="out-in">
-            <component :is="Component" style="height: 100%;width: 100%;"/>
-          </transition>
-        </router-view>
-      </el-scrollbar>
+      <router-view v-slot="{ Component }">
+        <transition name="el-fade-in-linear" mode="out-in">
+          <component :is="Component"/>
+        </transition>
+      </router-view>
     </div>
   </div>
 </template>
@@ -167,25 +160,27 @@ function userLogout() {
 <style scoped>
 .header {
   width: 100%;
-  height: 50px;
-  box-shadow: 10px 2px 16px -8px rgba(0, 0, 0, 0.75);
-  padding-top: 9px;
-  text-align: center;
+  line-height: 50px;
+  background-color: #535b64;
+  display: flex;
+  flex-direction: row;
 }
 
 .content {
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  text-align: center;
+}
+
+.title {
+  margin-left: 40px;
+  width: 100px;
+  line-height: 50px;
 }
 
 .menu {
-  height: 100vh;
-  width: 210px;
-  background-color: #304156;
-  color: white;
-  box-shadow: 1px 1px 16px -6px rgba(0, 0, 0, 0.75);
-
+  margin-left: 40px;
+  height: 100%;
+  width: 1200px;
 }
 </style>

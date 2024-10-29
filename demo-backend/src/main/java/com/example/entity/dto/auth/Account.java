@@ -17,7 +17,6 @@ import java.util.Date;
 public class Account implements BaseData {
     @TableId(type = IdType.AUTO)
     private Integer uid;
-    private Integer aid;
     private Integer cid;
     private String email;
     private String name;

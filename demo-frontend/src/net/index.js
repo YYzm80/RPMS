@@ -35,6 +35,9 @@ function storeAccessToken(remember, token, expire, data){
         username: data.username,
         role: data.role,
         uid: data.uid,
+        cid: data.cid,
+        avatar: data.avatar,
+        email: data.email,
     }
     const str = JSON.stringify(authObj)
     if(remember)
@@ -83,6 +86,13 @@ function post(url, data, success, failure = defaultFailure) {
     internalPost(url, data, accessHeader() , success, failure)
 }
 
+function multipartPost(url, data, success, failure = defaultFailure) {
+    internalPost(url, data, {
+        'Authorization': `Bearer ${takeAccessToken()}`,
+        'Content-Type': 'multipart/form-data'
+    }, success, failure)
+}
+
 function logout(success, failure = defaultFailure){
     get('/api/auth/logout', () => {
         deleteAccessToken()
@@ -99,4 +109,4 @@ function unauthorized() {
     return !takeAccessToken()
 }
 
-export { post, get, login, logout, unauthorized }
+export { post, multipartPost, get, login, logout, unauthorized }
