@@ -1,7 +1,7 @@
 <script setup>
 
 import {Delete, Edit, Location, Plus, Search} from "@element-plus/icons-vue";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import {ElMessage, genFileId} from "element-plus";
 import {get, multipartPost, post} from "@/net";
 
@@ -97,10 +97,22 @@ const deleteCompany = () => {
   })
 }
 
+const search = ref('')
+
+const filteredData = computed(() => {
+  const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
+  return tableData.value.filter((item) => {
+    return item.name.toLowerCase().indexOf(searchLower) !== -1; // 将标签名称转换为小写后进行匹配
+  })
+})
+
 const pageSize = 12 // 每页显示的数据数量
 const currentPage = ref(1) // 当前页码
-const total = ref(0) // 总数据条数
-const pagedData = ref([]) // 当前页的数据
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredData.value.slice(start, start + pageSize)
+})
+const total = computed(() => filteredData.value.length)
 
 // 初始化数据
 const initData = () => {
@@ -129,7 +141,7 @@ getData()
   <div class="content">
     <div class="top">
       <div style="position: fixed;left: 180px">
-        <el-input style="width: 750px;height: 50px;" placeholder="搜索公司"></el-input>
+        <el-input style="width: 750px;height: 50px;" placeholder="搜索公司" v-model="search"></el-input>
         <el-button style="height: 50px;width: 120px;font-size: 20px" type="primary" plain @click="">
           <el-icon>
             <Search/>

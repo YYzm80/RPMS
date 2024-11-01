@@ -1,10 +1,8 @@
 package com.example.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.entity.dto.common.Tags;
 import com.example.entity.dto.meeting.Recruitment;
 import com.example.entity.vo.response.RecruitmentVO;
-import com.example.mapper.RecruitmentMapper;
 
 import java.util.List;
 

@@ -2,7 +2,6 @@ package com.example.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
-import com.example.entity.vo.response.AccountVO;
 import com.example.mapper.AccountMapper;
 import com.example.service.AuthorizeService;
 import jakarta.annotation.Resource;

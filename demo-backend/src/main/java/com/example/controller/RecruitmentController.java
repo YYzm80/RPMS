@@ -1,7 +1,6 @@
 package com.example.controller;
 
 import com.example.entity.RestBean;
-import com.example.entity.dto.common.Tags;
 import com.example.entity.dto.meeting.Recruitment;
 import com.example.entity.vo.response.RecruitmentVO;
 import com.example.service.RecruitmentService;

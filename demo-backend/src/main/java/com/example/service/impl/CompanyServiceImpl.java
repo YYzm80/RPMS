@@ -1,12 +1,14 @@
 package com.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.entity.dto.auth.Account;
 import com.example.entity.dto.common.Company;
+import com.example.mapper.AccountMapper;
 import com.example.mapper.CompanyMapper;
 import com.example.service.CompanyService;
 import com.example.util.Const;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +23,9 @@ public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> impl
 
     @Resource
     private CompanyMapper mapper;
+
+    @Resource
+    private AccountMapper accountMapper;
 
     @Override
     public List<Company> getAllCompany() {
@@ -52,6 +57,9 @@ public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> impl
 
     @Override
     public String deleteCompanyByCid(Integer cid) {
+        if (accountMapper.selectOne(new QueryWrapper<Account>().eq("cid", cid)) != null) {
+            return "该公司下存在账号，暂时无法删除";
+        }
         String FileName = mapper.selectById(cid).getPhoto();
         Path FilePath = Paths.get(Const.UPLOAD_PATH, FileName);
         if (!FileName.isEmpty()) {

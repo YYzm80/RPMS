@@ -1,6 +1,14 @@
 import {ref} from "vue";
 
-let data = ref({})
+let data = ref({
+    studentNum: 0,
+    resumeNum: 0,
+    companyNum: 0,
+    recruitmentNum: 0,
+    interviewNum: 0,
+    interviewRate: 0.0,
+    interviewPassRate: 0.0
+})
 
 function getChartData(orgData) {
     data.value = orgData
@@ -155,6 +163,5 @@ function init(Max) {
         option3
     }
 }
-
 
 export {getChartData}

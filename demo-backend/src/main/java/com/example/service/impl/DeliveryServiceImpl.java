@@ -2,13 +2,9 @@ package com.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.example.entity.dto.common.TagRel;
-import com.example.entity.dto.common.Tags;
 import com.example.entity.dto.interview.Delivery;
 import com.example.entity.dto.interview.Interview;
-import com.example.entity.dto.meeting.Recruitment;
 import com.example.entity.vo.response.DeliveryVO;
-import com.example.entity.vo.response.RecruitmentVO;
 import com.example.mapper.*;
 import com.example.service.DeliveryService;
 import jakarta.annotation.Resource;

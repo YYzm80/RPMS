@@ -24,13 +24,13 @@ import java.util.concurrent.TimeUnit;
 public class JwtUtils {
 
     @Value("${spring.security.jwt.key}")
-    String key;
+    private String key;
 
     @Value("${spring.security.jwt.expire}")
-    int expire;
+    private int expire;
 
     @Resource
-    StringRedisTemplate template;
+    private StringRedisTemplate template;
 
     public boolean invalidateJwt(String headerToken) {
         String token = this.convertToken(headerToken);

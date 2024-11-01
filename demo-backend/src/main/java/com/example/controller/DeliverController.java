@@ -39,7 +39,7 @@ public class DeliverController {
     }
 
     @PostMapping("/update")
-    @PreAuthorize("hasAnyRole('admin', 'student')")
+    @PreAuthorize("hasAnyRole('admin', 'student', 'company')")
     public RestBean<String> update(Delivery delivery) {
         String s = service.updateDelivery(delivery);
         return s == null ? RestBean.success("投递简历更换成功") : RestBean.failure(400, s);

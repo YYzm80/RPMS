@@ -5,7 +5,6 @@ import com.example.entity.dto.interview.Interview;
 import com.example.entity.vo.response.InterviewVO;
 import com.example.service.InterviewService;
 import jakarta.annotation.Resource;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
