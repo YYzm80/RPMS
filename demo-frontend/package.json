@@ -18,6 +18,7 @@
     "pinia": "^2.1.7",
     "vue": "^3.3.4",
     "vue-axios": "^3.5.2",
+    "vue-lazyload": "^3.0.0",
     "vue-router": "^4.2.5",
     "vue3-pdf-app": "^1.0.3"
   },

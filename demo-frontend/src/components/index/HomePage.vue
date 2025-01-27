@@ -35,7 +35,7 @@ getData()
       <div class="header">
         <el-carousel :interval="4000" height="300px" trigger="click" type="card">
           <el-carousel-item v-for="url in urls" :key="url">
-            <el-image :src="url"/>
+            <img v-lazy="url" alt="Carousel Image" style="width: 100%; height: 100%; object-fit: cover;"/>
           </el-carousel-item>
         </el-carousel>
       </div>

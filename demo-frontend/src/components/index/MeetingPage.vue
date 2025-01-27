@@ -68,7 +68,7 @@ function openUpdate(mid) {
 
 const update = () => {
   let formData = new FormData()
-  console.log(updateForm.value)
+  // console.log(updateForm.value)
   if (fileList.value[0] && fileList.value[0].raw) {
     // 用户选择了新文件，将其添加到formData中
     formData.append("file", fileList.value[0].raw)

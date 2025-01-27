@@ -1,28 +1,28 @@
 <script setup>
 
-import {Plus, Message} from "@element-plus/icons-vue";
-import {ref} from "vue";
-import {ElMessage, genFileId} from "element-plus";
-import {get, multipartPost} from "@/net";
+import { Plus, Message } from "@element-plus/icons-vue";
+import { ref } from "vue";
+import { ElMessage, genFileId } from "element-plus";
+import { get, multipartPost } from "@/net";
 
-const updateForm = ref([])
-const edit = ref(false)
-const authItemName = "authorize"
-const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
+const updateForm = ref([]);
+const edit = ref(false);
+const authItemName = "authorize";
+const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
 
-const upload = ref()
-const fileList = ref([])
+const upload = ref();
+const fileList = ref([]);
 
 const handleExceed = function (files) {
-  upload.value.clearFiles()
-  const file = files[0]
-  file.uid = genFileId()
-  upload.value.handleStart(file)
-}
+  upload.value.clearFiles();
+  const file = files[0];
+  file.uid = genFileId();
+  upload.value.handleStart(file);
+};
 
 function changeEdit() {
-  edit.value = !edit.value
-  getData()
+  edit.value = !edit.value;
+  getData();
 }
 
 const getImgSrc = (picName) => {
@@ -35,49 +35,53 @@ const getImgSrc = (picName) => {
 
 const getData = () => {
   get(`api/user/uid?uid=${user.uid}`, (data) => {
-    updateForm.value = data
-    getCompany()
-    console.log(updateForm.value)
-  })
+    updateForm.value = data;
+    getCompany();
+    // console.log(updateForm.value)
+  });
 
 }
 
 const getCompany = () => {
   get('api/company/all', (data) => {
-    updateForm.value.company = data
+    updateForm.value.company = data;
   })
 }
 
 const update = () => {
-  let formData = new FormData()
+  let formData = new FormData();
   if (fileList.value[0] && fileList.value[0].raw) {
     // 用户选择了新文件，将其添加到formData中
-    formData.append("file", fileList.value[0].raw)
+    formData.append("file", fileList.value[0].raw);
   }
-  formData.append("uid", updateForm.value.uid)
+  formData.append("uid", updateForm.value.uid);
   if (updateForm.value.cid !== null) {
-    formData.append("cid", updateForm.value.cid)
+    formData.append("cid", updateForm.value.cid);
   }
-  formData.append("name", updateForm.value.name)
-  formData.append("username", updateForm.value.username)
-  console.log(updateForm.value)
+  formData.append("name", updateForm.value.name);
+  formData.append("username", updateForm.value.username);
+  // console.log(updateForm.value)
   multipartPost('api/user/update',
     formData, (message) => {
-    ElMessage.success(message)
-    fileList.value = []
-    getData()
-    edit.value = false
+    ElMessage.success(message);
+    fileList.value = [];
+    getData();
+    edit.value = false;
   })
 }
 
-getData()
+getData();
+
 </script>
 
 <template>
   <el-scrollbar height="100vh">
     <div class="content">
       <div class="top">
-        <el-avatar :size="110" style="margin: 40px 50px" :src="getImgSrc(user.avatar)"></el-avatar>
+        <el-avatar :size="110" style="margin: 40px 50px">
+          <!-- 使用 v-lazy 替换 v-loading 和 img 标签的组合 -->
+          <img v-lazy="getImgSrc(user.avatar)" alt="Avatar" />
+        </el-avatar>
         <div class="top-info">
           <span style="font-size: 20px">{{user.username}}，你好!</span>
           <span style="font-size: 13px;color: gray;margin-top: 5px">uid:{{user.uid}}</span>

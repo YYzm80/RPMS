@@ -39,7 +39,7 @@ const getImgSrc = (picName) => {
 
 const add = () => {
   let formData = new FormData()
-  console.log(fileList.value[0])
+  // console.log(fileList.value[0])
   formData.append("file", fileList.value[0].raw)
   formData.append("name", form.value.name)
   formData.append("introduce", form.value.introduce)
