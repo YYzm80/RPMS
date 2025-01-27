@@ -37,7 +37,7 @@ const getImgSrc = (picName) => {
   <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex;flex-direction: column">
     <div class="header">
       <div class="title">
-        <span style="font-size: 28px;font-weight: bold;font-family: 'Segoe UI', serif;color: white">双选会</span>
+        <span style="font-size: 28px;font-weight: bold;font-family: 'Segoe UI', serif;color: white">title</span>
       </div>
       <div class="menu">
         <el-menu
@@ -58,20 +58,20 @@ const getImgSrc = (picName) => {
             <el-icon>
               <OfficeBuilding/>
             </el-icon>
-            <span>双选会专场</span>
+            <span>title</span>
           </el-menu-item>
           <el-menu-item index="3" @click="router.push('/index/resume')"
                         v-if="user.role === 'student' || user.role === 'admin'">
             <el-icon>
               <document/>
             </el-icon>
-            <span>个人简历</span>
+            <span>text</span>
           </el-menu-item>
           <el-menu-item index="4" @click="router.push('/index/company')">
             <el-icon>
               <Suitcase/>
             </el-icon>
-            <span>公司</span>
+            <span>text</span>
           </el-menu-item>
           <el-sub-menu index="5" v-if="user.role !== 'student' && user.role !== 'counsellor'">
             <template #title>
@@ -87,13 +87,13 @@ const getImgSrc = (picName) => {
               <el-icon>
                 <PriceTag/>
               </el-icon>
-              <span>标签管理</span>
+              <span>text</span>
             </el-menu-item>
             <el-menu-item index="5-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/center')">
               <el-icon>
                 <Comment/>
               </el-icon>
-              <span>招聘中心</span>
+              <span>text</span>
             </el-menu-item>
           </el-sub-menu>
         </el-menu>

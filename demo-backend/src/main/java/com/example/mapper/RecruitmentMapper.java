@@ -1,9 +1,0 @@
-package com.example.mapper;
-
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.example.entity.dto.meeting.Recruitment;
-import org.apache.ibatis.annotations.Mapper;
-
-@Mapper
-public interface RecruitmentMapper  extends BaseMapper<Recruitment> {
-}

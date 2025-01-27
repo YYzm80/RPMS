@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
 import com.example.entity.vo.response.AccountVO;
 import com.example.mapper.AccountMapper;
-import com.example.mapper.CompanyMapper;
 import com.example.service.UserService;
 import com.example.util.Const;
 import jakarta.annotation.Resource;
@@ -22,14 +21,10 @@ public class UserServiceImpl  extends ServiceImpl<AccountMapper, Account> implem
     @Resource
     AccountMapper mapper;
 
-    @Resource
-    CompanyMapper companyMapper;
 
     @Override
     public AccountVO getUserByUid(Integer uid) {
-        return mapper.selectById(uid).asViewObject(AccountVO.class, vo -> {
-            if (vo.getCid() != null) vo.setCompanyName(companyMapper.selectById(vo.getCid()).getName());
-        });
+        return mapper.selectById(uid).asViewObject(AccountVO.class);
     }
 
     @Override

@@ -8,10 +8,10 @@
       <el-image style="width: 100%;height: 100%" fit="cover"
                 src="https://bpic.588ku.com/back_pic/06/16/57/8162f7bab2cf49c.jpg"/>
       <div class="welcome-title">
-        <div style="font-size: 26px;font-weight: bold">欢迎来到校园双选会系统
+        <div style="font-size: 26px;font-weight: bold">欢迎来到title
         </div>
         <div style="margin-top: 16px;font-size: 13px">
-          在这里你可以在双选会上找到自己心仪的工作，如果你是企业，可以发布招聘信息引进人才
+          示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字
         </div>
       </div>
     </div>
@@ -24,7 +24,7 @@
     </div>
   </div>
   <div class="footer">
-    @2024 版权所有 <el-link href="http://118.24.119.60">yz820.com</el-link>
+    @2025 版权所有 <el-link href="http://118.24.119.60">yz820.com</el-link>
   </div>
 </template>
 
