@@ -1,4 +1,4 @@
-package com.example.config;
+package com.example.common.config;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;

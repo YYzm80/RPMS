@@ -7,10 +7,9 @@ import java.util.Date;
 @Data
 public class AuthorizeVO {
 
-    private Integer uid;
-    private String name;
+    private Long userId;
     private String username;
-    private String role;
+    private String roleName;  // "系统管理员"/"物业人员"/"业主"
     private String token;
     private Date expire;
 }

@@ -8,18 +8,18 @@ import java.util.Date;
 @Data
 public class AccountVO {
 
-    private Integer uid;
-    private Integer aid;
-    private Integer cid;
-    private String academy;
-    private String clazz;
-    private String email;
-    private String name;
+    private Long userId;
     private String username;
-    private String role;
+    private String realName;
+    private String phone;
+    private String roleName;  // "系统管理员"/"物业人员"/"业主"
+    private String position;
+    private String gender;
+    private String address;
+    private String status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date create_time;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date update_time;
+    private Date createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date hireDate;
 }

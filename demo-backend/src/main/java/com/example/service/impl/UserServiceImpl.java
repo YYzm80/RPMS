@@ -1,54 +1,60 @@
 package com.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
+import com.example.entity.dto.in.UserImportDTO;
 import com.example.entity.vo.response.AccountVO;
 import com.example.mapper.AccountMapper;
+import com.example.service.DataService;
 import com.example.service.UserService;
-import com.example.util.Const;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl  extends ServiceImpl<AccountMapper, Account> implements UserService {
+public class UserServiceImpl extends ServiceImpl<AccountMapper, Account> implements UserService, DataService<UserImportDTO> {
 
     @Resource
     AccountMapper mapper;
 
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Override
-    public AccountVO getUserByUid(Integer uid) {
-        return mapper.selectById(uid).asViewObject(AccountVO.class);
+    public List<AccountVO> getUserList() {
+        List<Account> accounts = mapper.selectList(null);
+        return accounts.stream()
+                .map(account -> convert(account, false))
+                .toList();
     }
 
     @Override
-    public String updateUser(Account account, MultipartFile file) {
-        if (file != null && !file.isEmpty()) {
-            try {
-                String fileName = System.currentTimeMillis() + file.getOriginalFilename();
-                Path uploadFilePath = Paths.get(Const.UPLOAD_PATH, fileName);
-                Files.createDirectories(uploadFilePath.getParent());
-                // 如果用户头像已存在，则删除旧头像
-                if (mapper.selectById(account.getUid()).getAvatar() != null) {
-                    String oldFileName = mapper.selectById(account.getUid()).getAvatar();
-                    Path oldFilePath = Paths.get(Const.UPLOAD_PATH, oldFileName);
-                    if (oldFileName != null && !oldFileName.isEmpty()) {
-                        Files.deleteIfExists(oldFilePath);
-                    }
-                }
-                file.transferTo(uploadFilePath.toFile());
-                account.setAvatar(fileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return "上传头像失败，请稍后再试";
-            }
-        }
+    public List<AccountVO> getOwnerList() {
+        List<Account> accounts = mapper.selectList(new QueryWrapper<Account>().eq("rid", 3));
+        return accounts.stream()
+                .map(account -> convert(account, false))
+                .toList();
+    }
+
+    @Override
+    public AccountVO getUserByUid(Integer uid) {
+        Account account = mapper.selectById(uid);
+        return convert(account, true);
+    }
+
+    @Override
+    public String addUser(Account account) {
+        account.setPassword(encoder.encode("123456"));
+        return mapper.insert(account) > 0 ? null : "添加用户失败，请稍后再试";
+    }
+
+    @Override
+    public String updateUser(Account account) {
         return mapper.updateById(account) > 0 ? null : "更新个人资料失败，请稍后再试";
     }
 
@@ -56,4 +62,46 @@ public class UserServiceImpl  extends ServiceImpl<AccountMapper, Account> implem
     public String deleteUserByUid(Integer uid) {
         return mapper.deleteById(uid) > 0 ? null : "删除用户失败，请稍后再试";
     }
+
+    @Override
+    public Integer changeStatus(Long uid) {
+        Account account = mapper.selectById(uid);
+        account.setStatus(account.getStatus().equals("active") ? "inactive" : "active");
+        if (account.getStatus().equals("active")) {
+            return mapper.updateById(account) > 0 ? 1 : 3;
+        } else {
+            return mapper.updateById(account) > 0 ? 2 : 3;
+        }
+    }
+
+    @Override
+    public void batchImport(List<UserImportDTO> list) {
+        List<Account> entities = list.stream()
+                .map(dto -> {
+                    Account user = new Account();
+                    BeanUtils.copyProperties(dto, user);
+                    user.setPassword(encoder.encode("123456")); // 默认密码
+                    user.setStatus("active");
+                    user.setCreatedAt(new Date());
+                    return user;
+                })
+                .collect(Collectors.toList());
+
+        mapper.insertBatchSomeColumn(entities);
+    }
+
+    private AccountVO convert(Account account, boolean isForm) {
+        return account.asViewObject(AccountVO.class, v -> {
+            if (!isForm) {
+                v.setRoleName(account.getRid() == 1 ? "系统管理员" :
+                        account.getRid() == 2 ? "物业人员" : "业主");
+                v.setGender(account.getGender().equals("male") ? "男" :
+                        account.getGender().equals("female") ? "女" : "其它");
+                v.setStatus(account.getStatus().equals("active") ? "正常" : "封禁");
+            } else {
+                v.setRoleName(String.valueOf(account.getRid()));
+            }
+        });
+    }
+
 }

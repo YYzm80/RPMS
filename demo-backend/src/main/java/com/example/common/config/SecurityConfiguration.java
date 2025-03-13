@@ -1,9 +1,10 @@
-package com.example.config;
+package com.example.common.config;
 
 import com.example.entity.RestBean;
 import com.example.entity.dto.auth.Account;
 import com.example.entity.vo.response.AuthorizeVO;
 import com.example.filter.JwtAuthorizeFilter;
+import com.example.mapper.RoleMapper;
 import com.example.service.AuthorizeService;
 import com.example.util.JwtUtils;
 import jakarta.annotation.Resource;
@@ -47,6 +48,9 @@ public class SecurityConfiguration {
     AuthorizeService authorizeService;
 
     @Resource
+    RoleMapper roleMapper;
+
+    @Resource
     DataSource dataSource;
 
     @Bean
@@ -54,7 +58,7 @@ public class SecurityConfiguration {
                                            PersistentTokenRepository repository) throws Exception {
         return http
                 .authorizeHttpRequests(conf -> {
-                    conf.requestMatchers("/api/auth/**").permitAll();
+                    conf.requestMatchers("/api/auth/**", "/uploaded/**", "/api/payment/confirm").permitAll();
                     conf.anyRequest().authenticated();
                 })
                 .formLogin(conf -> {
@@ -69,7 +73,7 @@ public class SecurityConfiguration {
                 .cors(conf -> {
                     CorsConfiguration cors = new CorsConfiguration();
                     //添加前端站点地址
-                    cors.addAllowedOrigin("http://localhost:5173");
+                    cors.addAllowedOrigin("http://192.168.43.155:8088");
                     cors.setAllowCredentials(true);
                     cors.addAllowedHeader("*");
                     cors.addAllowedMethod("*");
@@ -112,8 +116,9 @@ public class SecurityConfiguration {
      * 1. 登录成功
      * 2. 登录失败
      * 3. 权限不足/未登录拦截
-     * @param request 请求
-     * @param response 响应
+     *
+     * @param request                   请求
+     * @param response                  响应
      * @param exceptionOrAuthentication 异常或者认证信息
      * @throws IOException 可能的异常
      */
@@ -122,18 +127,19 @@ public class SecurityConfiguration {
                               Object exceptionOrAuthentication) throws IOException {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter writer = response.getWriter();
-        if(exceptionOrAuthentication instanceof AccessDeniedException exception) {
+        if (exceptionOrAuthentication instanceof AccessDeniedException exception) {
             writer.write(RestBean.failure(403, exception.getMessage()).asJsonString());
-        } else if(exceptionOrAuthentication instanceof Exception exception) {
+        } else if (exceptionOrAuthentication instanceof Exception exception) {
             writer.write(RestBean.failure(401, exception.getMessage()).asJsonString());
         } else if (exceptionOrAuthentication instanceof Authentication authentication) {
             User user = (User) authentication.getPrincipal();
             Account account = authorizeService.findAccountByNameOrEmail(user.getUsername());
-            String token = utils.createJwt(user, account.getUid(), account.getUsername());
+            String token = utils.createJwt(user, Math.toIntExact(account.getUserId()), account.getUsername());
             if (token == null) {
                 writer.write(RestBean.failure(403, "登录验证频繁，请稍后再试！").asJsonString());
             } else {
                 AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, v -> {
+                    v.setRoleName(roleMapper.selectById(account.getRid()).getName());
                     v.setExpire(utils.expireTime());
                     v.setToken(token);
                 });
@@ -144,8 +150,9 @@ public class SecurityConfiguration {
 
     /**
      * 退出登录处理，并将对应的Jwt令牌列入黑名单
-     * @param request 请求
-     * @param response 响应
+     *
+     * @param request        请求
+     * @param response       响应
      * @param authentication 认证信息
      * @throws IOException 可能的异常
      */
@@ -155,7 +162,7 @@ public class SecurityConfiguration {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter writer = response.getWriter();
         String authorization = request.getHeader("Authorization");
-        if(utils.invalidateJwt(authorization)) {
+        if (utils.invalidateJwt(authorization)) {
             writer.write(RestBean.success("退出登录成功").asJsonString());
             return;
         }

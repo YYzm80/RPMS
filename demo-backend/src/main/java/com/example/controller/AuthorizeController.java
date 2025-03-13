@@ -25,33 +25,14 @@ public class AuthorizeController {
 
     @PostMapping("/ask-code")
     public RestBean<String> askVerifyCode(@RequestParam @Email String email,
-                                          @RequestParam @Pattern(regexp = "(register|reset)") String type,
+                                          @RequestParam @Pattern(regexp = "(reset)") String type,
                                           HttpSession session) {
-        String s = Objects.equals(type, "register") ?
-                service.sendValidateEmail(email, session.getId(), false) :
-                service.sendValidateEmail(email, session.getId(), true);
+        String s = service.sendValidateEmail(email, session.getId(), true);
 
         if (s == null)
             return RestBean.success("邮件发送成功，请注意查收");
         else
             return RestBean.failure(400, s);
-    }
-
-    /**
-     * 进行用户注册操作，需要先请求邮件验证码
-     *
-     * @param vo 注册信息
-     * @return 是否注册成功
-     */
-    @PostMapping("/register")
-    public RestBean<String> register(@Valid EmailRegisterVO vo,
-                                     HttpSession session) {
-        String s = service.validateAndRegister(vo.getUsername(), vo.getPassword(), vo.getEmail(), vo.getCode(), vo.getRole(), session.getId());
-        if (s == null) {
-            return RestBean.success("注册成功");
-        } else {
-            return RestBean.failure(400, s);
-        }
     }
 
     /**

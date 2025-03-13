@@ -37,5 +37,6 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
             request.setAttribute("id", utils.toId(jwt));
         }
         filterChain.doFilter(request, response);
+
     }
 }
