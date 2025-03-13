@@ -8,12 +8,12 @@
       <el-image style="width: 100%;height: 100%" fit="cover"
                 src="https://bpic.588ku.com/back_pic/06/16/57/8162f7bab2cf49c.jpg"/>
       <div class="welcome-title">
-        <div style="font-size: 26px;font-weight: bold">欢迎来到title
-        </div>
+        <div style="font-size: 26px;font-weight: bold">欢迎使用物业后台管理系统</div>
         <div style="margin-top: 16px;font-size: 13px">
-          示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字示例文字
+          在线办公，让工作更简单
         </div>
       </div>
+
     </div>
     <div style="width: 400px;height: 100%;background-color: rgba(255,255,255)">
       <router-view v-slot="{ Component }">
@@ -24,7 +24,8 @@
     </div>
   </div>
   <div class="footer">
-    @2025 版权所有 <el-link href="http://118.24.119.60">yz820.com</el-link>
+    @2025 版权所有
+    <el-link href="http://118.24.119.60">yz820.com</el-link>
   </div>
 </template>
 

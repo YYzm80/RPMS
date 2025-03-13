@@ -1,20 +1,27 @@
 <script setup>
-import {logout} from "@/net";
+import {get, logout} from "@/net";
 import router from "@/router";
 import {
   Comment,
-  Document,
+  Document, Drizzling,
   House,
-  More,
-  OfficeBuilding,
+  More, MostlyCloudy,
+  OfficeBuilding, PartlyCloudy,
   PriceTag,
-  Suitcase
+  Suitcase, Sunny
 } from "@element-plus/icons-vue";
-import {ref} from "vue";
+import {reactive, ref} from "vue";
+import {locationStore} from "@/stores/locationStore";
+import {weatherStore} from "@/stores/weatherStore";
 
 const authItemName = "authorize"
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
+const weather_store = weatherStore()
+const location_store = locationStore()
 const loading = ref(false)
+const form = reactive({
+  city_id: '',
+})
 
 function userLogout() {
   loading.value = true
@@ -31,13 +38,38 @@ const getImgSrc = (picName) => {
     return `http://localhost:8080/uploaded/${picName}`
   }
 }
+
+const weather = () => {
+  // if (!location_store.api.location) {
+  //   get('/api/location/get-location',
+  //           (location) => {
+  //             location_store.api.location = location
+  //             form.city_id = location_store.api.location.adcode
+  //             getWeather()
+  //           }
+  //   )
+  // } else {
+  //   getWeather()
+  // }
+  getWeather()
+}
+
+const getWeather = () => {
+  if (!weather_store.api.weather) {
+    get(`/api/weather/cityId/${500000}`, (data) => {
+      weather_store.api.weather = data
+    })
+  }
+}
+
+weather()
 </script>
 
 <template>
   <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex;flex-direction: column">
     <div class="header">
       <div class="title">
-        <span style="font-size: 28px;font-weight: bold;font-family: 'Segoe UI', serif;color: white">title</span>
+        <span style="font-size: 23px;font-weight: bold;font-family: 'Segoe UI', serif;color: white">住宅物业</span>
       </div>
       <div class="menu">
         <el-menu
@@ -54,13 +86,13 @@ const getImgSrc = (picName) => {
             </el-icon>
             <span>首页</span>
           </el-menu-item>
-          <el-menu-item index="2" @click="router.push('/index/meeting')">
+          <el-menu-item index="2" @click="router.push('/index/test')">
             <el-icon>
               <OfficeBuilding/>
             </el-icon>
-            <span>title</span>
+            <span>test</span>
           </el-menu-item>
-          <el-menu-item index="3" @click="router.push('/index/resume')"
+          <el-menu-item index="3" @click="router.push('/index/announce')"
                         v-if="user.role === 'student' || user.role === 'admin'">
             <el-icon>
               <document/>
@@ -98,6 +130,28 @@ const getImgSrc = (picName) => {
           </el-sub-menu>
         </el-menu>
       </div>
+      <div class="weather">
+        <div class="weather-item">
+          <span class="weather-item-title">天气：</span>
+          <span class="weather-item-content">{{ weather_store.api.weather.lives[0].weather }}
+            <el-icon
+                    v-if="weather_store.api.weather.lives[0].weather==='小雨'||weather_store.api.weather.lives[0].weather==='雨'">
+                                    <Drizzling/>
+                                </el-icon>
+                                <el-icon v-if="weather_store.api.weather.lives[0].weather==='晴'">
+                                    <Sunny/>
+                                </el-icon>
+                                <el-icon v-if="weather_store.api.weather.lives[0].weather==='阴'">
+                                    <MostlyCloudy/>
+                                </el-icon>
+                                <el-icon v-if="weather_store.api.weather.lives[0].weather==='多云'">
+                                    <PartlyCloudy/>
+                                </el-icon>
+          </span>
+          <span class="weather-item-title" style="margin-left: 20px">温度：</span>
+          <span class="weather-item-content">{{ weather_store.api.weather.lives[0].temperature }}°C</span>
+        </div>
+      </div>
       <div style="width: 200px;">
         <el-popover
                 :width="80"
@@ -106,7 +160,8 @@ const getImgSrc = (picName) => {
           <template #reference>
             <el-avatar
                     style="translate: 20px 9px"
-                    :src="getImgSrc(user.avatar)"/>
+                    :src="getImgSrc(null)"
+            />
           </template>
           <template #default>
             <div
@@ -115,29 +170,25 @@ const getImgSrc = (picName) => {
             >
               <el-avatar
                       :size="50"
-                      :src="getImgSrc(user.avatar)"
                       style="margin:auto"
+                      :src="getImgSrc(null)"
               />
               <div>
-                <p v-if="user === null" style="margin: auto; font-weight: 500">
-                  未登录
-                </p>
-                <p v-if="user !== null" style="margin: auto; font-weight: 500">
+                <p style="margin: auto; font-weight: 500">
                   {{ user.username }}
                 </p>
               </div>
-              <el-button v-if="user === null"
-                         type="success"
+              <el-button type="success"
                          size="small"
-                         @click="router.push('/')">登录/注册
+                         v-if="user.role !== 'owner' "
+                         @click="router.push('/manager')">进入后台
               </el-button>
-              <el-button v-if="user !== null"
-                         type="primary"
+              <el-button type="primary"
                          size="small"
+                         style="margin: 0"
                          @click="router.push('/index/personal')">个人中心
               </el-button>
-              <el-button v-if="user !== null"
-                         type="danger"
+              <el-button type="danger"
                          size="small"
                          @click="userLogout"
                          style="margin: 0" v-loading="loading">退出登录
@@ -181,6 +232,25 @@ const getImgSrc = (picName) => {
 .menu {
   margin-left: 40px;
   height: 100%;
-  width: 1200px;
+  width: 900px;
+}
+
+.weather {
+  margin-left: auto;
+  margin-right: 40px;
+  width: 220px;
+}
+
+.weather-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.weather-item-title {
+  margin-right: 10px;
 }
 </style>

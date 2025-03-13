@@ -11,7 +11,7 @@ const defaultFailure = (message, status, url) => {
 const accessHeader = () => {
     return {
         'Authorization': `Bearer ${takeAccessToken()}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
     }
 }
 
@@ -31,10 +31,9 @@ function storeAccessToken(remember, token, expire, data){
     const authObj = {
         token: token,
         expire: expire,
-        name: data.name,
         username: data.username,
-        role: data.role,
-        uid: data.uid,
+        role: data.roleName,
+        uid: data.userId,
     }
     const str = JSON.stringify(authObj)
     if(remember)
@@ -58,7 +57,7 @@ function internalPost(url, data, headers, success, failure, error = defaultError
 }
 
 function internalGet(url, headers, success, failure, error = defaultError){
-    axios.get(url, { headers: headers, withCredentials: true }).then(({data}) => {
+    axios.get(url, { headers: headers, withCredentials: true}).then(({data}) => {
         if(data.status === 200)
             success(data.message)
         else
@@ -83,6 +82,13 @@ function post(url, data, success, failure = defaultFailure) {
     internalPost(url, data, accessHeader() , success, failure)
 }
 
+function multipartPost(url, data, success, failure = defaultFailure) {
+    internalPost(url, data, {
+        'Authorization': `Bearer ${takeAccessToken()}`,
+        'Content-Type': 'multipart/form-data'
+    }, success, failure)
+}
+
 function logout(success, failure = defaultFailure){
     get('/api/auth/logout', () => {
         deleteAccessToken()
@@ -95,8 +101,12 @@ function get(url, success, failure = defaultFailure) {
     internalGet(url, accessHeader(), success, failure)
 }
 
+function blobGet(url) {
+    return axios.get(url, { headers: accessHeader(), withCredentials: true, responseType: 'blob'})
+}
+
 function unauthorized() {
     return !takeAccessToken()
 }
 
-export { post, get, login, logout, unauthorized }
+export { post, multipartPost, get, blobGet, login, logout, unauthorized }
