@@ -1,0 +1,66 @@
+import { ref, computed } from 'vue';
+
+export function useSearchAndPagination(tableData, pageSize, searchFields = ['type']) {
+    const search = ref('');
+
+    const highlight = (text, keyword) => {
+        if (!keyword.trim()) return text; // 无关键词时返回原文
+
+        // 转义正则特殊字符
+        const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escapedKeyword})`, 'gi'); // 全局+忽略大小写
+
+        return text.replace(regex, '<mark>$1</mark>');
+    };
+
+    const filteredData = computed(() => {
+        const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
+        return tableData.value.filter((item) => {
+            return searchFields.some(field =>
+                item[field] && item[field].toLowerCase().indexOf(searchLower) !== -1
+            );
+        });
+    });
+
+    const currentPage = ref(1); // 当前页码
+
+    const pagedData = computed(() => {
+        const start = (currentPage.value - 1) * pageSize;
+        return filteredData.value.slice(start, start + pageSize);
+    });
+
+    const total = computed(() => filteredData.value.length);
+
+    // 初始化数据
+    const initData = () => {
+        total.value = tableData.value.length;
+        updatePageData();
+    };
+
+    // 更新当前页的数据
+    const updatePageData = () => {
+        const start = (currentPage.value - 1) * pageSize;
+        const end = start + pageSize;
+        pagedData.value = filteredData.value.slice(start, end);
+    };
+
+    // 处理页码变化的函数
+    const handlePageChange = (newPage) => {
+        currentPage.value = newPage;
+        updatePageData();
+    };
+
+    return {
+        search,
+        highlight,
+        filteredData,
+        pageSize,
+        currentPage,
+        pagedData,
+        total,
+        initData,
+        updatePageData,
+        handlePageChange,
+    };
+}
+

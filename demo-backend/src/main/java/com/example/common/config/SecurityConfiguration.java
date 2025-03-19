@@ -6,6 +6,7 @@ import com.example.entity.vo.response.AuthorizeVO;
 import com.example.filter.JwtAuthorizeFilter;
 import com.example.mapper.RoleMapper;
 import com.example.service.AuthorizeService;
+import com.example.util.consts.Const;
 import com.example.util.JwtUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -73,7 +74,7 @@ public class SecurityConfiguration {
                 .cors(conf -> {
                     CorsConfiguration cors = new CorsConfiguration();
                     //添加前端站点地址
-                    cors.addAllowedOrigin("http://192.168.43.155:8088");
+                    cors.addAllowedOrigin(Const.FRONT_PATH);
                     cors.setAllowCredentials(true);
                     cors.addAllowedHeader("*");
                     cors.addAllowedMethod("*");

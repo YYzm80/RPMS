@@ -8,7 +8,6 @@ import com.example.entity.dto.in.UserImportDTO;
 import com.example.entity.vo.response.AccountVO;
 import com.example.filter.UserImportFilter;
 import com.example.listener.FilterableExcelReader;
-import com.example.mapper.AccountMapper;
 import com.example.service.DataService;
 import com.example.service.UserService;
 import com.example.util.ErrorRecorder;
@@ -28,9 +27,6 @@ public class UserController {
     private UserService service;
 
     @Resource
-    private AccountMapper mapper;
-
-    @Resource
     private UserImportFilter filter;
 
     @Resource
@@ -48,7 +44,7 @@ public class UserController {
 
     @GetMapping("/all-property")
     public RestBean<List<AccountVO>> allProperty() {
-        return RestBean.success(mapper.findAccountsProperty());
+        return RestBean.success(service.getPropertyOwnerList());
     }
 
     @GetMapping("/uid/{uid}")

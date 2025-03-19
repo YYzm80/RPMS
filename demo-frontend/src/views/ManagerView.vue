@@ -39,7 +39,7 @@ const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.get
               </el-icon>
               <span>首页</span>
             </el-menu-item>
-            <el-menu-item index="2" @click="router.push('/index/manager')">
+            <el-menu-item index="2" @click="router.push('/manager/user')">
               <el-icon>
                 <User/>
               </el-icon>

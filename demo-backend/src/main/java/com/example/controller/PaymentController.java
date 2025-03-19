@@ -3,9 +3,10 @@ package com.example.controller;
 import com.example.entity.RestBean;
 import com.example.entity.dto.auth.PaymentSession;
 import com.example.entity.dto.common.Payment;
+import com.example.entity.vo.request.payment.PaymentReq;
 import com.example.entity.vo.response.PaymentVO;
 import com.example.service.PaymentService;
-import com.example.util.Const;
+import com.example.util.consts.Const;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -42,9 +42,15 @@ public class PaymentController {
         return RestBean.success(service.getPaymentList());
     }
 
-    @GetMapping("/uid/{uid}")
-    public RestBean<List<PaymentVO>> getByUid(@PathVariable("uid") Long uid) {
-        return RestBean.success(service.getPaymentListByUserId(uid));
+    @GetMapping("/req")
+    public RestBean<List<PaymentVO>> getByReq(@RequestParam Long id,
+                                              @RequestParam(required = false) String type,
+                                              @RequestParam(required = false) String status) {
+        PaymentReq req = new PaymentReq();
+        req.setId(id);
+        req.setType(type);
+        req.setStatus(status);
+        return RestBean.success(service.getPaymentListByReq(req));
     }
 
     @GetMapping("/pid/{pid}")
@@ -58,7 +64,7 @@ public class PaymentController {
             HttpServletResponse response
     ) throws IOException, WriterException {
         // 构造支付确认URL
-        String payUrl = "http://192.168.43.155:8088/payment?sessionId=" + sessionId;
+        String payUrl = Const.FRONT_PATH + "payment?sessionId=" + sessionId;
 
         // 生成二维码图片
         QRCodeWriter writer = new QRCodeWriter();
@@ -80,7 +86,7 @@ public class PaymentController {
         return RestBean.success(sessionId);
     }
 
-    @PostMapping("/confirm")
+    @PutMapping("/confirm")
     public RestBean<String> confirmPayment(@RequestBody String sessionId) throws JsonProcessingException {
         // 从Redis获取会话信息
         String key = Const.PAYMENT_SESSION + sessionId.replace("\"", "");

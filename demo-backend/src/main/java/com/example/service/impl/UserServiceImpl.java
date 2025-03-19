@@ -1,6 +1,5 @@
 package com.example.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
 import com.example.entity.dto.in.UserImportDTO;
@@ -35,10 +34,12 @@ public class UserServiceImpl extends ServiceImpl<AccountMapper, Account> impleme
 
     @Override
     public List<AccountVO> getOwnerList() {
-        List<Account> accounts = mapper.selectList(new QueryWrapper<Account>().eq("rid", 3));
-        return accounts.stream()
-                .map(account -> convert(account, false))
-                .toList();
+        return mapper.findAccountsOwner();
+    }
+
+    @Override
+    public List<AccountVO> getPropertyOwnerList() {
+        return mapper.findAccountsProperty();
     }
 
     @Override

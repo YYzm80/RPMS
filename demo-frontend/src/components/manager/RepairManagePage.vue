@@ -1,9 +1,10 @@
 <script setup>
 
 import {Edit, Refresh, Search} from "@element-plus/icons-vue";
-import {computed, ref} from "vue";
+import {ref} from "vue";
 import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
+import {useSearchAndPagination} from "@/net/common";
 
 const tableData = ref([])
 const authItemName = "authorize";
@@ -17,7 +18,7 @@ const getData = () => {
       item.index = i
       i++
     })
-    initData()
+    initData
   })
 }
 
@@ -67,41 +68,16 @@ const changeStep = (status) => {
   }
 }
 
-const search = ref('')
-
-const filteredData = computed(() => {
-  const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
-  return tableData.value.filter((item) => {
-    return item.description.toLowerCase().indexOf(searchLower) !== -1; // 将标签名称转换为小写后进行匹配
-  })
-})
-
-const pageSize = 10 // 每页显示的数据数量
-const currentPage = ref(1) // 当前页码
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredData.value.slice(start, start + pageSize)
-})
-const total = computed(() => filteredData.value.length)
-
-// 初始化数据
-const initData = () => {
-  total.value = tableData.value.length
-  updatePageData()
-}
-
-// 更新当前页的数据
-const updatePageData = () => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  pagedData.value = tableData.value.slice(start, end)
-}
-
-// 处理页码变化的函数
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-  updatePageData()
-}
+const {
+  search,
+  highlight,
+  pageSize,
+  currentPage,
+  pagedData,
+  total,
+  initData,
+  handlePageChange,
+} = useSearchAndPagination(tableData, 10, ['description']);
 
 let lastRefreshTime = 0
 
@@ -164,7 +140,11 @@ getData()
                          header-align="center" align="center"/>
         <el-table-column prop="description" label="报修描述" width="300"
                          show-overflow-tooltip
-                         header-align="center" align="center"/>
+                         header-align="center" align="center">
+          <template #default="scope">
+            <div v-html="highlight(scope.row.description, search)"></div>
+          </template>
+        </el-table-column>
         <el-table-column prop="handlerName" label="处理人" width="180"
                          header-align="center" align="center"/>
         <el-table-column prop="statusDesc" label="处理状态" width="180"

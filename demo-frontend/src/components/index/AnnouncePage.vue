@@ -85,12 +85,10 @@ getData()
     <div class="top">
       <el-input v-model="search"
                   placeholder="查找公告"
-                  style="width: 300px;margin-left: 20px"
-                  @keyup.enter="searchAnnounce"/>
+                  style="width: 300px;margin-left: 20px"/>
       <el-button type="primary"
                   :icon="Search"
                   style="margin-left: 20px"
-                  @click=""
       >搜索</el-button>
     </div>
     <div class="content">

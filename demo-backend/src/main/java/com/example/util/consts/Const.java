@@ -1,0 +1,10 @@
+package com.example.util.consts;
+
+public class Const {
+    public static final String JWT_BLACK_LIST = "jwt:blacklist:";
+    public static final String PAYMENT_SESSION = "payment:session:";
+    public static final String LOCATION_API = "https://restapi.amap.com/v3/ip?key=077e7585e935dd09dcdf2098c801cad4";
+    public static final String WEATHER_API = "https://restapi.amap.com/v3/weather/weatherInfo?key=077e7585e935dd09dcdf2098c801cad4";
+    public static String UPLOAD_PATH = "D:/CodeDevelopment/uploaded/";
+    public static String FRONT_PATH = "http://192.168.43.155:8088/";
+}

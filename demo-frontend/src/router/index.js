@@ -50,6 +50,10 @@ const router = createRouter({
         component: () => import('@/views/ManagerView.vue'),
         children: [{
             path: '',
+            name: 'manager-home',
+            component: () => import('../components/manager/HomePage.vue')
+        }, {
+            path: '/manager/user',
             name: 'manager-user',
             component: () => import('../components/manager/UserManagePage.vue')
         }, {

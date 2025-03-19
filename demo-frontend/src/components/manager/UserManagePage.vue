@@ -1,9 +1,10 @@
 <script setup>
 
 import {Plus, Edit, Delete, Refresh, Download, UploadFilled, Search} from "@element-plus/icons-vue";
-import {computed, ref} from "vue";
+import {ref} from "vue";
 import {get, multipartPost, post} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
+import {useSearchAndPagination} from "@/net/common";
 
 const tableData = ref([])
 const authItemName = "authorize";
@@ -17,7 +18,7 @@ const getData = () => {
       item.index = i
       i++
     })
-    initData()
+    initData
   })
 }
 
@@ -148,41 +149,16 @@ const deleteUpload = (file) => {
   // console.log(fileList.value)
 }
 
-const search = ref('')
-
-const filteredData = computed(() => {
-  const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
-  return tableData.value.filter((item) => {
-    return item.realName.toLowerCase().indexOf(searchLower) !== -1; // 将标签名称转换为小写后进行匹配
-  })
-})
-
-const pageSize = 10 // 每页显示的数据数量
-const currentPage = ref(1) // 当前页码
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredData.value.slice(start, start + pageSize)
-})
-const total = computed(() => filteredData.value.length)
-
-// 初始化数据
-const initData = () => {
-  total.value = tableData.value.length
-  updatePageData()
-}
-
-// 更新当前页的数据
-const updatePageData = () => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  pagedData.value = tableData.value.slice(start, end)
-}
-
-// 处理页码变化的函数
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-  updatePageData()
-}
+const {
+  search,
+  highlight,
+  pageSize,
+  currentPage,
+  pagedData,
+  total,
+  initData,
+  handlePageChange,
+} = useSearchAndPagination(tableData, 10, ['realName']);
 
 getData()
 
@@ -222,7 +198,11 @@ getData()
         <el-table-column prop="index" label="序号" width="120"
                          header-align="center" align="center"/>
         <el-table-column prop="realName" label="姓名" width="180"
-                         header-align="center" align="center"/>
+                         header-align="center" align="center">
+          <template #default="scope">
+            <div v-html="highlight(scope.row.realName, search)"></div>
+          </template>
+        </el-table-column>
         <el-table-column prop="username" label="用户名" width="180"
                          header-align="center" align="center"/>
         <el-table-column prop="gender" label="性别" width="180"
@@ -245,7 +225,8 @@ getData()
         </el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button-group v-if="user.uid !== scope.row.userId">
+            <el-button-group v-if="user.uid !== scope.row.userId
+            && (user.role === 'admin' || scope.row.roleName === '业主')">
               <el-button :icon="Edit" type="primary"
                          @click="getUpdateData(scope.row.userId)"></el-button>
               <el-button :icon="Refresh" type="warning"></el-button>
@@ -261,7 +242,8 @@ getData()
                     active-text="正常"
                     inactive-text="封禁"
                     @change="changeStatus(scope.row.userId)"
-                    v-if="user.uid !== scope.row.userId"
+                    v-if="user.uid !== scope.row.userId
+                    && (user.role === 'admin' || scope.row.roleName === '业主')"
             />
           </template>
         </el-table-column>
@@ -311,7 +293,6 @@ getData()
             <el-col :span="11">
               <el-form-item label="角色">
                 <el-select v-model="form.rid" placeholder="请选择角色">
-                  <el-option label="系统管理员" value="1"/>
                   <el-option label="物业人员" value="2"/>
                   <el-option label="业主" value="3"/>
                 </el-select>

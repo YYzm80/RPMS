@@ -1,14 +1,25 @@
 <script setup>
 
 import {Delete, Plus, Refresh, Search, View} from "@element-plus/icons-vue";
-import {computed, ref} from "vue";
+import {ref} from "vue";
 import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
+import {useSearchAndPagination} from "@/net/common";
 
 const tableData = ref([])
 const userList = ref([])
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
+const {
+  search,
+  highlight,
+  pageSize,
+  currentPage,
+  pagedData,
+  total,
+  initData,
+  handlePageChange,
+} = useSearchAndPagination(tableData, 10, ['username']);
 
 const getData = () => {
   get('/api/payment/all', (data) => {
@@ -19,7 +30,7 @@ const getData = () => {
       i++
     })
     getUserList()
-    initData()
+    initData
   })
 }
 
@@ -67,42 +78,6 @@ const deletePayment = () => {
             dialogDeleteVisible.value = false
             getData()
           })
-}
-
-const search = ref('')
-
-const filteredData = computed(() => {
-  const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
-  return tableData.value.filter((item) => {
-    return item.username.toLowerCase().indexOf(searchLower) !== -1; // 将标签名称转换为小写后进行匹配
-  })
-})
-
-const pageSize = 10 // 每页显示的数据数量
-const currentPage = ref(1) // 当前页码
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredData.value.slice(start, start + pageSize)
-})
-const total = computed(() => filteredData.value.length)
-
-// 初始化数据
-const initData = () => {
-  total.value = tableData.value.length
-  updatePageData()
-}
-
-// 更新当前页的数据
-const updatePageData = () => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  pagedData.value = tableData.value.slice(start, end)
-}
-
-// 处理页码变化的函数
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-  updatePageData()
 }
 
 let lastRefreshTime = 0
@@ -169,7 +144,11 @@ getData()
         <el-table-column prop="index" label="序号" width="120"
                          header-align="center" align="center"/>
         <el-table-column prop="username" label="缴费人(业主)" width="180"
-                         header-align="center" align="center"/>
+                         header-align="center" align="center">
+          <template #default="scope">
+            <div v-html="highlight(scope.row.username, search)"></div>
+          </template>
+        </el-table-column>
         <el-table-column prop="fullAddress" label="房产楼栋" width="180"
                          header-align="center" align="center"/>
         <el-table-column prop="type" label="缴费类型" width="120"

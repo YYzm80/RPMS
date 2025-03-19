@@ -1,9 +1,11 @@
 package com.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.common.Payment;
 import com.example.entity.dto.common.Property;
+import com.example.entity.vo.request.payment.PaymentReq;
 import com.example.entity.vo.response.PaymentVO;
 import com.example.mapper.AccountMapper;
 import com.example.mapper.PaymentMapper;
@@ -11,6 +13,7 @@ import com.example.mapper.PropertyMapper;
 import com.example.service.PaymentService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -36,8 +39,25 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
     }
 
     @Override
-    public List<PaymentVO> getPaymentListByUserId(Long userId) {
-        List<Payment> list = mapper.selectList(new QueryWrapper<Payment>().eq("user_id", userId));
+    public List<PaymentVO> getPaymentListByReq(PaymentReq req) {
+        // 必要参数校验（根据业务需求选择是否抛出异常）
+        if (req.getId() == null) {
+            throw new IllegalArgumentException("账单ID不能为空");
+        }
+
+        // 构建查询条件
+        LambdaQueryWrapper<Payment> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Payment::getUserId, req.getId());  // 必须条件
+        if (StringUtils.hasText(req.getType())) {
+            queryWrapper.eq(Payment::getType, req.getType());
+        }
+
+        if (StringUtils.hasText(req.getStatus())) {
+            queryWrapper.eq(Payment::getStatus, req.getStatus());
+        }
+
+        // 执行查询
+        List<Payment> list = mapper.selectList(queryWrapper);
         return list.stream()
                 .map(this::convert)
                 .toList();

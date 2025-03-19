@@ -86,33 +86,14 @@ weather()
             </el-icon>
             <span>首页</span>
           </el-menu-item>
-          <el-menu-item index="2" @click="router.push('/index/test')">
-            <el-icon>
-              <OfficeBuilding/>
-            </el-icon>
-            <span>test</span>
-          </el-menu-item>
-          <el-menu-item index="3" @click="router.push('/index/announce')"
-                        v-if="user.role === 'student' || user.role === 'admin'">
-            <el-icon>
-              <document/>
-            </el-icon>
-            <span>text</span>
-          </el-menu-item>
-          <el-menu-item index="4" @click="router.push('/index/company')">
-            <el-icon>
-              <Suitcase/>
-            </el-icon>
-            <span>text</span>
-          </el-menu-item>
-          <el-sub-menu index="5" v-if="user.role !== 'student' && user.role !== 'counsellor'">
+          <el-sub-menu index="2" v-if="user.role !== 'student' && user.role !== 'counsellor'">
             <template #title>
               <el-icon>
                 <More/>
               </el-icon>
               <span>更多</span>
             </template>
-            <el-menu-item index="5-1"
+            <el-menu-item index="2-1"
                           style="padding: 0 15px 0 25px;"
                           @click="router.push('/index/tags')"
                           v-if="user.role === 'admin'">
@@ -121,7 +102,7 @@ weather()
               </el-icon>
               <span>text</span>
             </el-menu-item>
-            <el-menu-item index="5-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/center')">
+            <el-menu-item index="2-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/center')">
               <el-icon>
                 <Comment/>
               </el-icon>

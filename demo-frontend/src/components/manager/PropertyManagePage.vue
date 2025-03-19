@@ -1,9 +1,11 @@
 <script setup>
 
 import {Plus, Edit, Delete, Download, UploadFilled, Search} from "@element-plus/icons-vue";
-import {computed, ref} from "vue";
+import {ref} from "vue";
 import {get, multipartPost, post} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
+import {useSearchAndPagination} from "@/net/common";
+import {imgUrl} from "@/stores/commonAPI";
 
 const tableData = ref([])
 const userList = ref([])
@@ -17,7 +19,7 @@ const getData = () => {
       i++
     })
     getUserList()
-    initData()
+    initData
   })
 }
 
@@ -28,7 +30,7 @@ const getUserList = () => {
 }
 
 const getImgSrc = (picName) => {
-  return `http://localhost:8080/uploaded/${picName}`
+  return imgUrl + picName
 }
 
 const dialogNewVisible = ref(false)
@@ -163,41 +165,16 @@ const deleteUpload = (file) => {
   // console.log(fileList.value)
 }
 
-const search = ref('')
-
-const filteredData = computed(() => {
-  const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
-  return tableData.value.filter((item) => {
-    return item.fullAddress.toLowerCase().indexOf(searchLower) !== -1; // 将标签名称转换为小写后进行匹配
-  })
-})
-
-const pageSize = 4 // 每页显示的数据数量
-const currentPage = ref(1) // 当前页码
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredData.value.slice(start, start + pageSize)
-})
-const total = computed(() => filteredData.value.length)
-
-// 初始化数据
-const initData = () => {
-  total.value = tableData.value.length
-  updatePageData()
-}
-
-// 更新当前页的数据
-const updatePageData = () => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  pagedData.value = tableData.value.slice(start, end)
-}
-
-// 处理页码变化的函数
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-  updatePageData()
-}
+const {
+  search,
+  highlight,
+  pageSize,
+  currentPage,
+  pagedData,
+  total,
+  initData,
+  handlePageChange,
+} = useSearchAndPagination(tableData, 4, ['fullAddress']);
 
 getData()
 
@@ -239,7 +216,11 @@ getData()
         <el-table-column prop="ownerName" label="所属人" width="180"
                          header-align="center" align="center"/>
         <el-table-column prop="fullAddress" label="楼栋信息" width="180"
-                         header-align="center" align="center"/>
+                         header-align="center" align="center">
+          <template #default="scope">
+            <div v-html="highlight(scope.row.fullAddress, search)"></div>
+          </template>
+        </el-table-column>
         <el-table-column prop="floorArea" label="房间面积(㎡)" width="180"
                          header-align="center" align="center"/>
         <el-table-column prop="floorPlan" label="户型图" width="180"

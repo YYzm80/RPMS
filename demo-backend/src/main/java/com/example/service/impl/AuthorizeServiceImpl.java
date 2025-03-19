@@ -6,6 +6,7 @@ import com.example.mapper.AccountMapper;
 import com.example.mapper.RoleMapper;
 import com.example.service.AuthorizeService;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.MailException;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> implements AuthorizeService {
 
@@ -79,7 +81,7 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
             template.opsForValue().set(key, String.valueOf(code), 3, TimeUnit.MINUTES);
             return null;
         } catch (MailException e) {
-            e.printStackTrace();
+            log.error("邮件发送失败", e);
             return "邮件发送失败，请检查邮箱地址是否有效";
         }
     }

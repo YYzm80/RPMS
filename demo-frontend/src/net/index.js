@@ -56,6 +56,15 @@ function internalPost(url, data, headers, success, failure, error = defaultError
     }).catch(err => error(err))
 }
 
+function internalPut(url, data, headers, success, failure, error = defaultError){
+    axios.put(url, data, { headers: headers, withCredentials: true }).then(({data}) => {
+        if(data.status === 200)
+            success(data.message)
+        else
+            failure(data.message, data.status, url)
+    }).catch(err => error(err))
+}
+
 function internalGet(url, headers, success, failure, error = defaultError){
     axios.get(url, { headers: headers, withCredentials: true}).then(({data}) => {
         if(data.status === 200)
@@ -89,6 +98,10 @@ function multipartPost(url, data, success, failure = defaultFailure) {
     }, success, failure)
 }
 
+function put(url, data, success, failure = defaultFailure) {
+    internalPut(url, data, accessHeader(), success, failure)
+}
+
 function logout(success, failure = defaultFailure){
     get('/api/auth/logout', () => {
         deleteAccessToken()
@@ -109,4 +122,4 @@ function unauthorized() {
     return !takeAccessToken()
 }
 
-export { post, multipartPost, get, blobGet, login, logout, unauthorized }
+export { post, multipartPost, put, get, blobGet, login, logout, unauthorized }

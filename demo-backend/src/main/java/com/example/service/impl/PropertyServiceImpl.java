@@ -10,8 +10,9 @@ import com.example.mapper.AccountMapper;
 import com.example.mapper.PropertyMapper;
 import com.example.service.DataService;
 import com.example.service.PropertyService;
-import com.example.util.Const;
+import com.example.util.consts.Const;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,12 +25,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property> implements PropertyService, DataService<PropertyImportDTO> {
 
     @Resource
     private PropertyMapper mapper;
-
     @Resource
     private AccountMapper accountMapper;
 
@@ -62,7 +63,7 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property> i
                 file.transferTo(uploadFilePath.toFile());
                 property.setFloorPlan(fileName);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("上传户型图失败", e);
                 return "上传户型图失败，请稍后再试";
             }
         }
@@ -92,7 +93,7 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property> i
                 file.transferTo(uploadFilePath.toFile());
                 property.setFloorPlan(fileName);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("修改户型图失败", e);
                 return "修改户型图失败，请稍后再试";
             }
         }
@@ -113,7 +114,7 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property> i
                     Path filePath = Paths.get(Const.UPLOAD_PATH, fileName);
                     Files.deleteIfExists(filePath);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("删除户型图失败", e);
                     return "删除户型图失败，请稍后再试";
                }
             }

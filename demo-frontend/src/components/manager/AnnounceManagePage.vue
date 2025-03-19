@@ -2,10 +2,11 @@
 
 import '@wangeditor/editor/dist/css/style.css';
 import {Plus, Edit, Delete, Search} from "@element-plus/icons-vue";
-import {computed, onBeforeUnmount, ref, shallowRef} from "vue";
+import {onBeforeUnmount, ref, shallowRef} from "vue";
 import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
 import {Editor, Toolbar} from "@wangeditor/editor-for-vue";
+import {useSearchAndPagination} from "@/net/common";
 
 const tableData = ref([])
 const authItemName = "authorize";
@@ -19,7 +20,7 @@ const getData = () => {
       item.index = i
       i++
     })
-    initData()
+    initData
   })
 }
 
@@ -77,41 +78,16 @@ const deleteUser = () => {
           })
 }
 
-const search = ref('')
-
-const filteredData = computed(() => {
-  const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
-  return tableData.value.filter((item) => {
-    return item.title.toLowerCase().indexOf(searchLower) !== -1; // 将标签名称转换为小写后进行匹配
-  })
-})
-
-const pageSize = 10 // 每页显示的数据数量
-const currentPage = ref(1) // 当前页码
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredData.value.slice(start, start + pageSize)
-})
-const total = computed(() => filteredData.value.length)
-
-// 初始化数据
-const initData = () => {
-  total.value = tableData.value.length
-  updatePageData()
-}
-
-// 更新当前页的数据
-const updatePageData = () => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  pagedData.value = tableData.value.slice(start, end)
-}
-
-// 处理页码变化的函数
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-  updatePageData()
-}
+const {
+  search,
+  highlight,
+  pageSize,
+  currentPage,
+  pagedData,
+  total,
+  initData,
+  handlePageChange,
+} = useSearchAndPagination(tableData, 10, ['title']);
 
 const editorRef = shallowRef();
 
@@ -184,8 +160,11 @@ getData()
                          header-align="center" align="center"/>
         <el-table-column prop="title" label="标题" width="300"
                          show-overflow-tooltip
-                         header-align="center" align="center"
-        />
+                         header-align="center" align="center">
+          <template #default="scope">
+            <div v-html="highlight(scope.row.title, search)"></div>
+          </template>
+        </el-table-column>
         <el-table-column prop="publisherName" label="发布人" width="180"
                          header-align="center" align="center"/>
         <el-table-column prop="statusDesc" label="发布状态" width="180"
