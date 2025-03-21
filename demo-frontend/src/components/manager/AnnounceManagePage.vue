@@ -1,9 +1,9 @@
 <script setup>
 
 import '@wangeditor/editor/dist/css/style.css';
-import {Plus, Edit, Delete, Search} from "@element-plus/icons-vue";
+import {Plus, Edit, Delete, Search, Refresh} from "@element-plus/icons-vue";
 import {onBeforeUnmount, ref, shallowRef} from "vue";
-import {get, post} from "@/net";
+import {get, post, put} from "@/net";
 import {ElMessage} from "element-plus";
 import {Editor, Toolbar} from "@wangeditor/editor-for-vue";
 import {useSearchAndPagination} from "@/net/common";
@@ -52,7 +52,7 @@ const getUpdateData = (aid) => {
 }
 
 const update = () => {
-  post('api/announce/update', {
+  put('api/announce/update', {
     aid: updateForm.value.aid,
     title: updateForm.value.title,
     content: updateForm.value.content,
@@ -127,6 +127,28 @@ onBeforeUnmount(() => {
   editor.destroy();
 });
 
+let lastRefreshTime = 0
+
+function refresh() {
+  const currentTime = Date.now()
+
+  // 计算时间差
+  const timeDiff = currentTime - lastRefreshTime
+
+  // 5秒内禁止重复刷新
+  if (timeDiff < 5000) {
+    ElMessage.warning('操作过于频繁，请5秒后再试')
+    return
+  }
+
+  // 更新最后一次刷新时间
+  lastRefreshTime = currentTime
+
+  // 原有刷新逻辑
+  getData()
+  ElMessage.info('刷新成功')
+}
+
 getData()
 
 </script>
@@ -152,6 +174,16 @@ getData()
           <Search/>
         </el-icon>
         搜索
+      </el-button>
+      <el-button
+              style="height: 35px;width: 100px;font-size: 16px"
+              type="warning"
+              plain
+              @click="refresh">
+        <el-icon>
+          <Refresh/>
+        </el-icon>
+        刷新
       </el-button>
     </div>
     <div class="bottom">

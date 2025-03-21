@@ -89,7 +89,7 @@ function userLogin() {
     </div>
     <div style="margin-top: 60px">
       <el-button @click="userLogin()" style="width: 250px" type="success"
-                 plain v-loading="loading">立即登录
+                 plain :loading="loading">立即登录
       </el-button>
     </div>
   </div>

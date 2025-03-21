@@ -2,7 +2,7 @@
 
 import {Edit, Refresh, Search} from "@element-plus/icons-vue";
 import {ref} from "vue";
-import {get, post} from "@/net";
+import {get, put} from "@/net";
 import {ElMessage} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
 
@@ -33,7 +33,7 @@ const getUpdateData = (cid) => {
 }
 
 const accept = () => {
-  post('api/complaint/update', {
+  put('api/complaint/update', {
     cid: updateForm.value.cid,
     handlerId: user.uid,
     status: 'processing',
@@ -46,7 +46,7 @@ const accept = () => {
 }
 
 const resolve = () => {
-  post('api/complaint/update', {
+  put('api/complaint/update', {
     cid: updateForm.value.cid,
     handlerId: user.uid,
     status: 'resolved',

@@ -1,6 +1,6 @@
 <script setup>
 import {ref} from "vue";
-import {get, post} from "@/net";
+import {get, post, put} from "@/net";
 import {Delete, Edit, Plus, Search, View} from "@element-plus/icons-vue";
 import router from "@/router";
 import {ElMessage} from "element-plus";
@@ -52,6 +52,17 @@ const newRepair = () => {
   }, (message) => {
     ElMessage.success(message)
     dialogNewRepairVisible.value = false
+    getData()
+  })
+}
+
+const updateRepair = () => {
+  put('api/repair/update', {
+    repairId: updateForm.value.repairId,
+    description: updateForm.value.description
+  }, (message) => {
+    ElMessage.success(message)
+    dialogUpdateVisible.value = false
     getData()
   })
 }
@@ -237,7 +248,7 @@ getData()
           <el-button @click="dialogUpdateVisible = false">取消</el-button>
           <el-button
                   type="warning"
-                  @click="accept">
+                  @click="updateRepair">
             修改
           </el-button>
         </div>

@@ -84,13 +84,16 @@ const router = createRouter({
     }]
 })
 
+const authItemName = "authorize"
+const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
+
 router.beforeEach((to, from, next) => {
     const isUnauthorized = unauthorized()
     if(to.name.startsWith('welcome') && !isUnauthorized) {
         next('/index')
-    } else if(to.fullPath.startsWith('/index') && isUnauthorized) {
+    } else if(to.name.startsWith('index') && isUnauthorized) {
         next('/')
-    } else if (to.fullPath.startsWith('/manager') && isUnauthorized) {
+    } else if (to.name.startsWith('manager') && isUnauthorized && user.role === 'owner') {
         next('/')
     } else {
         next()

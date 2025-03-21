@@ -31,15 +31,22 @@ const getData = () => {
   })
 }
 
+function isEmptyOrUndefined(value) {
+  return value === '' || value === undefined;
+}
+
 const getReqData = () => {
-  if ((paymentReq.value.type === '' || paymentReq.value.type === undefined)
-          && (paymentReq.value.status === '' || paymentReq.value.status === undefined)) {
+  if (isEmptyOrUndefined(paymentReq.value.type) && isEmptyOrUndefined(paymentReq.value.status)) {
     getData()
   } else {
-    get('/api/payment/req?id='
-            + user.uid
-            + '&type=' + paymentReq.value.type
-            + '&status=' + paymentReq.value.status, (data) => {
+    let query = `?id=${user.uid}`
+    if (!isEmptyOrUndefined(paymentReq.value.type)) {
+      query += `&type=${paymentReq.value.type}`
+    }
+    if (!isEmptyOrUndefined(paymentReq.value.status)) {
+      query += `&status=${paymentReq.value.status}`
+    }
+    get('/api/payment/req' + query, (data) => {
       tableData.value = data
       let i = 1
       tableData.value.forEach((item) => {

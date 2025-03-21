@@ -1,6 +1,6 @@
 <script setup>
 import {ref} from "vue";
-import {get, post} from "@/net";
+import {get, post, put} from "@/net";
 import {Delete, Edit, Plus, Search, View} from "@element-plus/icons-vue";
 import router from "@/router";
 import {ElMessage} from "element-plus";
@@ -52,6 +52,17 @@ const newComplaint = () => {
   }, (message) => {
     ElMessage.success(message)
     dialogNewComplaintVisible.value = false
+    getData()
+  })
+}
+
+const updateComplaint = () => {
+  put('api/complaint/update', {
+    cid: updateForm.value.cid,
+    content: updateForm.value.content,
+  }, (message) => {
+    ElMessage.success(message)
+    dialogUpdateVisible.value = false
     getData()
   })
 }
@@ -237,7 +248,7 @@ getData()
           <el-button @click="dialogUpdateVisible = false">取消</el-button>
           <el-button
                   type="warning"
-                  @click="accept">
+                  @click="updateComplaint">
             修改
           </el-button>
         </div>

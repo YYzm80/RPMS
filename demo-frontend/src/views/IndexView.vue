@@ -3,12 +3,12 @@ import {get, logout} from "@/net";
 import router from "@/router";
 import {
   Comment,
-  Document, Drizzling,
+  Drizzling,
   House,
   More, MostlyCloudy,
-  OfficeBuilding, PartlyCloudy,
+  PartlyCloudy,
   PriceTag,
-  Suitcase, Sunny
+  Sunny
 } from "@element-plus/icons-vue";
 import {reactive, ref} from "vue";
 import {locationStore} from "@/stores/locationStore";
@@ -172,7 +172,7 @@ weather()
               <el-button type="danger"
                          size="small"
                          @click="userLogout"
-                         style="margin: 0" v-loading="loading">退出登录
+                         style="margin: 0" :loading="loading">退出登录
               </el-button>
             </div>
           </template>

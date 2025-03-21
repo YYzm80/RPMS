@@ -64,12 +64,13 @@ const onValidate = (prop, isValid) => {
     }
 }
 
+let interval = null
 const validateEmail = () => {
     coldTime.value = 60
     post(`/api/auth/ask-code?email=${form.email}&type=reset`, {
     }, (message) => {
         ElMessage.success(message)
-        setInterval(() => coldTime.value--, 1000)
+        interval = setInterval(() => coldTime.value--, 1000)
     }, (message) =>{
         ElMessage.warning(message)
         coldTime.value = 0
@@ -83,6 +84,7 @@ const startReset = () => {
                 email: form.email,
                 code: form.code
             }, () => {
+                clearInterval(interval)
                 active.value++
             })
         } else {
@@ -134,7 +136,7 @@ const doReset = () => {
                         </el-form-item>
                         <el-form-item prop="code">
                             <el-row :gutter="10" style="width: 100%">
-                                <el-col :span="17">
+                                <el-col :span="14">
                                     <el-input v-model="form.code" type="text" :maxlength="6" placeholder="请输入验证码">
                                         <template #prefix>
                                             <el-icon>
@@ -143,8 +145,12 @@ const doReset = () => {
                                         </template>
                                     </el-input>
                                 </el-col>
-                                <el-col :span="6">
-                                    <el-button @click="validateEmail" type="success" :disabled="!isEmailValid || coldTime > 0">
+                                <el-col :span="10">
+                                    <el-button @click="validateEmail"
+                                               type="success"
+                                               :disabled="!isEmailValid || coldTime > 0"
+                                               style="width: 100%"
+                                    >
                                         {{ coldTime > 0 ? coldTime + '秒后可获取' : '获取验证码' }}
                                     </el-button>
                                 </el-col>

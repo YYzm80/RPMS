@@ -1,9 +1,9 @@
 <script setup>
 
-import { Plus, Message } from "@element-plus/icons-vue";
+import { Message } from "@element-plus/icons-vue";
 import { ref } from "vue";
-import { ElMessage, genFileId } from "element-plus";
-import {get, multipartPost, post} from "@/net";
+import { ElMessage } from "element-plus";
+import {get, put} from "@/net";
 
 const updateForm = ref([]);
 const edit = ref(false);
@@ -33,7 +33,7 @@ const getData = () => {
 }
 
 const update = () => {
-    post("api/user/update", {
+    put("api/user/update-personal", {
         userId: user.uid,
         username: updateForm.value.username,
         realName: updateForm.value.realName,
@@ -117,7 +117,7 @@ getData();
                   <el-option label="隐藏" value="other"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="职位">
+              <el-form-item label="职位" v-if="user.role !== 'owner'">
                 <el-input v-model="updateForm.position"
                           autocomplete="off"
                           style="width: 150px;"
@@ -135,7 +135,7 @@ getData();
                           style="width: 200px;"
                           disabled/>
               </el-form-item>
-              <el-form-item label="入职时间">
+              <el-form-item label="入职时间" v-if="user.role !== 'owner'">
                 <el-input v-model="updateForm.hireDate"
                           autocomplete="off"
                           style="width: 200px;"

@@ -1,6 +1,6 @@
 <script setup>
 
-import {Plus, Edit, Delete, Download, UploadFilled, Search} from "@element-plus/icons-vue";
+import {Plus, Edit, Delete, Download, UploadFilled, Search, Refresh} from "@element-plus/icons-vue";
 import {ref} from "vue";
 import {get, multipartPost, post} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
@@ -79,7 +79,7 @@ const update = () => {
     // 用户选择了新文件，将其添加到formData中
     formData.append("file", fileList.value[0].raw)
   }
-  if (updateForm.value.userId !== undefined) {
+  if (updateForm.value.userId !== undefined && updateForm.value.userId !== null) {
     formData.append("userId", updateForm.value.userId)
     formData.append("purchaseDate", updateForm.value.purchaseDate)
   }
@@ -143,6 +143,26 @@ const handleChange = function (file) {
   }
 }
 
+const handleChangeImg = function (file) {
+  // console.log(file)
+  let array = file.name.split('.');
+  let suffix = array[array.length - 1]; // 获取文件扩展名
+  // console.log(fileList.value)
+  const validImageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp']; // 允许的图片格式
+
+  if (!validImageTypes.includes(suffix.toLowerCase())) { // 检查文件扩展名是否在允许的图片格式中
+    fileList.value = fileList.value.filter(f => f.uid !== file.uid); // 使用filter来删除特定文件
+    ElMessage.warning("请上传正确的图片格式文件");
+    upload.value.clearFiles();
+  } else {
+    // 如果文件是图片格式，确保将其添加到fileList中
+    if (!fileList.value.some(f => f.uid === file.uid)) {
+      fileList.value.push(file);
+    }
+  }
+}
+
+
 const add = () => {
   let formData = new FormData()
   loading.value = true
@@ -176,6 +196,28 @@ const {
   handlePageChange,
 } = useSearchAndPagination(tableData, 4, ['fullAddress']);
 
+let lastRefreshTime = 0
+
+function refresh() {
+  const currentTime = Date.now()
+
+  // 计算时间差
+  const timeDiff = currentTime - lastRefreshTime
+
+  // 5秒内禁止重复刷新
+  if (timeDiff < 5000) {
+    ElMessage.warning('操作过于频繁，请5秒后再试')
+    return
+  }
+
+  // 更新最后一次刷新时间
+  lastRefreshTime = currentTime
+
+  // 原有刷新逻辑
+  getData()
+  ElMessage.info('刷新成功')
+}
+
 getData()
 
 </script>
@@ -207,6 +249,16 @@ getData()
           <Search/>
         </el-icon>
         搜索
+      </el-button>
+      <el-button
+              style="height: 35px;width: 100px;font-size: 16px"
+              type="warning"
+              plain
+              @click="refresh">
+        <el-icon>
+          <Refresh/>
+        </el-icon>
+        刷新
       </el-button>
     </div>
     <div class="bottom">
@@ -319,6 +371,7 @@ getData()
                     :show-file-list="true"
                     :limit="1"
                     :on-exceed="handleExceed"
+                    :on-change="handleChangeImg"
                     :auto-upload="false"
             >
               <template #file="{ file }">
@@ -377,7 +430,7 @@ getData()
         </div>
         <template #footer>
           <div class="dialog-footer">
-            <el-button type="success" plain @click="add" v-loading="loading">
+            <el-button type="success" plain @click="add" :loading="loading">
               导入数据
             </el-button>
             <el-button @click="importVisible = false">取消</el-button>
@@ -449,6 +502,7 @@ getData()
                     :show-file-list="true"
                     :limit="1"
                     :on-exceed="handleExceed"
+                    :on-change="handleChangeImg"
                     :auto-upload="false"
             >
               <template #file="{ file }">

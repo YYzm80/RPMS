@@ -18,7 +18,7 @@ export default defineConfig({
         }),
     ],
     server:{
-        open:true,//自动浏览
+        open:false,//自动浏览
         port:8088,//端口号
         host:'192.168.43.155'
     },

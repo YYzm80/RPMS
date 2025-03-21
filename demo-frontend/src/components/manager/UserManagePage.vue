@@ -2,7 +2,7 @@
 
 import {Plus, Edit, Delete, Refresh, Download, UploadFilled, Search} from "@element-plus/icons-vue";
 import {ref} from "vue";
-import {get, multipartPost, post} from "@/net";
+import {get, multipartPost, post, put} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
 
@@ -56,7 +56,7 @@ const getUpdateData = (uid) => {
 }
 
 const update = () => {
-  post('api/user/update', {
+  put('api/user/update-manager', {
     userId: updateForm.value.userId,
     username: updateForm.value.username,
     realName: updateForm.value.realName,
@@ -88,7 +88,7 @@ const deleteUser = () => {
 }
 
 const changeStatus = (uid) => {
-  post('api/user/change', uid, (message) => {
+  put('api/user/change', uid, (message) => {
     ElMessage.success(message)
     getData()
   })
@@ -160,6 +160,28 @@ const {
   handlePageChange,
 } = useSearchAndPagination(tableData, 10, ['realName']);
 
+let lastRefreshTime = 0
+
+function refresh() {
+  const currentTime = Date.now()
+
+  // 计算时间差
+  const timeDiff = currentTime - lastRefreshTime
+
+  // 5秒内禁止重复刷新
+  if (timeDiff < 5000) {
+    ElMessage.warning('操作过于频繁，请5秒后再试')
+    return
+  }
+
+  // 更新最后一次刷新时间
+  lastRefreshTime = currentTime
+
+  // 原有刷新逻辑
+  getData()
+  ElMessage.info('刷新成功')
+}
+
 getData()
 
 </script>
@@ -191,6 +213,16 @@ getData()
           <Search/>
         </el-icon>
         搜索
+      </el-button>
+      <el-button
+              style="height: 35px;width: 100px;font-size: 16px"
+              type="warning"
+              plain
+              @click="refresh">
+        <el-icon>
+          <Refresh/>
+        </el-icon>
+        刷新
       </el-button>
     </div>
     <div class="bottom">
@@ -365,7 +397,7 @@ getData()
         </div>
         <template #footer>
           <div class="dialog-footer">
-            <el-button type="success" plain @click="add" v-loading="loading">
+            <el-button type="success" plain @click="add" :loading="loading">
               导入数据
             </el-button>
             <el-button @click="importVisible = false">取消</el-button>
