@@ -14,8 +14,11 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,11 +40,13 @@ public class PaymentController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Operation(summary = "获取所有账单")
     @GetMapping("/all")
     public RestBean<List<PaymentVO>> all() {
         return RestBean.success(service.getPaymentList());
     }
 
+    @Operation(summary = "条件查询账单")
     @GetMapping("/req")
     public RestBean<List<PaymentVO>> getByReq(@RequestParam Long id,
                                               @RequestParam(required = false) String type,
@@ -53,11 +58,13 @@ public class PaymentController {
         return RestBean.success(service.getPaymentListByReq(req));
     }
 
+    @Operation(summary = "根据id获取账单")
     @GetMapping("/pid/{pid}")
     public RestBean<PaymentVO> getByPid(@PathVariable("pid") Long pid) {
         return RestBean.success(service.getPaymentById(pid));
     }
 
+    @Operation(summary = "生成支付二维码")
     @GetMapping("/qrcode/{sessionId}")
     public void generateQrCode(
             @PathVariable String sessionId,
@@ -72,8 +79,9 @@ public class PaymentController {
         MatrixToImageWriter.writeToStream(matrix, "PNG", response.getOutputStream());
     }
 
+    @Operation(summary = "创建支付会话")
     @PostMapping("/create-session")
-    public RestBean<String> createPaymentSession(@RequestBody Payment request) throws JsonProcessingException {
+    public RestBean<String> createPaymentSession(@RequestBody @Valid Payment request) throws JsonProcessingException {
         String sessionId = UUID.randomUUID().toString();
         PaymentSession session = new PaymentSession(request.getPayId(), request.getAmount(), request.getType());
         String sessionJson = objectMapper.writeValueAsString(session);
@@ -86,6 +94,7 @@ public class PaymentController {
         return RestBean.success(sessionId);
     }
 
+    @Operation(summary = "确认支付")
     @PutMapping("/confirm")
     public RestBean<String> confirmPayment(@RequestBody String sessionId) throws JsonProcessingException {
         // 从Redis获取会话信息
@@ -109,18 +118,24 @@ public class PaymentController {
         return RestBean.failure(400, "支付失败");
     }
 
+    @Operation(summary = "创建账单")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/add")
-    public RestBean<String> add(@RequestBody Payment payment, @RequestParam("userIds") List<Long> userIds) {
+    public RestBean<String> add(@RequestBody @Valid Payment payment, @RequestParam("userIds") List<Long> userIds) {
         String s = service.createPayment(payment, userIds);
         return s == null ? RestBean.success("发布账单成功") : RestBean.failure(400, s);
     }
 
-    @PostMapping("/update")
-    public RestBean<String> update(@RequestBody Payment payment) {
+    @Operation(summary = "更新账单")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
+    @PutMapping("/update")
+    public RestBean<String> update(@RequestBody @Valid Payment payment) {
         String s = service.updatePayment(payment);
         return s == null ? RestBean.success("缴费成功") : RestBean.failure(400, s);
     }
 
+    @Operation(summary = "删除账单")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/delete")
     public RestBean<String> delete(@RequestBody Long pid) {
         String s = service.deletePayment(pid);

@@ -5,6 +5,7 @@ import com.example.entity.dto.auth.Account;
 import com.example.mapper.AccountMapper;
 import com.example.mapper.RoleMapper;
 import com.example.service.AuthorizeService;
+import com.example.util.HttpContextUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +62,12 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
 
     @Override
     public String sendValidateEmail(String email, String sessionId, boolean hasAccount) {
+        String ipKey = "ip:" + HttpContextUtils.getIpAddress();
+        Long ipRequestCount = Optional.ofNullable(template.opsForValue().get(ipKey)).map(Long::parseLong).orElse(0L);
+        if (ipRequestCount >= 10) { // 假设每个 IP 每分钟最多请求 10 次
+            return "请求过于频繁，请稍后再试！";
+        }
+
         String key = "email:" + sessionId + ":" + email + ":" + hasAccount;
         if (Boolean.TRUE.equals(template.hasKey(key))) {
             Long expire = Optional.ofNullable(template.getExpire(key, TimeUnit.SECONDS)).orElse(0L);

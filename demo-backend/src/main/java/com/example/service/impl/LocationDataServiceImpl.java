@@ -2,6 +2,7 @@ package com.example.service.impl;
 
 import com.example.entity.vo.request.location.LocationData;
 import com.example.service.LocationDataService;
+import com.example.util.HttpContextUtils;
 import com.example.util.consts.Const;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
@@ -20,10 +21,11 @@ public class LocationDataServiceImpl implements LocationDataService {
 
     @Override
     public LocationData getDataByIP() {
-        return this.doGetLocationData(Const.LOCATION_API);
+        return this.doGetLocationData(Const.LOCATION_API + "&ip=" + HttpContextUtils.getIpAddress());
     }
 
     private LocationData doGetLocationData(String url) {
+        log.info("获取ip接口完整url：" + url);
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         String strBody = null;
         if (response.getStatusCode().value() == 200) {

@@ -9,6 +9,13 @@ spring:
       database: 0
       host: localhost
       port: 6379
+springdoc:
+  api-docs:
+    enabled: true # 开启OpenApi接口
+    path: /v1/api-docs  # 自定义路径，默认为 "/v3/api-docs"
+  swagger-ui:
+    enabled: true # 开启swagger界面，依赖OpenApi，需要OpenApi同时开启
+    path: /swagger-ui/index.html # 自定义路径，默认为"/swagger-ui/index.html"
 files:
   upload:
     #图片文件存储位置

@@ -7,4 +7,9 @@ public class Const {
     public static final String WEATHER_API = "https://restapi.amap.com/v3/weather/weatherInfo?key=077e7585e935dd09dcdf2098c801cad4";
     public static String UPLOAD_PATH = "D:/CodeDevelopment/uploaded/";
     public static String FRONT_PATH = "http://192.168.43.155:8088/";
+
+    // 角色
+    public static final String ROLE_ADMIN = "admin";
+    public static final String ROLE_MANAGER = "manager";
+    public static final String ROLE_OWNER = "owner";
 }

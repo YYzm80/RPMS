@@ -2,18 +2,15 @@ package com.example.controller;
 
 import com.example.entity.RestBean;
 import com.example.entity.vo.request.email.ConfirmResetVO;
-import com.example.entity.vo.request.email.EmailRegisterVO;
 import com.example.entity.vo.request.email.EmailResetVO;
 import com.example.service.AuthorizeService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @Validated
 @RestController
@@ -23,9 +20,9 @@ public class AuthorizeController {
     @Resource
     AuthorizeService service;
 
+    @Operation(summary = "发送验证码")
     @PostMapping("/ask-code")
     public RestBean<String> askVerifyCode(@RequestParam @Email String email,
-                                          @RequestParam @Pattern(regexp = "(reset)") String type,
                                           HttpSession session) {
         String s = service.sendValidateEmail(email, session.getId(), true);
 
@@ -41,8 +38,9 @@ public class AuthorizeController {
      * @param vo 密码重置信息
      * @return 是否操作成功
      */
+    @Operation(summary = "验证邮箱验证码")
     @PostMapping("/reset-confirm")
-    public RestBean<String> resetConfirm(@Valid ConfirmResetVO vo,
+    public RestBean<String> resetConfirm(@RequestBody @Valid ConfirmResetVO vo,
                                          HttpSession session) {
         String s = service.validateOnly(vo.getEmail(), vo.getCode(), session.getId());
         if (s == null) {
@@ -59,8 +57,9 @@ public class AuthorizeController {
      * @param vo 密码重置信息
      * @return 是否操作成功
      */
+    @Operation(summary = "重置密码")
     @PostMapping("/reset-password")
-    public RestBean<String> resetPassword(@Valid EmailResetVO vo,
+    public RestBean<String> resetPassword(@RequestBody @Valid EmailResetVO vo,
                                           HttpSession session) {
         String email = (String) session.getAttribute("reset-password");
         if (email == null) {

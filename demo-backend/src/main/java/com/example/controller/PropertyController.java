@@ -10,7 +10,11 @@ import com.example.filter.PropertyImportFilter;
 import com.example.listener.FilterableExcelReader;
 import com.example.service.DataService;
 import com.example.service.PropertyService;
+import com.example.util.consts.Const;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,35 +34,45 @@ public class PropertyController {
     @Resource
     private DataService<PropertyImportDTO> propertyImportService;
 
+    @Operation(summary = "获取所有房产信息")
     @GetMapping("/all")
     public RestBean<List<PropertyVO>> all() {
         return RestBean.success(service.getPropertyList());
     }
 
+    @Operation(summary = "根据id获取房产信息")
     @GetMapping("/pid/{pid}")
     public RestBean<PropertyVO> get(@PathVariable("pid") Long pid) {
         return RestBean.success(service.getPropertyVO(pid));
     }
 
+    @Operation(summary = "创建房产信息")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/add")
-    public RestBean<String> add(@RequestParam("file") MultipartFile file, Property property) {
+    public RestBean<String> add(@RequestParam("file") MultipartFile file, @Valid Property property) {
         String s = service.addProperty(file, property);
         return s == null ? RestBean.success("新增房产信息成功") : RestBean.failure(400, s);
     }
 
+    @Operation(summary = "更新房产信息")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/update")
     public RestBean<String> update(@RequestParam(value = "file", required = false) MultipartFile file,
-                                   Property property) {
+                                   @Valid Property property) {
         String s = service.updateProperty(file, property);
         return s == null ? RestBean.success("更新房产信息成功") : RestBean.failure(400, s);
     }
 
+    @Operation(summary = "删除房产信息")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/delete")
     public RestBean<String> delete(@RequestBody Long pid) {
         String s = service.deleteProperty(pid);
         return s == null ? RestBean.success("删除房产信息成功") : RestBean.failure(400, s);
     }
 
+    @Operation(summary = "导入房产信息")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/import")
     public RestBean<String> importProperties(@RequestParam("file") MultipartFile file) {
         try {

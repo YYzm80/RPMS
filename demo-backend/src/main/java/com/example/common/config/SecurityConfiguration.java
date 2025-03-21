@@ -60,6 +60,7 @@ public class SecurityConfiguration {
         return http
                 .authorizeHttpRequests(conf -> {
                     conf.requestMatchers("/api/auth/**", "/uploaded/**", "/api/payment/confirm").permitAll();
+                    conf.requestMatchers("/swagger-ui/**", "/v1/api-docs/**").permitAll();
                     conf.anyRequest().authenticated();
                 })
                 .formLogin(conf -> {
