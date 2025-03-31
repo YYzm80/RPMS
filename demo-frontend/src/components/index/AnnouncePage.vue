@@ -1,12 +1,11 @@
 <script setup>
-import {computed, ref} from "vue";
+import {ref} from "vue";
 import {get} from "@/net";
 import {Search, View} from "@element-plus/icons-vue";
 import router from "@/router";
+import {useSearchAndPagination} from "@/net/common";
 
 const tableData = ref([])
-const authItemName = "authorize";
-const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
 const announcement = ref([])
 const dialogAnnounceVisible = ref(false)
 
@@ -18,7 +17,7 @@ const getData = () => {
       item.index = i
       i++
     })
-    initData()
+    initData
   })
 }
 
@@ -29,51 +28,16 @@ const getAnnouncement = (aid) => {
   })
 }
 
-const search = ref('')
-
-const highlight = (text, keyword) => {
-  if (!keyword.trim()) return text // 无关键词时返回原文
-
-  // 转义正则特殊字符
-  const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const regex = new RegExp(`(${escapedKeyword})`, 'gi') // 全局+忽略大小写
-
-  return text.replace(regex, '<mark>$1</mark>')
-}
-
-const filteredData = computed(() => {
-  const searchLower = search.value.toLowerCase(); // 将搜索词转换为小写
-  return tableData.value.filter((item) => {
-    return item.title.toLowerCase().indexOf(searchLower) !== -1; // 将标签名称转换为小写后进行匹配
-  })
-})
-
-const pageSize = 7 // 每页显示的数据数量
-const currentPage = ref(1) // 当前页码
-const pagedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredData.value.slice(start, start + pageSize)
-})
-const total = computed(() => filteredData.value.length)
-
-// 初始化数据
-const initData = () => {
-  total.value = tableData.value.length
-  updatePageData()
-}
-
-// 更新当前页的数据
-const updatePageData = () => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  pagedData.value = tableData.value.slice(start, end)
-}
-
-// 处理页码变化的函数
-const handlePageChange = (newPage) => {
-  currentPage.value = newPage
-  updatePageData()
-}
+const {
+  search,
+  highlight,
+  pageSize,
+  currentPage,
+  pagedData,
+  total,
+  initData,
+  handlePageChange,
+} = useSearchAndPagination(tableData, 7, ['title']);
 
 getData()
 

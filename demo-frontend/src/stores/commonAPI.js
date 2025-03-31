@@ -1,1 +1,5 @@
-export const imgUrl = 'http://192.168.43.155:8080/uploaded/'
+// 文件上传地址
+export const imgUrl = 'http://localhost:8080/uploaded/'
+
+// 获取时间温馨提示Api
+export const timeTipApi = 'https://api.kuleu.com/api/getGreetingMessage?type=json'

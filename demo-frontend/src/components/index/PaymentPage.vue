@@ -79,6 +79,8 @@ const loadQrCode = async (payment) => {
       qrCodeUrl.value = URL.createObjectURL(res.data)
       dialogPayVisible.value = true
       checkPaymentStatus(payment.payId)
+    } else {
+      ElMessage.warning('创建支付会话失败，请检查网络设置')
     }
   })
 }
@@ -199,10 +201,11 @@ getData()
     <el-dialog
             v-model="dialogPayVisible"
             title="在线缴费"
-            width="600"
-            style="margin-top: 50px"
+            width="500"
+            style="margin-top: 150px"
     >
       <img :src="qrCodeUrl" v-if="qrCodeUrl" alt="qrImg">
+      <p v-if="qrCodeUrl" style="margin-top: 5px;color: red">请扫码完成缴费，有效交易时间为5分钟</p>
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="dialogPayVisible = false">取消</el-button>

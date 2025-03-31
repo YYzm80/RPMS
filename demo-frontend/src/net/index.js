@@ -4,6 +4,11 @@ import {ElMessage} from "element-plus";
 const authItemName = "authorize"
 const defaultError = () => ElMessage.error('发生了一些错误，请联系管理员')
 const defaultFailure = (message, status, url) => {
+    if (status === 401) {
+        ElMessage.warning("登录状态已过期，请重新登录！")
+        deleteAccessToken()
+        return
+    }
     console.warn(`请求地址: ${url}, 状态码: ${status}, 错误信息: ${message}`)
     ElMessage.warning(message)
 }
@@ -19,7 +24,7 @@ function takeAccessToken() {
     const str = localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName);
     if(!str) return null
     const authObj = JSON.parse(str)
-    if(new Date(authObj.expire) <= new Date()) {
+    if(new Date(authObj.expire) <= new Date() || !authObj.token) {
         deleteAccessToken()
         ElMessage.warning("登录状态已过期，请重新登录！")
         return null
@@ -81,6 +86,13 @@ function login(username, password, remember, success, failure = defaultFailure){
     }, {
         'Content-Type': 'application/x-www-form-urlencoded'
     }, (data) => {
+        if (data.online) {
+            ElNotification({
+                title: '警告',
+                message: '您在其它地方登录的账号已被踢出',
+                type: 'warning',
+            })
+        }
         storeAccessToken(remember, data.token, data.expire, data)
         ElMessage.success(`登录成功，欢迎 ${data.username} 来到我们的系统`)
         success(data)

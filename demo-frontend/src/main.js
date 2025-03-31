@@ -12,7 +12,7 @@ import VueLazyload from "vue-lazyload";
 
 const app = createApp(App)
 
-axios.defaults.baseURL = 'http://192.168.43.155:8080'
+axios.defaults.baseURL = 'http://localhost:8080'
 
 app.use(VueLazyload);
 app.use(createPinia())

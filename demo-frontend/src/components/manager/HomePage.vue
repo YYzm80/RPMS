@@ -3,10 +3,13 @@
 import {get} from "@/net";
 import {
   Warning,
-  CaretTop
+  CaretTop,
+  CaretBottom
 } from "@element-plus/icons-vue";
 import * as echarts from "echarts";
 import {ref} from "vue";
+import {timeTipApi} from "@/stores/commonAPI";
+import anxios from "axios";
 
 const authItemName = "authorize"
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
@@ -19,7 +22,8 @@ const getData = () => {
     homeData.value = data
     // console.log(homeData.value)
     show()
-})
+    getTimeTip()
+  })
 }
 
 const getChartData1 = () => {
@@ -60,7 +64,7 @@ const show = () => {
   const myChart2 = echarts.init(echartsRef2.value)
   let chartData1 = getChartData1()
   let chartData2 = getChartData2()
-  console.log(chartData2)
+  // console.log(chartData2)
   myChart1.setOption({
     tooltip: {
       trigger: 'axis'
@@ -136,6 +140,15 @@ const show = () => {
   })
 }
 
+const timeTip = ref()
+
+async function getTimeTip() {
+  anxios.get(timeTipApi).then((res) => {
+    timeTip.value = res.data.data
+    // console.log(timeTip.value)
+  })
+}
+
 getData()
 
 </script>
@@ -146,12 +159,12 @@ getData()
       <el-card style="width: 918px;height: 130px;background-color: #e1eaf9" shadow="hover">
         <div style="display: flex;flex-direction: row">
           <img src="@/assets/header.svg" alt="header" style="width: 140px;">
-          <div style="display: flex;flex-direction: column;margin-left: 20px">
+          <div style="display: flex;flex-direction: column;margin-left: 20px" v-if="timeTip !== undefined">
             <span style="font-size: 20px;font-weight:bold;color: #8c9bf9;">
-              上午好，{{ user.username }}！
+              {{ timeTip.greeting}}，{{ user.username }}！
             </span>
             <span>
-              开源等于互助；开源需要大家一起来支持，支持的方式有很多种，比如使用、推荐、写教程、保护生态、贡献代码、回答问题、分享经验、打赏赞助等；欢迎您加入我们！
+              {{ timeTip.tip }}
             </span>
           </div>
         </div>
@@ -186,9 +199,16 @@ getData()
         <div class="statistic-footer">
           <div class="footer-item">
             <span>比昨天</span>
-            <span class="green">24%
+            <span class="green" v-if="homeData.newComplaintsAndRepairsYesterday >= 0">
+              {{ homeData.newComplaintsAndRepairsYesterday }}
               <el-icon>
                 <CaretTop/>
+              </el-icon>
+            </span>
+            <span class="red" v-else>
+              {{ homeData.newComplaintsAndRepairsYesterday }}
+              <el-icon>
+                <CaretBottom/>
               </el-icon>
             </span>
           </div>

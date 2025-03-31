@@ -333,7 +333,7 @@ getData()
           </el-row>
           <el-row>
             <el-col :span="11">
-              <el-form-item label="职位(仅限业务人员)">
+              <el-form-item label="职位(仅限物业人员)">
                 <el-input v-model="form.position"
                           autocomplete="off"
                           placeholder="请输入职位名称"/>
@@ -341,7 +341,7 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="入职时间(仅限业务人员)">
+              <el-form-item label="入职时间(仅限物业人员)">
                 <el-date-picker type="date"
                                 style="width: 100%;"
                                 v-model="form.hireDate"
@@ -458,7 +458,7 @@ getData()
           </el-row>
           <el-row>
             <el-col :span="11">
-              <el-form-item label="职位(仅限业务人员)">
+              <el-form-item label="职位(仅限物业人员)">
                 <el-input v-model="updateForm.position"
                           autocomplete="off"
                           placeholder="请输入职位名称"/>
@@ -466,7 +466,7 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="入职时间(仅限业务人员)">
+              <el-form-item label="入职时间(仅限物业人员)">
                 <el-date-picker type="date"
                                 style="width: 100%;"
                                 v-model="updateForm.hireDate"

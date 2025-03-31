@@ -8,7 +8,7 @@
       <el-image style="width: 100%;height: 100%" fit="cover"
                 src="https://bpic.588ku.com/back_pic/06/16/57/8162f7bab2cf49c.jpg"/>
       <div class="welcome-title">
-        <div style="font-size: 26px;font-weight: bold">欢迎使用物业后台管理系统</div>
+        <div style="font-size: 26px;font-weight: bold">欢迎使用住宅物业管理系统</div>
         <div style="margin-top: 16px;font-size: 13px">
           在线办公，让工作更简单
         </div>

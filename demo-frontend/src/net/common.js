@@ -1,5 +1,12 @@
 import { ref, computed } from 'vue';
 
+/**
+ * 搜索和分页
+ * @param tableData 表格数据
+ * @param pageSize 每页显示的记录数
+ * @param searchFields 搜索字段
+ * @returns {{pagedData: *, highlight: (function(*, *): (*)), search: *, total: *, initData: (function(): void), updatePageData: (function(): void), pageSize, filteredData: *, currentPage: *, handlePageChange: (function(*): void)}}
+ */
 export function useSearchAndPagination(tableData, pageSize, searchFields = ['type']) {
     const search = ref('');
 

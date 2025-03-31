@@ -1,6 +1,10 @@
 <script setup>
 
-import {ArrowRightBold, CaretTop, Warning} from "@element-plus/icons-vue";
+import {
+  ArrowRightBold,
+  CaretTop,
+  Warning,
+  CaretBottom} from "@element-plus/icons-vue";
 import {ref} from "vue";
 import {get} from "@/net";
 import router from "@/router";
@@ -101,7 +105,7 @@ getData()
                 </span>
                 <span class="red" v-else>{{ tableData.lastMonthUserCount }}
                   <el-icon>
-                    <CaretTop/>
+                    <CaretBottom/>
                   </el-icon>
                 </span>
               </div>
@@ -135,7 +139,7 @@ getData()
                 </span>
                 <span class="red" v-else>{{ tableData.lastMonthEmptyPropertyCount }}
                   <el-icon>
-                    <CaretTop/>
+                    <CaretBottom/>
                   </el-icon>
                 </span>
               </div>
@@ -189,7 +193,7 @@ getData()
                 <div class="text">在线缴费，省时省心</div>
               </div>
               <div class="card-content">
-                <div class="text">在线缴费，省时省心物业费、水电费，3秒完成</div>
+                <div class="text">在线缴费，省时省心，物业费、水电费，3秒完成</div>
               </div>
               <div style="margin-top: 18px">
                 <el-button type="primary" @click="router.push('/index/payment')">

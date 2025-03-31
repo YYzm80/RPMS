@@ -20,7 +20,7 @@ export default defineConfig({
     server:{
         open:false,//自动浏览
         port:8088,//端口号
-        host:'192.168.43.155'
+        host:'localhost'
     },
     resolve: {
         alias: {

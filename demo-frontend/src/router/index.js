@@ -3,6 +3,10 @@ import {unauthorized} from "@/net";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL), routes: [{
+        path: '/403',
+        name: '403',
+        component: () => import('@/views/ForbiddenView.vue')
+    }, {
         path: '/',
         name: 'welcome',
         component: () => import('@/views/WelcomeView.vue'),
@@ -89,12 +93,18 @@ const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.get
 
 router.beforeEach((to, from, next) => {
     const isUnauthorized = unauthorized()
-    if(to.name.startsWith('welcome') && !isUnauthorized) {
+    if (to.name.startsWith('welcome') && !isUnauthorized) {
         next('/index')
-    } else if(to.name.startsWith('index') && isUnauthorized) {
+    } else if (to.name.startsWith('index') && isUnauthorized) {
         next('/')
     } else if (to.name.startsWith('manager') && isUnauthorized && user.role === 'owner') {
         next('/')
+    } else if (to.name.startsWith('manager') && !isUnauthorized) {
+        if (user.role === 'owner') {
+            next('/403')
+        } else {
+            next()
+        }
     } else {
         next()
     }
