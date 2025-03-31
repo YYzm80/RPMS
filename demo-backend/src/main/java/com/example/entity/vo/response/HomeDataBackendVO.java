@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class HomeDataBackendVO {
     private Integer newComplaintsAndRepairsToday;
+    private Integer newComplaintsAndRepairsYesterday;
     private Integer unsolvedComplaintsAndRepairs;
     private Integer solvingComplaintsAndRepairs;
     private Integer mySolvedComplaintsAndRepairs;

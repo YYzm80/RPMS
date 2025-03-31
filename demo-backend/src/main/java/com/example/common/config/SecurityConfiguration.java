@@ -6,6 +6,7 @@ import com.example.entity.vo.response.AuthorizeVO;
 import com.example.filter.JwtAuthorizeFilter;
 import com.example.mapper.RoleMapper;
 import com.example.service.AuthorizeService;
+import com.example.util.OnlineUserUtils;
 import com.example.util.consts.Const;
 import com.example.util.JwtUtils;
 import jakarta.annotation.Resource;
@@ -136,12 +137,25 @@ public class SecurityConfiguration {
         } else if (exceptionOrAuthentication instanceof Authentication authentication) {
             User user = (User) authentication.getPrincipal();
             Account account = authorizeService.findAccountByNameOrEmail(user.getUsername());
+            boolean isOnline = false;
+            // 检查用户是否已经在线
+            if (OnlineUserUtils.isUserOnline(account.getUsername())) {
+                String oldToken = OnlineUserUtils.getOnlineUserSessionId(account.getUsername());
+                // 踢掉旧的会话
+                if (utils.invalidateJwt("Bearer " + oldToken)) {
+                    OnlineUserUtils.removeOnlineUser(account.getUsername());
+                    isOnline = true;
+                }
+            }
             String token = utils.createJwt(user, Math.toIntExact(account.getUserId()), account.getUsername());
+            OnlineUserUtils.addOnlineUser(account.getUsername(), token);
             if (token == null) {
                 writer.write(RestBean.failure(403, "登录验证频繁，请稍后再试！").asJsonString());
             } else {
+                boolean finalIsOnline = isOnline;
                 AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, v -> {
                     v.setRoleName(roleMapper.selectById(account.getRid()).getName());
+                    v.setOnline(finalIsOnline);
                     v.setExpire(utils.expireTime());
                     v.setToken(token);
                 });

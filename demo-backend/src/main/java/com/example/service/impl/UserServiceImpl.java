@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,11 +52,20 @@ public class UserServiceImpl extends ServiceImpl<AccountMapper, Account> impleme
     @Override
     public String addUser(Account account) {
         account.setPassword(encoder.encode("123456"));
+        if (Objects.equals(account.getUsername(), mapper.findAccountByNameOrEmail(account.getUsername()).getUsername())) {
+            return "用户名已存在，请重新输入";
+        }
         return mapper.insert(account) > 0 ? null : "添加用户失败，请稍后再试";
     }
 
     @Override
     public String updateUser(Account account) {
+        if (mapper.findAccountByNameOrEmail(account.getUsername()) != null) {
+            Long uid = mapper.findAccountByNameOrEmail(account.getUsername()).getUserId();
+            if (!Objects.equals(account.getUserId(), uid)) {
+                return "用户名已存在，请重新输入";
+            }
+        }
         return mapper.updateById(account) > 0 ? null : "更新个人资料失败，请稍后再试";
     }
 

@@ -62,6 +62,9 @@ public class StaticServiceImpl implements StaticService {
         vo.setNewComplaintsAndRepairsToday(Math.toIntExact(complaintMapper.selectCount(new QueryWrapper<Complaint>()
                 .gt("submit_time", today)) + repairMapper.selectCount(new QueryWrapper<Repair>()
                 .gt("submit_time", today))));
+        vo.setNewComplaintsAndRepairsYesterday(vo.getNewComplaintsAndRepairsToday() - Math.toIntExact(complaintMapper.selectCount(new QueryWrapper<Complaint>()
+                .gt("submit_time", today.minusDays(1)).lt("submit_time", today)) + repairMapper.selectCount(new QueryWrapper<Repair>()
+                .gt("submit_time", today.minusDays(1)).lt("submit_time", today))));
         vo.setUnsolvedComplaintsAndRepairs(Math.toIntExact(complaintMapper.selectCount(new QueryWrapper<Complaint>()
                 .eq("status", "pending")) + repairMapper.selectCount(new QueryWrapper<Repair>()
                 .eq("status", "pending"))));

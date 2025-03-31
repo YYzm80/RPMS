@@ -9,6 +9,10 @@ spring:
       database: 0
       host: localhost
       port: 6379
+  task:
+    scheduling:
+      pool:
+        size: 1
 springdoc:
   api-docs:
     enabled: true # 开启OpenApi接口

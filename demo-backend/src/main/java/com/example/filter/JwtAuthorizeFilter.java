@@ -22,6 +22,7 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
     @Resource
     JwtUtils utils;
 
+    // TODO 限制同一用户登录数量BUG：被踢出用户仍然能正常访问需要身份验证的接口，只有调用登出或后端重启后恢复正常
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -37,6 +38,7 @@ public class JwtAuthorizeFilter extends OncePerRequestFilter {
             request.setAttribute("id", utils.toId(jwt));
         }
         filterChain.doFilter(request, response);
+
 
     }
 }
