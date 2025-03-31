@@ -5,9 +5,9 @@ import {
   Comment,
   Drizzling,
   House,
+  ChatLineRound,
   More, MostlyCloudy,
   PartlyCloudy,
-  PriceTag,
   Sunny
 } from "@element-plus/icons-vue";
 import {reactive, ref} from "vue";
@@ -95,12 +95,12 @@ weather()
             </template>
             <el-menu-item index="2-1"
                           style="padding: 0 15px 0 25px;"
-                          @click="router.push('/index/tags')"
+                          @click="router.push('/index/chat')"
                           v-if="user.role === 'admin'">
               <el-icon>
-                <PriceTag/>
+                <ChatLineRound/>
               </el-icon>
-              <span>text</span>
+              <span>与DeepSeek对话</span>
             </el-menu-item>
             <el-menu-item index="2-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/center')">
               <el-icon>

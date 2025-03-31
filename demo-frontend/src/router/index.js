@@ -47,6 +47,10 @@ const router = createRouter({
             path: '/index/payment',
             name: 'index-payment',
             component: () => import('../components/index/PaymentPage.vue')
+        }, {
+            path: '/index/chat',
+            name: 'index-chat',
+            component: () => import('../components/index/DeepSeekChat.vue')
         }]
     }, {
         path: '/manager',
@@ -97,13 +101,17 @@ router.beforeEach((to, from, next) => {
         next('/index')
     } else if (to.name.startsWith('index') && isUnauthorized) {
         next('/')
-    } else if (to.name.startsWith('manager') && isUnauthorized && user.role === 'owner') {
-        next('/')
     } else if (to.name.startsWith('manager') && !isUnauthorized) {
         if (user.role === 'owner') {
             next('/403')
         } else {
             next()
+        }
+    } else if (to.name.startsWith('index-chat') && !isUnauthorized) {
+        if (user.role === 'admin') {
+            next()
+        } else {
+            next('/403')
         }
     } else {
         next()
