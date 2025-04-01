@@ -35,12 +35,18 @@ public class UserServiceImpl extends ServiceImpl<AccountMapper, Account> impleme
 
     @Override
     public List<AccountVO> getOwnerList() {
-        return mapper.findAccountsOwner();
+        return mapper.findAccountsOwner()
+                .stream()
+                .map(account -> account.asViewObject(AccountVO.class))
+                .toList();
     }
 
     @Override
     public List<AccountVO> getPropertyOwnerList() {
-        return mapper.findAccountsProperty();
+        return mapper.findAccountsProperty()
+                .stream()
+                .map(account -> account.asViewObject(AccountVO.class))
+                .toList();
     }
 
     @Override

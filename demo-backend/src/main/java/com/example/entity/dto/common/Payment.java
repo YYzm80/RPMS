@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.common.annotation.Xss;
 import com.example.entity.BaseData;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -25,7 +24,6 @@ public class Payment implements Serializable, BaseData {
 
     private BigDecimal amount;
     @Xss
-    @NotBlank(message = "缴费类型不能为空")
     private String type;          // "物业费"/"停车费"
     private String status;        // "unpaid"/"paid"
     private Long operatorId;      // 操作人id

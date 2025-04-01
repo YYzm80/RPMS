@@ -3,6 +3,7 @@ package com.example.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.entity.dto.auth.Account;
 import com.example.entity.dto.common.Payment;
 import com.example.entity.dto.common.Property;
 import com.example.entity.vo.request.payment.PaymentReq;
@@ -15,6 +16,9 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Date;
 import java.util.List;
 
@@ -90,6 +94,47 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
                     return p;
                 }).toList();
         return mapper.insertBatchSomeColumn(payments) > 0 ? null : "发出账单失败，请稍后再试";
+    }
+
+    /**
+     * 自动创建账单(物业费)
+     *
+     * <p>根据传来的单价和相关信息自动创建账单，具体计算公式为<b>房产面积×单位面积费率</b>，仅支持物业费</p>
+     * @param payment 账单表单对象
+     * @param singleAmount 每平米物业费
+     * @return String null表示成功，否则返回错误信息
+     */
+    @Override
+    public String autoCreatePayment(Payment payment, Double singleAmount) {
+        // 检查本月是否已经生成账单
+        LocalDate date = LocalDate.now();
+        YearMonth yearMonth = YearMonth.from(date);
+        LocalDate month = yearMonth.atDay(1);
+        if (mapper.selectCount(new QueryWrapper<Payment>().gt("generate_time", month).eq("type", "物业费")) > 0) {
+            return "本月已生成账单(物业费)，请勿重复生成";
+        }
+        // 获取所有绑定房产的物业用户id
+        List<Long> userIds = accountMapper.findAccountsProperty().stream()
+                .map(Account::getUserId)
+                .toList();
+        if (userIds.isEmpty()) {
+            return "未找到任何物业用户，请检查数据库中是否有物业用户";
+        }
+        // 创建账单
+        List<Payment> payments = userIds.stream()
+                .map(userId -> {
+                    Payment p = new Payment();
+                    p.setUserId(userId);
+                    Property property = propertyMapper.selectOne(new QueryWrapper<Property>().eq("user_id", userId));
+                    p.setPropertyId(propertyMapper.selectById(property).getPropertyId());
+                    p.setAmount(BigDecimal.valueOf(singleAmount * property.getFloorArea()));
+                    p.setType("物业费");
+                    p.setStatus("unpaid");
+                    p.setOperatorId(payment.getOperatorId());
+                    p.setGenerateTime(new Date());
+                    return p;
+                }).toList();
+        return mapper.insertBatchSomeColumn(payments) > 0 ? null : "自动创建账单失败，请稍后再试";
     }
 
     @Override

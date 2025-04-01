@@ -12,6 +12,7 @@ public interface PaymentService extends IService<Payment> {
     List<PaymentVO> getPaymentListByReq(PaymentReq req);
     PaymentVO getPaymentById(Long id);
     String createPayment(Payment payment, List<Long> userIds);
+    String autoCreatePayment(Payment payment, Double singleAmount);
     String updatePayment(Payment payment);
     String deletePayment(Long id);
 }
