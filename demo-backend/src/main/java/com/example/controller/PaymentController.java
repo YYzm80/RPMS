@@ -19,7 +19,6 @@ import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -122,7 +121,8 @@ public class PaymentController {
     @Operation(summary = "创建账单")
     @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/add")
-    public RestBean<String> add(@RequestBody @Valid Payment payment, @RequestParam("userIds") List<Long> userIds) {
+    public RestBean<String> add(@RequestBody @Valid Payment payment,
+                                @RequestParam("userIds") List<Long> userIds) {
         String s = service.createPayment(payment, userIds);
         return s == null ? RestBean.success("发布账单成功") : RestBean.failure(400, s);
     }
@@ -131,7 +131,7 @@ public class PaymentController {
     @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     @PostMapping("/auto-add")
     public RestBean<String> autoAdd(@RequestBody @Valid Payment payment,
-                                    @DefaultValue("1.0") @RequestParam("singleAmount") Double singleAmount) {
+                                    @RequestParam(value = "singleAmount", defaultValue = "1.0") Double singleAmount) {
         String s = service.autoCreatePayment(payment, singleAmount);
         return s == null ? RestBean.success("自动创建账单成功") : RestBean.failure(400, s);
     }
