@@ -43,7 +43,9 @@ const getUserList = () => {
 const dialogNewVisible = ref(false)
 const dialogDeleteVisible = ref(false)
 const dialogUpdateVisible = ref(false)
+const dialogConfirmVisible = ref(false)
 const updateForm = ref([])
+const singleAmount = ref()
 const form = ref([])
 let deletePid = 0
 
@@ -55,6 +57,20 @@ const addPayment = () => {
   }, (message) => {
     ElMessage.success(message)
     dialogNewVisible.value = false
+    getData()
+  })
+}
+
+const autoGeneratePayment = () => {
+  let req = ''
+  if (singleAmount.value !== undefined) {
+    req += `?singleAmount=${singleAmount.value}`
+  }
+  post('api/payment/auto-add' + req, {
+    operatorId: user.uid
+  }, (message) => {
+    ElMessage.success(message)
+    dialogConfirmVisible.value = false
     getData()
   })
 }
@@ -114,6 +130,9 @@ getData()
           <Plus/>
         </el-icon>
         发布缴费账单
+      </el-button>
+      <el-button color="#800080" plain @click="dialogConfirmVisible = true">
+        自动生成本月账单
       </el-button>
       <el-input style="width: 200px;height: 35px;margin-left: 20px"
                 v-model="search"
@@ -316,6 +335,33 @@ getData()
             <el-button @click="dialogDeleteVisible = false">取消</el-button>
             <el-button type="danger" @click="deletePayment">
               删除
+            </el-button>
+          </div>
+        </template>
+      </el-dialog>
+      <el-dialog
+              v-model="dialogConfirmVisible"
+              width="400"
+              title="是否自动生成本月账单(仅支持物业费)?"
+              align-center
+              left
+      >
+        <el-form>
+          <el-form-item label="单位面积费(可选)">
+            <el-input v-model="singleAmount"
+                      autocomplete="off"
+                      type="number"
+                      min="0"
+                      max="99999"
+                      step="0.01"
+                      placeholder="请输入费用金额，默认为1.0"/>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="dialogConfirmVisible = false">取消</el-button>
+            <el-button type="success" @click="autoGeneratePayment">
+              确定
             </el-button>
           </div>
         </template>
