@@ -102,11 +102,11 @@ weather()
               </el-icon>
               <span>与DeepSeek对话</span>
             </el-menu-item>
-            <el-menu-item index="2-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/center')">
+            <el-menu-item index="2-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/online-chat')">
               <el-icon>
                 <Comment/>
               </el-icon>
-              <span>text</span>
+              <span>在线聊天室</span>
             </el-menu-item>
           </el-sub-menu>
         </el-menu>

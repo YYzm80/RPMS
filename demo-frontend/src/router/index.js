@@ -51,6 +51,10 @@ const router = createRouter({
             path: '/index/chat',
             name: 'index-chat',
             component: () => import('../components/index/DeepSeekChat.vue')
+        }, {
+            path: '/index/online-chat',
+            name: 'index-online-chat',
+            component: () => import('../components/index/ChatPage.vue')
         }]
     }, {
         path: '/manager',

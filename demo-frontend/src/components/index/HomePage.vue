@@ -212,6 +212,8 @@ getData()
               :title="announcement.title"
               width="1000"
               style="margin-top: 80px"
+              left
+              align-center
       >
         <div style="margin: 20px 20px">
           <p v-html="announcement.content"></p>

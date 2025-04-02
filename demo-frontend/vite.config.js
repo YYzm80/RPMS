@@ -38,12 +38,5 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
-    },
-    devServer: {
-        host: '0.0.0.0',
-        https: false,
-        open: true,
-        disableHostCheck:true,
     }
-
 })
