@@ -22,7 +22,6 @@ public class Announcement implements Serializable, BaseData {
     @Xss
     @NotBlank(message = "标题不能为空")
     private String title;
-    @Xss
     private String content;
     private Long publisherId;     // 发布人ID
     private String status;  // "published" 已发布,"deleted" 已删除

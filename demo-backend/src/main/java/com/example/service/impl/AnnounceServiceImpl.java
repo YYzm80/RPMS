@@ -61,10 +61,10 @@ public class AnnounceServiceImpl extends ServiceImpl<AnnouncementMapper, Announc
     }
 
     /**
-     * @description: 更新公告
-     * @param: [announcement] 待更新的公告
-     * @return: java.lang.String null表示成功，其他表示失败原因
-     **/
+     * 更新公告
+     * @param announcement 更新的公告
+     * @return null表示成功，否则为错误信息
+     */
     @Override
     public String updateAnnouncement(Announcement announcement) {
         if (mapper.selectById(announcement).getStatus().equals("deleted")) announcement.setStatus("published");

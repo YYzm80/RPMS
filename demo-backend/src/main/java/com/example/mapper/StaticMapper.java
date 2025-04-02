@@ -48,7 +48,6 @@ public interface StaticMapper {
                     ) complaints ON dates.date = complaints.handle_date
                     GROUP BY dates.date
                     ORDER BY dates.date DESC;
-                    
             """)
     List<DailyWorkStat> getDailyWorkStat();
 

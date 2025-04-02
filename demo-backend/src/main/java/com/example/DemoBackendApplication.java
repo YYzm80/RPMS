@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 @EnableScheduling
 @SpringBootApplication
@@ -24,6 +25,11 @@ public class DemoBackendApplication {
     @Bean
     public ApplicationRunner run() {
         return args -> jobTimer.cleanLogs();
+    }
+
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
     }
 
 }
