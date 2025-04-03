@@ -17,7 +17,7 @@ const sendMessage = () => {
     times.value = 0;
     let time = setInterval(() => {times.value++;}, 1000)
     messages.value.push({text: newMessage.value, sender: 'user'});
-    get(`/deepseek/chat/${user.uid}/${newMessage.value}`,
+    get(`api/deepseek/chat/${user.uid}/${newMessage.value}`,
       (res) => {
         // console.log(res)
         messages.value.push({reasoning: res.reasoning, content: res.content, sender: 'bot'}) // 使用marked解析Markdown
@@ -42,7 +42,7 @@ const sendMessage = () => {
 
 // 添加清除对话的函数
 const clearChat = () => {
-  get(`/deepseek/chat/clear/${user.uid}`, (message) => {
+  get(`api/deepseek/chat/clear/${user.uid}`, (message) => {
     ElMessage.success(message)
   })
 }

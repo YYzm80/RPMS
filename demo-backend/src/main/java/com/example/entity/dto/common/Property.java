@@ -26,7 +26,6 @@ public class Property implements Serializable, BaseData {
     @Xss
     @NotBlank(message = "房号不能为空")
     private String roomNumber;  // 房号
-    @NotBlank(message = "面积不能为空")
     private Double floorArea;  // 面积
     private String status;
     private String floorPlan;   // 户型图

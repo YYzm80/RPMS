@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/deepseek")
+@RequestMapping("/api/deepseek")
 public class DeepSeekController {
 
     // 每秒允许7个请求

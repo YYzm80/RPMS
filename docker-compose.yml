@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  spring:
+    container_name: app_springboot
+    build:
+      context: .
+      dockerfile: Dockerfile-Springboot
+    restart: always
+    ports:
+      - "8080:8080"
+  mysql:
+    container_name: app_mysql
+    image: mysql:5.7.44
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: '123456.root'
+      MYSQL_DATABASE: 'property_management'
+      TZ: 'Asia/Shanghai'
+    ports:
+      - "3306:3306"
+  redis:
+    container_name: app_redis
+    image: redis:latest
+  nginx:
+    container_name: app_nginx
+    build:
+      context: .
+      dockerfile: Dockerfile-Nginx
+    ports:
+      - "80:80"

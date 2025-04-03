@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
   mail:
     host: smtp.163.com
     username: 18223818435@163.com

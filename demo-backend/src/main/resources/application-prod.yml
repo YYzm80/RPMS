@@ -1,15 +1,15 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/property_management?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://app_mysql:3306/property_management?useUnicode=true&characterEncoding=utf-8
     username: root
-    password: root.123456
+    password: 123456.root
   data:
     redis:
       database: 0
-      host: app.redis
+      host: app_redis
       port: 6379
 files:
   upload:
     #图片文件存储位置
-    path: D:/CodeDevelopment/uploaded/
+    path: /home/DPMS/uploaded/

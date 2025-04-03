@@ -41,7 +41,7 @@ const send = () => {
     ElMessage.warning("WebSocket 连接没有建立成功！");
     return;
   }
-  ws.send(message.value);
+  ws.send(message.value.trim() + '\n\r');
   message.value = '';
 };
 
