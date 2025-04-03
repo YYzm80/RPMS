@@ -2,15 +2,17 @@ package com.example.service.impl;
 
 import com.example.entity.vo.request.weather.WeatherResponse;
 import com.example.service.WeatherDataService;
-import com.example.util.Const;
+import com.example.util.consts.Const;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
+@Slf4j
 @Service
 public class WeatherDataServiceImpl implements WeatherDataService {
 
@@ -19,7 +21,7 @@ public class WeatherDataServiceImpl implements WeatherDataService {
 
     @Override
     public WeatherResponse getDataByCityId(String cityId) {
-        String uri = Const.LOCATION_API + "city=" + cityId;
+        String uri = Const.WEATHER_API + "&city=" + cityId;
         System.out.println(uri);
         return this.doGetWeatherData(uri);
     }
@@ -36,7 +38,7 @@ public class WeatherDataServiceImpl implements WeatherDataService {
         try {
             weather = mapper.readValue(strBody, WeatherResponse.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("解析天气信息失败", e);
             return null;
         }
         return weather;

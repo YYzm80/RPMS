@@ -17,6 +17,23 @@ export default defineConfig({
             resolvers: [ElementPlusResolver()],
         }),
     ],
+    server:{
+        open:false,//自动浏览
+        port:8088,//端口号
+        host:'0.0.0.0', // 允许所有IP访问
+        proxy: {
+            '/local': {
+                target: 'http://localhost:8080',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/local/, '')
+            },
+            '/network': {
+                target: 'http://192.168.43.155:8080',
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/network/, '')
+            }
+        }
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))

@@ -3,13 +3,17 @@ package com.example.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
 import com.example.mapper.AccountMapper;
+import com.example.mapper.RoleMapper;
 import com.example.service.AuthorizeService;
+import com.example.util.HttpContextUtils;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +24,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> implements AuthorizeService {
 
@@ -28,6 +33,9 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
 
     @Resource
     AccountMapper mapper;
+
+    @Resource
+    RoleMapper roleMapper;
 
     @Resource
     MailSender mailSender;
@@ -42,15 +50,24 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
         Account account = mapper.findAccountByNameOrEmail(username);
         if (account == null)
             throw new UsernameNotFoundException("用户名或密码错误！");
+        if (account.getStatus().equals("inactive")) {
+            throw new LockedException("您的账号已被封禁，请联系管理员！");
+        }
         return User
                 .withUsername(account.getUsername())
                 .password(account.getPassword())
-                .roles(account.getRole())
+                .roles(roleMapper.selectById(account.getRid()).getName())
                 .build();
     }
 
     @Override
     public String sendValidateEmail(String email, String sessionId, boolean hasAccount) {
+        String ipKey = "ip:" + HttpContextUtils.getIpAddress();
+        Long ipRequestCount = Optional.ofNullable(template.opsForValue().get(ipKey)).map(Long::parseLong).orElse(0L);
+        if (ipRequestCount >= 10) { // 假设每个 IP 每分钟最多请求 10 次
+            return "请求过于频繁，请稍后再试！";
+        }
+
         String key = "email:" + sessionId + ":" + email + ":" + hasAccount;
         if (Boolean.TRUE.equals(template.hasKey(key))) {
             Long expire = Optional.ofNullable(template.getExpire(key, TimeUnit.SECONDS)).orElse(0L);
@@ -71,32 +88,8 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
             template.opsForValue().set(key, String.valueOf(code), 3, TimeUnit.MINUTES);
             return null;
         } catch (MailException e) {
-            e.printStackTrace();
+            log.error("邮件发送失败", e);
             return "邮件发送失败，请检查邮箱地址是否有效";
-        }
-    }
-
-    @Override
-    public String validateAndRegister(String username, String password, String email, String code, String role, String sessionId) {
-        String key = "email:" + sessionId + ":" + email + ":false";
-        if (Boolean.TRUE.equals(template.hasKey(key))) {
-            String s = template.opsForValue().get(key);
-            if (s == null) return "验证码失效，请重新请求验证码";
-            if (s.equals(code)) {
-                Account account = mapper.findAccountByNameOrEmail(username);
-                if (account != null) return "此用户名已被注册";
-                template.delete(key);
-                password = encoder.encode(password);
-                if (mapper.createAccount(username, password, email, role) > 0) {
-                    return null;
-                } else {
-                    return "内部错误，请联系管理员";
-                }
-            } else {
-                return "验证码错误，请检查后重新提交";
-            }
-        } else {
-            return "请先完成获取验证码！";
         }
     }
 

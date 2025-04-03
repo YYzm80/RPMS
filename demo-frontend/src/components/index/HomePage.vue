@@ -1,29 +1,37 @@
 <script setup>
 
-import {CaretTop, Warning} from "@element-plus/icons-vue";
+import {
+  ArrowRightBold,
+  CaretTop,
+  Warning,
+  CaretBottom} from "@element-plus/icons-vue";
 import {ref} from "vue";
 import {get} from "@/net";
+import router from "@/router";
 
-const urls = ref([])
+const urls = ref([
+  'src/assets/lunbo1.jpg',
+  'src/assets/lunbo2.jpg',
+  'src/assets/lunbo3.jpg',
+  'src/assets/lunbo4.jpg',
+])
 
 const tableData = ref([])
-const ready = ref(false)
+const announcement = ref([])
+const dialogAnnounceVisible = ref(false)
 
 const getData = () => {
-  get('api/static/all-home', (data) => {
-    tableData.value.data = data
-    ready.value = true
-  })
-  get('api/meeting/all', (data) => {
-    let length = data.length > 5 ? 5 : data.length
-    for (let i = 0; i < length; i++) {
-      urls.value.push(getImgSrc(data[i].img))
-    }
+  get('api/static/getHomeData', (data) => {
+    tableData.value = data
+    // console.log(tableData.value)
   })
 }
 
-const getImgSrc = (picName) => {
-    return `http://localhost:8080/uploaded/${picName}`
+const getAnnouncement = (aid) => {
+  get(`api/announce/aid/${aid}`, (data) => {
+    announcement.value = data
+    dialogAnnounceVisible.value = true
+  })
 }
 
 getData()
@@ -33,156 +41,184 @@ getData()
   <el-scrollbar height="100%">
     <div style="display: flex;flex-direction:column;height: 100%;">
       <div class="header">
-        <el-carousel :interval="4000" height="300px" trigger="click" type="card">
+        <el-carousel :interval="4000" height="330px" trigger="click" type="card">
           <el-carousel-item v-for="url in urls" :key="url">
             <img v-lazy="url" alt="Carousel Image" style="width: 100%; height: 100%; object-fit: cover;"/>
           </el-carousel-item>
         </el-carousel>
       </div>
-      <div class="info" v-if="ready">
+      <div class="info">
         <el-card class="box-card" shadow="hover">
           <template #header>
             <div class="card-header">
-              <span>最受欢迎的公司</span>
+              <span>最新公告
+                <el-text type="danger">
+                  new!
+                </el-text>
+              </span>
+              <el-link :underline="false" @click="router.push('/index/announce') ">
+                更多公告
+                <el-icon>
+                  <CaretTop/>
+                </el-icon>
+              </el-link>
             </div>
           </template>
-          <div class="text item">
-            <el-table :data="tableData.data.popularCompanies" style="width: 100%">
-              <el-table-column label="企业" prop="name" align="left" width="180"/>
-              <el-table-column label="投递简历人数" prop="deliverNum" align="right"/>
+          <div class="text">
+            <el-table :data="tableData.announcements" style="width: 100%">
+              <el-table-column label="标题" prop="title" align="center" width="500" show-overflow-tooltip>
+                <template class="announce" #default="scope">
+                  <span @click="getAnnouncement(scope.row.aid)">
+                    {{ scope.row.title }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column label="发布时间" prop="publishTime" align="center"/>
             </el-table>
           </div>
         </el-card>
-        <div style="display: flex;flex-direction: column;width: 1200px;">
-          <div class="row-flex">
-            <el-card style="width: 292px;height: 130px;margin-left: 60px;background-color: #e7ebf1" shadow="hover">
-              <el-statistic :value="tableData.data.meetingCount">
-                <template #title>
-                  <div style="display: inline-flex; align-items: center">
-                    总举办双选会场次
-                    <el-tooltip
-                            effect="light"
-                            content="每天新增双选会统计"
-                            placement="top"
-                    >
-                      <el-icon style="margin-left: 4px" :size="12">
-                        <Warning/>
-                      </el-icon>
-                    </el-tooltip>
-                  </div>
-                </template>
-              </el-statistic>
-              <div class="statistic-footer">
-                <div class="footer-item">
-                  <span>比昨天</span>
-                  <span class="green">24%
-                                <el-icon>
-                                    <CaretTop/>
-                                </el-icon>
-                            </span>
+        <div style="display: flex;flex-direction: column;width: 200px;gap: 20px">
+          <el-card style="width: 292px;height: 130px;margin-left: 60px;background-color: #e7ebf1" shadow="hover">
+            <el-statistic :value="tableData.userCount">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  总入住人数
+                  <el-tooltip
+                          effect="light"
+                          content="每月新增入住人数统计"
+                          placement="top"
+                  >
+                    <el-icon style="margin-left: 4px" :size="12">
+                      <Warning/>
+                    </el-icon>
+                  </el-tooltip>
                 </div>
+              </template>
+            </el-statistic>
+            <div class="statistic-footer">
+              <div class="footer-item">
+                <span>比上个月</span>
+                <span class="green" v-if="tableData.lastMonthUserCount >= 0">{{ tableData.lastMonthUserCount }}
+                  <el-icon>
+                    <CaretTop/>
+                  </el-icon>
+                </span>
+                <span class="red" v-else>{{ tableData.lastMonthUserCount }}
+                  <el-icon>
+                    <CaretBottom/>
+                  </el-icon>
+                </span>
               </div>
-            </el-card>
-            <el-card style="width: 292px;height: 130px;margin-left: 60px;background-color: #e7ebf1" shadow="hover">
-              <el-statistic :value="tableData.data.userCount">
-                <template #title>
-                  <div style="display: inline-flex; align-items: center">
-                    总注册用户人数
-                    <el-tooltip
-                            effect="light"
-                            content="每天新增用户统计"
-                            placement="top"
-                    >
-                      <el-icon style="margin-left: 4px" :size="12">
-                        <Warning/>
-                      </el-icon>
-                    </el-tooltip>
-                  </div>
-                </template>
-              </el-statistic>
-              <div class="statistic-footer">
-                <div class="footer-item">
-                  <span>比昨天</span>
-                  <span class="green">8%
-                                <el-icon>
-                                    <CaretTop/>
-                                </el-icon>
-                            </span>
+            </div>
+          </el-card>
+          <el-card style="width: 292px;height: 130px;margin-left: 60px;background-color: #e7ebf1" shadow="hover">
+            <el-statistic :value="tableData.emptyPropertyCount">
+              <template #title>
+                <div style="display: inline-flex; align-items: center">
+                  总空闲房产数
+                  <el-tooltip
+                          effect="light"
+                          content="每月新增空闲房产数统计"
+                          placement="top"
+                  >
+                    <el-icon style="margin-left: 4px" :size="12">
+                      <Warning/>
+                    </el-icon>
+                  </el-tooltip>
                 </div>
+              </template>
+            </el-statistic>
+            <div class="statistic-footer">
+              <div class="footer-item">
+                <span>比上个月</span>
+                <span class="green" v-if="tableData.lastMonthEmptyPropertyCount >= 0">
+                  {{ tableData.lastMonthEmptyPropertyCount }}
+                  <el-icon>
+                    <CaretTop/>
+                  </el-icon>
+                </span>
+                <span class="red" v-else>{{ tableData.lastMonthEmptyPropertyCount }}
+                  <el-icon>
+                    <CaretBottom/>
+                  </el-icon>
+                </span>
               </div>
-            </el-card>
-          </div>
-          <div class="row-flex" style="margin-top: 30px">
-            <el-card style="width: 292px;height: 130px;margin-left: 60px;background-color: #e7ebf1" shadow="hover">
-              <el-statistic :value="tableData.data.meetingRunCount">
-                <template #title>
-                  <div style="display: inline-flex; align-items: center">
-                    正在进行的双选会
-                    <el-tooltip
-                            effect="light"
-                            content="进行中的双选会统计"
-                            placement="top"
-                    >
-                      <el-icon style="margin-left: 4px" :size="12">
-                        <Warning/>
-                      </el-icon>
-                    </el-tooltip>
-                  </div>
-                </template>
-              </el-statistic>
-            </el-card>
-            <el-card style="width: 292px;height: 130px;margin-left: 60px;background-color: #e7ebf1" shadow="hover">
-              <el-statistic :value="tableData.data.companyCount">
-                <template #title>
-                  <div style="display: inline-flex; align-items: center">
-                    已入驻公司
-                    <el-tooltip
-                            effect="light"
-                            content="每天新增公司统计"
-                            placement="top"
-                    >
-                      <el-icon style="margin-left: 4px" :size="12">
-                        <Warning/>
-                      </el-icon>
-                    </el-tooltip>
-                  </div>
-                </template>
-              </el-statistic>
-              <div class="statistic-footer">
-                <div class="footer-item">
-                  <span>比昨天</span>
-                  <span class="green">12%
-                                <el-icon>
-                                    <CaretTop/>
-                                </el-icon>
-                            </span>
-                </div>
-              </div>
-            </el-card>
-          </div>
+            </div>
+          </el-card>
         </div>
       </div>
       <div class="why">
         <div class="about">
-          <span class="title">为什么选择我们</span>
+          <span class="title">物业服务快捷入口</span>
           <div class="reason">
-            学堂在线是清华大学发起建立的面向未来的慕课在线学习平台，为学习者提供从高校课程到实战技能的在线教育服务。
+            我们承诺：提供优质服务，保障您的权益，为您提供便捷的物业服务。
           </div>
         </div>
         <div class="intro">
           <el-space wrap :size="30">
             <el-card class="box-card">
-              <div>1</div>
+              <div class="card-header">
+                <div class="text">投诉专区，快速响应</div>
+              </div>
+              <div class="card-content">
+                <div class="text">投诉专区，快速响应，24小时在线处理</div>
+              </div>
+              <div style="margin-top: 18px">
+                <el-button type="primary" @click="router.push('/index/complaint')">
+                  立即投诉
+                  <el-icon>
+                    <ArrowRightBold/>
+                  </el-icon>
+                </el-button>
+              </div>
             </el-card>
             <el-card class="box-card">
-              <div>2</div>
+              <div class="card-header">
+                <div class="text">一键报修，快速响应</div>
+              </div>
+              <div class="card-content">
+                <div class="text">家中设备故障？提交即受理</div>
+              </div>
+              <div style="margin-top: 18px">
+                <el-button type="primary" @click="router.push('/index/repair')">
+                  一键报修
+                  <el-icon>
+                    <ArrowRightBold/>
+                  </el-icon>
+                </el-button>
+              </div>
             </el-card>
             <el-card class="box-card">
-              <div>3</div>
+              <div class="card-header">
+                <div class="text">在线缴费，省时省心</div>
+              </div>
+              <div class="card-content">
+                <div class="text">在线缴费，省时省心，物业费、水电费，3秒完成</div>
+              </div>
+              <div style="margin-top: 18px">
+                <el-button type="primary" @click="router.push('/index/payment')">
+                  在线缴费
+                  <el-icon>
+                    <ArrowRightBold/>
+                  </el-icon>
+                </el-button>
+              </div>
             </el-card>
           </el-space>
         </div>
       </div>
+      <el-dialog
+              v-model="dialogAnnounceVisible"
+              :title="announcement.title"
+              width="1000"
+              style="margin-top: 80px"
+              left
+              align-center
+      >
+        <div style="margin: 20px 20px">
+          <p v-html="announcement.content"></p>
+        </div>
+      </el-dialog>
     </div>
   </el-scrollbar>
 </template>
@@ -209,11 +245,6 @@ getData()
 
 .red {
   color: var(--el-color-error);
-}
-
-.row-flex {
-  display: flex;
-  flex-direction: row;
 }
 
 .why {
@@ -250,16 +281,23 @@ getData()
   align-items: center;
 }
 
+.card-content {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--el-text-color-regular);
+}
+
 .text {
   font-size: 14px;
 }
 
-.item {
-  margin-bottom: 18px;
+.announce :hover {
+  color: var(--el-color-primary);
+  cursor: pointer;
 }
 
 .box-card {
-  width: 420px;
+  width: 790px;
   margin-left: 180px;
 }
 

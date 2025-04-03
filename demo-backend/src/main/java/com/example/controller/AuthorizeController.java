@@ -2,18 +2,15 @@ package com.example.controller;
 
 import com.example.entity.RestBean;
 import com.example.entity.vo.request.email.ConfirmResetVO;
-import com.example.entity.vo.request.email.EmailRegisterVO;
 import com.example.entity.vo.request.email.EmailResetVO;
 import com.example.service.AuthorizeService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @Validated
 @RestController
@@ -23,13 +20,11 @@ public class AuthorizeController {
     @Resource
     AuthorizeService service;
 
+    @Operation(summary = "发送验证码")
     @PostMapping("/ask-code")
     public RestBean<String> askVerifyCode(@RequestParam @Email String email,
-                                          @RequestParam @Pattern(regexp = "(register|reset)") String type,
                                           HttpSession session) {
-        String s = Objects.equals(type, "register") ?
-                service.sendValidateEmail(email, session.getId(), false) :
-                service.sendValidateEmail(email, session.getId(), true);
+        String s = service.sendValidateEmail(email, session.getId(), true);
 
         if (s == null)
             return RestBean.success("邮件发送成功，请注意查收");
@@ -38,30 +33,14 @@ public class AuthorizeController {
     }
 
     /**
-     * 进行用户注册操作，需要先请求邮件验证码
-     *
-     * @param vo 注册信息
-     * @return 是否注册成功
-     */
-    @PostMapping("/register")
-    public RestBean<String> register(@Valid EmailRegisterVO vo,
-                                     HttpSession session) {
-        String s = service.validateAndRegister(vo.getUsername(), vo.getPassword(), vo.getEmail(), vo.getCode(), vo.getRole(), session.getId());
-        if (s == null) {
-            return RestBean.success("注册成功");
-        } else {
-            return RestBean.failure(400, s);
-        }
-    }
-
-    /**
      * 执行密码重置确认，检查验证码是否正确
      *
      * @param vo 密码重置信息
      * @return 是否操作成功
      */
+    @Operation(summary = "验证邮箱验证码")
     @PostMapping("/reset-confirm")
-    public RestBean<String> resetConfirm(@Valid ConfirmResetVO vo,
+    public RestBean<String> resetConfirm(@RequestBody @Valid ConfirmResetVO vo,
                                          HttpSession session) {
         String s = service.validateOnly(vo.getEmail(), vo.getCode(), session.getId());
         if (s == null) {
@@ -78,8 +57,9 @@ public class AuthorizeController {
      * @param vo 密码重置信息
      * @return 是否操作成功
      */
+    @Operation(summary = "重置密码")
     @PostMapping("/reset-password")
-    public RestBean<String> resetPassword(@Valid EmailResetVO vo,
+    public RestBean<String> resetPassword(@RequestBody @Valid EmailResetVO vo,
                                           HttpSession session) {
         String email = (String) session.getAttribute("reset-password");
         if (email == null) {

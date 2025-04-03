@@ -62,8 +62,12 @@ function userLogin() {
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="form.password" type="password" style="margin-top: 10px; width: 300px"
-                    placeholder="密码" v-on:keyup.enter="userLogin()">
+          <el-input v-model="form.password"
+                    type="password"
+                    style="margin-top: 10px; width: 300px"
+                    show-password
+                    placeholder="密码"
+                    v-on:keyup.enter="userLogin()">
             <template #prefix>
               <el-icon>
                 <Lock/>
@@ -85,14 +89,8 @@ function userLogin() {
     </div>
     <div style="margin-top: 60px">
       <el-button @click="userLogin()" style="width: 250px" type="success"
-                 plain v-loading="loading">立即登录
+                 plain :loading="loading">立即登录
       </el-button>
-    </div>
-    <el-divider>
-      <span style="color: gray">没有账号</span>
-    </el-divider>
-    <div style="color: orange">
-      <el-button @click="router.push('/welcome/register')" style="width: 250px" type="warning" plain>注册账号</el-button>
     </div>
   </div>
 </template>

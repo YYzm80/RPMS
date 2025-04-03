@@ -4,6 +4,11 @@ import {ElMessage} from "element-plus";
 const authItemName = "authorize"
 const defaultError = () => ElMessage.error('发生了一些错误，请联系管理员')
 const defaultFailure = (message, status, url) => {
+    if (status === 401) {
+        ElMessage.warning("登录状态已过期，请重新登录！")
+        deleteAccessToken()
+        return
+    }
     console.warn(`请求地址: ${url}, 状态码: ${status}, 错误信息: ${message}`)
     ElMessage.warning(message)
 }
@@ -11,7 +16,7 @@ const defaultFailure = (message, status, url) => {
 const accessHeader = () => {
     return {
         'Authorization': `Bearer ${takeAccessToken()}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
     }
 }
 
@@ -19,7 +24,7 @@ function takeAccessToken() {
     const str = localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName);
     if(!str) return null
     const authObj = JSON.parse(str)
-    if(new Date(authObj.expire) <= new Date()) {
+    if(new Date(authObj.expire) <= new Date() || !authObj.token) {
         deleteAccessToken()
         ElMessage.warning("登录状态已过期，请重新登录！")
         return null
@@ -31,13 +36,9 @@ function storeAccessToken(remember, token, expire, data){
     const authObj = {
         token: token,
         expire: expire,
-        name: data.name,
         username: data.username,
-        role: data.role,
-        uid: data.uid,
-        cid: data.cid,
-        avatar: data.avatar,
-        email: data.email,
+        role: data.roleName,
+        uid: data.userId,
     }
     const str = JSON.stringify(authObj)
     if(remember)
@@ -60,8 +61,17 @@ function internalPost(url, data, headers, success, failure, error = defaultError
     }).catch(err => error(err))
 }
 
+function internalPut(url, data, headers, success, failure, error = defaultError){
+    axios.put(url, data, { headers: headers, withCredentials: true }).then(({data}) => {
+        if(data.status === 200)
+            success(data.message)
+        else
+            failure(data.message, data.status, url)
+    }).catch(err => error(err))
+}
+
 function internalGet(url, headers, success, failure, error = defaultError){
-    axios.get(url, { headers: headers, withCredentials: true }).then(({data}) => {
+    axios.get(url, { headers: headers, withCredentials: true}).then(({data}) => {
         if(data.status === 200)
             success(data.message)
         else
@@ -76,6 +86,13 @@ function login(username, password, remember, success, failure = defaultFailure){
     }, {
         'Content-Type': 'application/x-www-form-urlencoded'
     }, (data) => {
+        if (data.online) {
+            ElNotification({
+                title: '警告',
+                message: '您在其它地方登录的账号已被踢出',
+                type: 'warning',
+            })
+        }
         storeAccessToken(remember, data.token, data.expire, data)
         ElMessage.success(`登录成功，欢迎 ${data.username} 来到我们的系统`)
         success(data)
@@ -93,6 +110,10 @@ function multipartPost(url, data, success, failure = defaultFailure) {
     }, success, failure)
 }
 
+function put(url, data, success, failure = defaultFailure) {
+    internalPut(url, data, accessHeader(), success, failure)
+}
+
 function logout(success, failure = defaultFailure){
     get('/api/auth/logout', () => {
         deleteAccessToken()
@@ -105,8 +126,12 @@ function get(url, success, failure = defaultFailure) {
     internalGet(url, accessHeader(), success, failure)
 }
 
+function blobGet(url) {
+    return axios.get(url, { headers: accessHeader(), withCredentials: true, responseType: 'blob'})
+}
+
 function unauthorized() {
     return !takeAccessToken()
 }
 
-export { post, multipartPost, get, login, logout, unauthorized }
+export { post, multipartPost, put, get, blobGet, login, logout, unauthorized }

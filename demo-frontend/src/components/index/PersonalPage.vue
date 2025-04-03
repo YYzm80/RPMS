@@ -1,24 +1,14 @@
 <script setup>
 
-import { Plus, Message } from "@element-plus/icons-vue";
+import { Message } from "@element-plus/icons-vue";
 import { ref } from "vue";
-import { ElMessage, genFileId } from "element-plus";
-import { get, multipartPost } from "@/net";
+import { ElMessage } from "element-plus";
+import {get, put} from "@/net";
 
 const updateForm = ref([]);
 const edit = ref(false);
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
-
-const upload = ref();
-const fileList = ref([]);
-
-const handleExceed = function (files) {
-  upload.value.clearFiles();
-  const file = files[0];
-  file.uid = genFileId();
-  upload.value.handleStart(file);
-};
 
 function changeEdit() {
   edit.value = !edit.value;
@@ -34,40 +24,26 @@ const getImgSrc = (picName) => {
 }
 
 const getData = () => {
-  get(`api/user/uid?uid=${user.uid}`, (data) => {
+  get(`api/user/uid/${user.uid}`, (data) => {
     updateForm.value = data;
-    getCompany();
-    // console.log(updateForm.value)
+    // getPosition();
+    console.log(updateForm.value)
   });
 
 }
 
-const getCompany = () => {
-  get('api/company/all', (data) => {
-    updateForm.value.company = data;
-  })
-}
-
 const update = () => {
-  let formData = new FormData();
-  if (fileList.value[0] && fileList.value[0].raw) {
-    // 用户选择了新文件，将其添加到formData中
-    formData.append("file", fileList.value[0].raw);
-  }
-  formData.append("uid", updateForm.value.uid);
-  if (updateForm.value.cid !== null) {
-    formData.append("cid", updateForm.value.cid);
-  }
-  formData.append("name", updateForm.value.name);
-  formData.append("username", updateForm.value.username);
-  // console.log(updateForm.value)
-  multipartPost('api/user/update',
-    formData, (message) => {
-    ElMessage.success(message);
-    fileList.value = [];
-    getData();
-    edit.value = false;
-  })
+    put("api/user/update-personal", {
+        userId: user.uid,
+        username: updateForm.value.username,
+        realName: updateForm.value.realName,
+        gender: updateForm.value.gender,
+        position: updateForm.value.position,
+        phone: updateForm.value.phone
+    }, (message) => {
+      ElMessage.success(message)
+      changeEdit()
+    })
 }
 
 getData();
@@ -80,7 +56,7 @@ getData();
       <div class="top">
         <el-avatar :size="110" style="margin: 40px 50px">
           <!-- 使用 v-lazy 替换 v-loading 和 img 标签的组合 -->
-          <img v-lazy="getImgSrc(user.avatar)" alt="Avatar" />
+          <img v-lazy="getImgSrc(null)" alt="Avatar" />
         </el-avatar>
         <div class="top-info">
           <span style="font-size: 20px">{{user.username}}，你好!</span>
@@ -88,21 +64,18 @@ getData();
           <el-tag v-if="user.role === 'admin'" style="margin-top: 5px;width: 100px;" effect="plain" type="warning">
             管理员
           </el-tag>
-          <el-tag v-if="user.role === 'student'" style="margin-top: 5px;width: 100px;" effect="plain" type="primary">
-            学生账号
+          <el-tag v-if="user.role === 'manager'" style="margin-top: 5px;width: 100px;" effect="plain" type="danger">
+            物业人员
           </el-tag>
-          <el-tag v-if="user.role === 'company'" style="margin-top: 5px;width: 100px;" effect="plain" type="danger">
-            企业账号
-          </el-tag>
-          <el-tag v-if="user.role === 'counsellor'" style="margin-top: 5px;width: 100px;" effect="plain" type="info">
-            辅导员
+          <el-tag v-if="user.role === 'owner'" style="margin-top: 5px;width: 100px;" effect="plain" type="success">
+            业主
           </el-tag>
           <el-divider style="width: 300px;margin-top: 2px"/>
           <span style="font-size: 15px">
             <el-icon>
               <Message/>
             </el-icon>
-            邮箱地址：{{user.email}}
+            邮箱地址：{{updateForm.address}}
           </span>
         </div>
         <el-button type="success" style="margin: 40px 10px 0 310px" plain v-if="edit" @click="update">保存</el-button>
@@ -113,9 +86,9 @@ getData();
         <div class="bottom-left">
           <div style="margin: 20px 20px">
             <p style="font-size: 20px;font-weight: bold">个人信息</p>
-            <el-form :model="updateForm" label-position="left" label-width="140px">
+            <el-form :model="updateForm" label-position="left" label-width="90px">
               <el-row :gutter="50">
-                <el-col span="12">
+                <el-col :span="12">
                   <el-form-item label="昵称/用户名">
                     <el-input v-model="updateForm.username"
                               autocomplete="off"
@@ -126,51 +99,53 @@ getData();
                 <el-col :span="12">
                   <el-form-item label="姓名" label-width="50px">
                     <el-input
-                        v-model="updateForm.name"
+                        v-model="updateForm.realName"
                         autocomplete="off"
                         style="width: 150px;"
                         :disabled="!edit"/>
                   </el-form-item>
                 </el-col>
               </el-row>
-              <el-form-item label="所属公司" v-if="user.role === 'company' || user.role === 'admin'">
-                <el-select v-model="updateForm.cid" type="text" :maxlength="10" placeholder="请选择公司" style="width: 300px;"
+              <el-form-item label="性别">
+                <el-select v-model="updateForm.gender"
+                           style="width: 90px;"
+                           :maxlength="10"
+                           placeholder="请选择性别"
                            :disabled="!edit">
-                  <el-option v-for="c in updateForm.company" :label="c.name" :value="c.cid"/>
+                  <el-option label="男" value="male"></el-option>
+                  <el-option label="女" value="female"></el-option>
+                  <el-option label="隐藏" value="other"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="上传新头像">
-                <el-upload
-                    ref="upload"
-                    list-type="picture-card"
-                    v-model:file-list="fileList"
-                    :show-file-list="true"
-                    :limit="1"
-                    :on-exceed="handleExceed"
-                    :auto-upload="false"
-                    :disabled="!edit"
-                >
-                  <template #file="{ file }">
-                    <div>
-                      <img class="el-upload-list__item-thumbnail" :src="file.url" alt=""/>
-                    </div>
-                  </template>
-                  <el-icon class="avatar-uploader-icon">
-                    <Plus/>
-                  </el-icon>
-                </el-upload>
+              <el-form-item label="职位" v-if="user.role !== 'owner'">
+                <el-input v-model="updateForm.position"
+                          autocomplete="off"
+                          style="width: 150px;"
+                          :disabled="!edit"/>
+              </el-form-item>
+              <el-form-item label="联系电话">
+                <el-input v-model="updateForm.phone"
+                          autocomplete="off"
+                          style="width: 200px;"
+                          :disabled="!edit"/>
               </el-form-item>
               <el-form-item label="注册时间">
-                <el-input v-model="updateForm.create_time"
+                <el-input v-model="updateForm.createdAt"
                           autocomplete="off"
                           style="width: 200px;"
                           disabled/>
               </el-form-item>
-              <el-form-item label="最近一次修改时间">
-                <el-input v-model="updateForm.update_time"
+              <el-form-item label="入职时间" v-if="user.role !== 'owner'">
+                <el-input v-model="updateForm.hireDate"
                           autocomplete="off"
                           style="width: 200px;"
                           disabled/>
+              </el-form-item>
+              <el-form-item label="账号状态">
+                <el-tag style="margin-top: 5px;width: 50px;height: 30px;" effect="plain"
+                        :type="updateForm.status === 'active' ? 'success' : 'danger' ">
+                  {{ updateForm.status }}
+                </el-tag>
               </el-form-item>
             </el-form>
           </div>

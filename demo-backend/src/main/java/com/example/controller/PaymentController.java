@@ -1,0 +1,154 @@
+package com.example.controller;
+
+import com.example.entity.RestBean;
+import com.example.entity.dto.auth.PaymentSession;
+import com.example.entity.dto.common.Payment;
+import com.example.entity.vo.request.payment.PaymentReq;
+import com.example.entity.vo.response.PaymentVO;
+import com.example.service.PaymentService;
+import com.example.util.consts.Const;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/payment")
+public class PaymentController {
+
+    @Resource
+    private PaymentService service;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Operation(summary = "获取所有账单")
+    @GetMapping("/all")
+    public RestBean<List<PaymentVO>> all() {
+        return RestBean.success(service.getPaymentList());
+    }
+
+    @Operation(summary = "条件查询账单")
+    @GetMapping("/req")
+    public RestBean<List<PaymentVO>> getByReq(@RequestParam Long id,
+                                              @RequestParam(required = false) String type,
+                                              @RequestParam(required = false) String status) {
+        PaymentReq req = new PaymentReq();
+        req.setId(id);
+        req.setType(type);
+        req.setStatus(status);
+        return RestBean.success(service.getPaymentListByReq(req));
+    }
+
+    @Operation(summary = "根据id获取账单")
+    @GetMapping("/pid/{pid}")
+    public RestBean<PaymentVO> getByPid(@PathVariable("pid") Long pid) {
+        return RestBean.success(service.getPaymentById(pid));
+    }
+
+    @Operation(summary = "生成支付二维码")
+    @GetMapping("/qrcode/{sessionId}")
+    public void generateQrCode(
+            @PathVariable String sessionId,
+            HttpServletResponse response
+    ) throws IOException, WriterException {
+        // 构造支付确认URL
+        String payUrl = Const.FRONT_PATH + "payment?sessionId=" + sessionId;
+
+        // 生成二维码图片
+        QRCodeWriter writer = new QRCodeWriter();
+        BitMatrix matrix = writer.encode(payUrl, BarcodeFormat.QR_CODE, 200, 200);
+        MatrixToImageWriter.writeToStream(matrix, "PNG", response.getOutputStream());
+    }
+
+    @Operation(summary = "创建支付会话")
+    @PostMapping("/create-session")
+    public RestBean<String> createPaymentSession(@RequestBody @Valid Payment request) throws JsonProcessingException {
+        String sessionId = UUID.randomUUID().toString();
+        PaymentSession session = new PaymentSession(request.getPayId(), request.getAmount(), request.getType());
+        String sessionJson = objectMapper.writeValueAsString(session);
+        // 存储会话信息到Redis，有效期5分钟
+        stringRedisTemplate.opsForValue().set(
+                Const.PAYMENT_SESSION + sessionId,
+                sessionJson,
+                Duration.ofMinutes(5)
+        );
+        return RestBean.success(sessionId);
+    }
+
+    @Operation(summary = "确认支付")
+    @PutMapping("/confirm")
+    public RestBean<String> confirmPayment(@RequestBody String sessionId) throws JsonProcessingException {
+        // 从Redis获取会话信息
+        String key = Const.PAYMENT_SESSION + sessionId.replace("\"", "");
+        String sessionJson = stringRedisTemplate.opsForValue().get(key);
+        if (sessionJson == null) {
+            return RestBean.failure(400, "支付会话已过期或不存在");
+        }
+        // 解析会话信息JSON，转换为PaymentSession对象
+        PaymentSession session = objectMapper.readValue(sessionJson, PaymentSession.class);
+        // 根据PaymentSession中的pid获取支付信息
+        Payment payment = service.getById(session.getPid());
+        // 检查支付状态，如果未支付，则更新为已支付，并记录支付时间
+        if (payment.getStatus().equals("unpaid")) {
+            payment.setStatus("paid");
+            payment.setPaymentTime(new Date());
+            service.updatePayment(payment);
+            stringRedisTemplate.delete(key);
+            return RestBean.success("支付成功");
+        }
+        return RestBean.failure(400, "支付失败");
+    }
+
+    @Operation(summary = "创建账单")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
+    @PostMapping("/add")
+    public RestBean<String> add(@RequestBody @Valid Payment payment,
+                                @RequestParam("userIds") List<Long> userIds) {
+        String s = service.createPayment(payment, userIds);
+        return s == null ? RestBean.success("发布账单成功") : RestBean.failure(400, s);
+    }
+
+    @Operation(summary = "自动创建账单(物业费)")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
+    @PostMapping("/auto-add")
+    public RestBean<String> autoAdd(@RequestBody @Valid Payment payment,
+                                    @RequestParam(value = "singleAmount", defaultValue = "1.0") Double singleAmount) {
+        String s = service.autoCreatePayment(payment, singleAmount);
+        return s == null ? RestBean.success("自动创建账单成功") : RestBean.failure(400, s);
+    }
+
+    @Operation(summary = "更新账单")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
+    @PutMapping("/update")
+    public RestBean<String> update(@RequestBody @Valid Payment payment) {
+        String s = service.updatePayment(payment);
+        return s == null ? RestBean.success("缴费成功") : RestBean.failure(400, s);
+    }
+
+    @Operation(summary = "删除账单")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
+    @PostMapping("/delete")
+    public RestBean<String> delete(@RequestBody Long pid) {
+        String s = service.deletePayment(pid);
+        return s == null ? RestBean.success("删除账单成功") : RestBean.failure(400, s);
+    }
+}

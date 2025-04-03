@@ -7,13 +7,10 @@ import java.util.Date;
 @Data
 public class AuthorizeVO {
 
-    private Integer uid;
-    private Integer cid;
-    private String name;
+    private Long userId;
     private String username;
-    private String role;
-    private String avatar;
-    private String email;
+    private String roleName;  // "系统管理员"/"物业人员"/"业主"
+    private boolean isOnline;
     private String token;
     private Date expire;
 }
