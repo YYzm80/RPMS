@@ -70,7 +70,10 @@ public class JwtUtils {
             if (this.isInvalidToken(verify.getId()))
                 return null;
             Date expiresAt = verify.getExpiresAt();
-            return new Date().after(expiresAt) ? null : verify;
+            if (expiresAt.before(new Date())) {
+                OnlineUserUtils.removeOnlineUser(verify.getClaim("name").asString());
+                return null;
+            } else return verify;
         } catch (JWTVerificationException e){
             return null;
         }

@@ -58,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<AccountMapper, Account> impleme
     @Override
     public String addUser(Account account) {
         account.setPassword(encoder.encode("123456"));
-        if (Objects.equals(account.getUsername(), mapper.findAccountByNameOrEmail(account.getUsername()).getUsername())) {
+        if (mapper.findAccountByNameOrEmail(account.getUsername()) != null) {
             return "用户名已存在，请重新输入";
         }
         return mapper.insert(account) > 0 ? null : "添加用户失败，请稍后再试";
