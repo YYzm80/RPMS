@@ -10,6 +10,7 @@ public class RepairVO {
     private Long repairId;
     private Long userId;
     private String submitterName;  // 提交人姓名
+    private String fullAddress;
     private String description;
     private String handleResult;
     private Long handlerId;

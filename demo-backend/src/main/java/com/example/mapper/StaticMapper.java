@@ -5,6 +5,7 @@ import com.example.entity.dto.stat.PaymentTypeStat;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -60,5 +61,17 @@ public interface StaticMapper {
                 AND payment_time >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
             GROUP BY type
             """)
-    List<PaymentTypeStat> getPaymentTypeStat();
+    List<PaymentTypeStat> getPaymentTypeYearStat();
+
+    @Select("""
+            SELECT
+                type AS payment_type,
+                SUM(amount) AS total_amount
+            FROM payment
+            WHERE status = 'paid'
+            AND payment_time >= DATE_FORMAT(#{month}, '%Y-%m-01')
+            AND payment_time < DATE_ADD(DATE_FORMAT(#{month}, '%Y-%m-01'), INTERVAL 1 MONTH)
+            GROUP BY type
+            """)
+    List<PaymentTypeStat> getPaymentTypeMonthStat(Date month);
 }
