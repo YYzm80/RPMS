@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 public class MonthlyStat implements BaseData {
     private MonthlyBasicCommunityStat basicCommunityStat;
     private MonthlyManagerWorkStat managerWorkStat;
-    private MonthlyIncomeState incomeState;
+    private MonthlyIncomeStat incomeStat;
 }

@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MonthlyIncomeState {
+public class MonthlyIncomeStat {
     /**
      * 收入总计
      */

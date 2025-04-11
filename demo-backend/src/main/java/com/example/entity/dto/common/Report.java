@@ -17,7 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class Report implements Serializable, BaseData {
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
     private String month;
     private MonthlyStat content;
 

@@ -73,6 +73,7 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         }
 
         return list.stream().map(report -> report.getContent().asViewObject(MonthlyStatVO.class, vo -> {
+            vo.setId(report.getId());
             vo.setMonth(report.getMonth());
             vo.setGenerateTime(report.getGenerateTime());
         })).toList();
@@ -82,6 +83,7 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
     public MonthlyStatVO getReport(Long id) {
         Report report = mapper.selectById(id);
         return report.getContent().asViewObject(MonthlyStatVO.class, vo -> {
+            vo.setId(report.getId());
             vo.setMonth(report.getMonth());
             vo.setGenerateTime(report.getGenerateTime());
         });
@@ -153,10 +155,10 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         content.setManagerWorkStat(managerWorkStat);
 
         // 统计本月收入情况
-        MonthlyIncomeState incomeState = new MonthlyIncomeState();
+        MonthlyIncomeStat incomeState = new MonthlyIncomeStat();
         incomeState.setPaymentTypeStatList(staticMapper.getPaymentTypeMonthStat(month));
         incomeState.setTotal(incomeState.getPaymentTypeStatList().stream().map(PaymentTypeStat::getTotalAmount).reduce(BigDecimal::add).orElse(BigDecimal.ZERO));
-        content.setIncomeState(incomeState);
+        content.setIncomeStat(incomeState);
 
         // 返回月报内容
         return content;
