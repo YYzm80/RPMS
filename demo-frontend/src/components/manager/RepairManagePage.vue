@@ -177,10 +177,20 @@ getData()
             <el-step title="报修受理" />
             <el-step title="报修解决" />
           </el-steps>
-          <el-form-item label="申请人">
-            <el-input v-model="updateForm.submitterName"
-                      disabled/>
-          </el-form-item>
+          <el-row>
+            <el-col :span="11">
+              <el-form-item label="申请人">
+                <el-input v-model="updateForm.submitterName"
+                          disabled/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="11" :offset="2">
+              <el-form-item label="业主楼栋信息">
+                <el-input v-model="updateForm.fullAddress"
+                          disabled/>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item label="报修描述">
             <el-input v-model="updateForm.description"
                       show-word-limit

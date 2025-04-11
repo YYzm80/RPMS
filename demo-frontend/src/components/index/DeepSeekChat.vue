@@ -42,7 +42,7 @@ const sendMessage = () => {
 
 // 添加清除对话的函数
 const clearChat = () => {
-  get(`/deepseek/chat/clear/${user.uid}`, (message) => {
+  get(`api/deepseek/chat/clear/${user.uid}`, (message) => {
     ElMessage.success(message)
   })
 }

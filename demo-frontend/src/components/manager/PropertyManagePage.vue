@@ -560,19 +560,4 @@ getData()
 .content {
   margin: 15px 15px;
 }
-
-.results_pdfFile {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.results_pdfFile span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 350px;
-  color: rgba(133, 51, 0, 0.99);
-}
 </style>

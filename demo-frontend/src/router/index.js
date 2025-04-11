@@ -26,35 +26,35 @@ const router = createRouter({
         children: [{
             path: '',
             name: 'index-home',
-            component: () => import('../components/index/HomePage.vue')
+            component: () => import('@/components/index/HomePage.vue')
         }, {
             path: '/index/personal',
             name: 'index-personal',
-            component: () => import('../components/index/PersonalPage.vue')
+            component: () => import('@/components/index/PersonalPage.vue')
         }, {
             path: '/index/announce',
             name: 'index-announce',
-            component: () => import('../components/index/AnnouncePage.vue')
+            component: () => import('@/components/index/AnnouncePage.vue')
         }, {
             path: '/index/complaint',
             name: 'index-complaint',
-            component: () => import('../components/index/ComplaintPage.vue')
+            component: () => import('@/components/index/ComplaintPage.vue')
         }, {
             path: '/index/repair',
             name: 'index-repair',
-            component: () => import('../components/index/RepairPage.vue')
+            component: () => import('@/components/index/RepairPage.vue')
         }, {
             path: '/index/payment',
             name: 'index-payment',
-            component: () => import('../components/index/PaymentPage.vue')
+            component: () => import('@/components/index/PaymentPage.vue')
         }, {
             path: '/index/chat',
             name: 'index-chat',
-            component: () => import('../components/index/DeepSeekChat.vue')
+            component: () => import('@/components/index/DeepSeekChat.vue')
         }, {
             path: '/index/online-chat',
             name: 'index-online-chat',
-            component: () => import('../components/index/ChatPage.vue')
+            component: () => import('@/components/index/ChatPage.vue')
         }]
     }, {
         path: '/manager',
@@ -63,31 +63,40 @@ const router = createRouter({
         children: [{
             path: '',
             name: 'manager-home',
-            component: () => import('../components/manager/HomePage.vue')
+            component: () => import('@/components/manager/HomePage.vue')
         }, {
             path: '/manager/user',
             name: 'manager-user',
-            component: () => import('../components/manager/UserManagePage.vue')
+            component: () => import('@/components/manager/UserManagePage.vue')
         }, {
             path: '/manager/property',
             name: 'manager-property',
-            component: () => import('../components/manager/PropertyManagePage.vue')
+            component: () => import('@/components/manager/PropertyManagePage.vue')
         }, {
             path: '/manager/announce',
             name: 'manager-announce',
-            component: () => import('../components/manager/AnnounceManagePage.vue')
+            component: () => import('@/components/manager/AnnounceManagePage.vue')
         }, {
             path: '/manager/complaint',
             name: 'manager-complaint',
-            component: () => import('../components/manager/ComplaintManagePage.vue')
+            component: () => import('@/components/manager/ComplaintManagePage.vue')
         }, {
             path: '/manager/repair',
             name: 'manager-repair',
-            component: () => import('../components/manager/RepairManagePage.vue')
+            component: () => import('@/components/manager/RepairManagePage.vue')
         }, {
             path: '/manager/payment',
             name: 'manager-payment',
-            component: () => import('../components/manager/PaymentManagePage.vue')
+            component: () => import('@/components/manager/PaymentManagePage.vue')
+        }, {
+            path: '/manager/report',
+            name: 'manager-report',
+            component: () => import('@/components/manager/MonthReport.vue'),
+            children: [{
+                path: '/manager/report/{month}',
+                name: 'manager-report-month',
+                component: () => import('@/components/manager/inner/ReportShow.vue')
+            }]
         }]
     }, {
         path: '/payment',
@@ -95,8 +104,6 @@ const router = createRouter({
         component: () => import('@/views/PaymentView.vue')
     }]
 })
-
-
 
 router.beforeEach((to, from, next) => {
     const authItemName = "authorize"

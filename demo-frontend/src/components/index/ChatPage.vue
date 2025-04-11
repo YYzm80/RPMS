@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router'
-import { ElInput, ElButton, ElCard, ElMessage, ElScrollbar, ElPopover, ElTag } from 'element-plus';
+import {ref} from 'vue';
+import {onBeforeRouteLeave} from 'vue-router'
+import {ElInput, ElButton, ElCard, ElMessage, ElScrollbar, ElPopover, ElTag} from 'element-plus';
 import smile from '../../assets/smile.svg';
 import {webSocketUrl} from "@/stores/commonAPI";
 
@@ -47,7 +47,7 @@ const send = () => {
 
 // 在组件卸载前关闭 WebSocket 连接
 onBeforeRouteLeave(() => {
-  if (ws && ws.readyState === WebSocket.OPEN) {
+  if (ws) {
     ws.close()
   }
 })
@@ -64,53 +64,56 @@ join()
 </script>
 
 <template>
-  <ElCard class="chat-container">
-    <h3>在线聊天室</h3>
-    <el-scrollbar style="height: 420px">
-      <div class="response-text" v-text="responseText"></div>
-    </el-scrollbar>
-    <div class="chat-toolbar">
-      <ElPopover
-        placement="top-start"
-        width="410"
-        trigger="hover"
-      >
-        <template #reference>
-          <ElButton type="text">
-            <el-image :src="smile"/>
-          </ElButton>
-        </template>
-        <div class="emoji-picker">
+  <div>
+    <ElCard class="chat-container">
+      <h3>在线聊天室</h3>
+      <el-scrollbar style="height: 420px">
+        <div class="response-text" v-text="responseText"></div>
+      </el-scrollbar>
+      <div class="chat-toolbar">
+        <ElPopover
+                placement="top-start"
+                width="410"
+                trigger="hover"
+        >
+          <template #reference>
+            <ElButton type="text">
+              <el-image :src="smile"/>
+            </ElButton>
+          </template>
+          <div class="emoji-picker">
           <span
-            v-for="emoji in emojis"
-            :key="emoji"
-            @click="insertEmoji(emoji)"
-            class="emoji-item"
+                  v-for="emoji in emojis"
+                  :key="emoji"
+                  @click="insertEmoji(emoji)"
+                  class="emoji-item"
           >{{ emoji }}</span>
-        </div>
-      </ElPopover>
-    </div>
-    <div class="chat-input">
-      <ElInput
-        v-model="message"
-        placeholder="输入消息..."
-        @keyup.enter="send"
-        show-word-limit
-        type="textarea"
-        resize="none"
-        :rows="2"
-        maxlength="1000"
-        class="message-input"
-      />
-      <ElButton type="primary" @click="send">发送消息</ElButton>
-    </div>
-  </ElCard>
-  <div class="user-list">
-    <h4>在线用户</h4>
-    <div class="user-tags">
-      <ElTag v-for="user in onlineUsers" :key="user" type="info">{{ user }}</ElTag>
+          </div>
+        </ElPopover>
+      </div>
+      <div class="chat-input">
+        <ElInput
+                v-model="message"
+                placeholder="输入消息..."
+                @keyup.enter="send"
+                show-word-limit
+                type="textarea"
+                resize="none"
+                :rows="2"
+                maxlength="1000"
+                class="message-input"
+        />
+        <ElButton type="primary" @click="send">发送消息</ElButton>
+      </div>
+    </ElCard>
+    <div class="user-list">
+      <h4>在线用户</h4>
+      <div class="user-tags">
+        <ElTag v-for="user in onlineUsers" :key="user" type="info">{{ user }}</ElTag>
+      </div>
     </div>
   </div>
+
 </template>
 
 <style scoped>

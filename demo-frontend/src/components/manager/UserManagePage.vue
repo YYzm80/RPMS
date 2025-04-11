@@ -331,7 +331,7 @@ getData()
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row>
+          <el-row v-if="form.rid === '2'">
             <el-col :span="11">
               <el-form-item label="职位(仅限物业人员)">
                 <el-input v-model="form.position"
