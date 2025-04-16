@@ -19,7 +19,7 @@ public class SwaggerConfig {
                         .version("v1.0.0")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
                 .externalDocs(new ExternalDocumentation()
-                        .description("外部文档")
-                        .url("https://springshop.wiki.github.org/docs"));
+                        .description("GitHub仓库地址")
+                        .url("https://github.com/YYzm80/DPMS"));
     }
 }

@@ -21,19 +21,21 @@ public class ReportController {
 
     @Operation(summary = "获取月报列表")
     @GetMapping("/list")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     public RestBean<List<MonthlyStatVO>> getReportList(@JsonFormat(pattern = "yyyy-MM") Date month) {
         return RestBean.success(service.getReportList(month));
     }
 
     @Operation(summary = "获取月报")
     @GetMapping("/id/{id}")
+    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
     public RestBean<MonthlyStatVO> getReport(@PathVariable("id") Long id) {
         return RestBean.success(service.getReport(id));
     }
 
     @Operation(summary = "生成月报")
     @PostMapping("/generate")
-    @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER})
+    @RolesAllowed({Const.ROLE_ADMIN})
     public RestBean<String> generateReport(Date month) {
         String s = service.generateReport(month);
         return s == null ? RestBean.success("生成月报成功") : RestBean.failure(400, s);
