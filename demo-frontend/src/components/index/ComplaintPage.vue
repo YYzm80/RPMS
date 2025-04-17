@@ -5,12 +5,15 @@ import {Delete, Edit, Plus, Search, View} from "@element-plus/icons-vue";
 import router from "@/router";
 import {ElMessage} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
+import {contentRules} from "@/net/rules.js";
 
 const tableData = ref([])
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
 const form = ref([])
+const formRef = ref()
 const updateForm = ref([])
+const updateFormRef = ref()
 const complaint = ref([])
 const dialogNewComplaintVisible = ref(false)
 const dialogUpdateVisible = ref(false)
@@ -45,26 +48,40 @@ const getUpdateForm = (cid) => {
 }
 
 const newComplaint = () => {
-  post('api/complaint/add', {
-    content: form.value.content,
-    userId: user.uid,
-    submitTime: new Date()
-  }, (message) => {
-    ElMessage.success(message)
-    dialogNewComplaintVisible.value = false
-    getData()
+  formRef.value.validate((valid) => {
+    if (valid) {
+      post('api/complaint/add', {
+        content: form.value.content,
+        userId: user.uid,
+        submitTime: new Date()
+      }, (message) => {
+        ElMessage.success(message)
+        dialogNewComplaintVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请填写投诉内容')
+    }
   })
+
 }
 
 const updateComplaint = () => {
-  put('api/complaint/update', {
-    cid: updateForm.value.cid,
-    content: updateForm.value.content,
-  }, (message) => {
-    ElMessage.success(message)
-    dialogUpdateVisible.value = false
-    getData()
+  formRef.value.validate((valid) => {
+    if (valid) {
+      put('api/complaint/update', {
+        cid: updateForm.value.cid,
+        content: updateForm.value.content,
+      }, (message) => {
+        ElMessage.success(message)
+        dialogUpdateVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请填写投诉内容')
+    }
   })
+
 }
 
 function openDelete(cid) {
@@ -192,13 +209,16 @@ getData()
             width="600"
             style="margin-top: 50px"
     >
-      <el-form :model="form" label-position="top">
+      <el-form :model="form"
+               :rules="contentRules"
+               ref="formRef"
+               label-position="top">
         <el-steps style="max-width: 500px" :active="0" finish-status="success" simple>
           <el-step title="投诉申请"/>
           <el-step title="投诉受理"/>
           <el-step title="投诉解决"/>
         </el-steps>
-        <el-form-item label="投诉详情">
+        <el-form-item label="投诉详情" prop="content">
           <el-input v-model="form.content"
                     show-word-limit
                     maxlength="200"
@@ -226,13 +246,16 @@ getData()
             width="600"
             style="margin-top: 50px"
     >
-      <el-form :model="updateForm" label-position="top">
+      <el-form :model="updateForm"
+               :rules="contentRules"
+               ref="updateFormRef"
+               label-position="top">
         <el-steps style="max-width: 500px" :active="1" finish-status="success" simple>
           <el-step title="投诉申请"/>
           <el-step title="投诉受理"/>
           <el-step title="投诉解决"/>
         </el-steps>
-        <el-form-item label="投诉详情">
+        <el-form-item label="投诉详情" prop="content">
           <el-input v-model="updateForm.content"
                     show-word-limit
                     maxlength="200"

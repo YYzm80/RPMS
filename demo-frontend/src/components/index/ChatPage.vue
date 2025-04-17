@@ -1,116 +1,119 @@
 <script setup>
-import { ref } from 'vue';
-import { onBeforeRouteLeave } from 'vue-router'
-import { ElInput, ElButton, ElCard, ElMessage, ElScrollbar, ElPopover, ElTag } from 'element-plus';
+import {ref} from 'vue';
+import {onBeforeRouteLeave} from 'vue-router'
+import {ElInput, ElButton, ElCard, ElMessage, ElScrollbar, ElPopover, ElTag} from 'element-plus';
 import smile from '../../assets/smile.svg';
 import {webSocketUrl} from "@/stores/commonAPI";
 
 const authItemName = "authorize"
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
-const message = ref('');
-const responseText = ref('');
-const onlineUsers = ref([]); // 新增：在线用户列表
-let ws = null;
+const message = ref('')
+const responseText = ref('')
+const onlineUsers = ref([]) // 新增：在线用户列表
+let ws = null
 
 // 加入聊天室
 const join = () => {
-  const url = webSocketUrl + user.username;
-  ws = new WebSocket(url);
+  const url = webSocketUrl + user.username
+  ws = new WebSocket(url)
   ws.onmessage = (event) => {
     // console.log(event.data)
     if (event.data.startsWith('USER_LIST:')) {
       // 更新在线用户列表
-      onlineUsers.value = event.data.replace('USER_LIST:', '').split(',');
+      onlineUsers.value = event.data.replace('USER_LIST:', '').split(',')
     } else {
-      responseText.value += event.data;
+      responseText.value += event.data
     }
-  };
+  }
   ws.onopen = () => {
-    responseText.value += "建立 websocket 连接... \n\r";
-  };
+    responseText.value += "建立 websocket 连接... \n\r"
+  }
   ws.onclose = () => {
-    onlineUsers.value = onlineUsers.value.filter(user => user !== user.username);
-    responseText.value += `用户[${user.username}] 已经离开聊天室! \n\r`;
-    responseText.value += "关闭 websocket 连接.\n\r";
-  };
-};
+    onlineUsers.value = onlineUsers.value.filter(user => user !== user.username)
+    responseText.value += `用户[${user.username}] 已经离开聊天室! \n\r`
+    responseText.value += "关闭 websocket 连接.\n\r"
+  }
+}
 
 // 发送消息
 const send = () => {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    ElMessage.warning("WebSocket 连接没有建立成功！");
-    return;
+    ElMessage.warning("WebSocket 连接没有建立成功！")
+    return
   }
-  ws.send(message.value.trim() + '\n\r');
-  message.value = '';
-};
+  ws.send(message.value.trim() + '\n\r')
+  message.value = ''
+}
 
 // 在组件卸载前关闭 WebSocket 连接
 onBeforeRouteLeave(() => {
-  if (ws && ws.readyState === WebSocket.OPEN) {
+  if (ws) {
     ws.close()
   }
 })
 
 // 插入表情
 const insertEmoji = (emoji) => {
-  message.value += emoji;
-};
+  message.value += emoji
+}
 
 // 表情列表
-const emojis = ['😀', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'];
+const emojis = ['😀', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾']
 
 join()
 </script>
 
 <template>
-  <ElCard class="chat-container">
-    <h3>在线聊天室</h3>
-    <el-scrollbar style="height: 420px">
-      <div class="response-text" v-text="responseText"></div>
-    </el-scrollbar>
-    <div class="chat-toolbar">
-      <ElPopover
-        placement="top-start"
-        width="410"
-        trigger="hover"
-      >
-        <template #reference>
-          <ElButton type="text">
-            <el-image :src="smile"/>
-          </ElButton>
-        </template>
-        <div class="emoji-picker">
+  <div>
+    <ElCard class="chat-container">
+      <h3>在线聊天室</h3>
+      <el-scrollbar style="height: 420px">
+        <div class="response-text" v-text="responseText"></div>
+      </el-scrollbar>
+      <div class="chat-toolbar">
+        <ElPopover
+                placement="top-start"
+                width="410"
+                trigger="hover"
+        >
+          <template #reference>
+            <ElButton type="text">
+              <el-image :src="smile"/>
+            </ElButton>
+          </template>
+          <div class="emoji-picker">
           <span
-            v-for="emoji in emojis"
-            :key="emoji"
-            @click="insertEmoji(emoji)"
-            class="emoji-item"
+                  v-for="emoji in emojis"
+                  :key="emoji"
+                  @click="insertEmoji(emoji)"
+                  class="emoji-item"
           >{{ emoji }}</span>
-        </div>
-      </ElPopover>
-    </div>
-    <div class="chat-input">
-      <ElInput
-        v-model="message"
-        placeholder="输入消息..."
-        @keyup.enter="send"
-        show-word-limit
-        type="textarea"
-        resize="none"
-        :rows="2"
-        maxlength="1000"
-        class="message-input"
-      />
-      <ElButton type="primary" @click="send">发送消息</ElButton>
-    </div>
-  </ElCard>
-  <div class="user-list">
-    <h4>在线用户</h4>
-    <div class="user-tags">
-      <ElTag v-for="user in onlineUsers" :key="user" type="info">{{ user }}</ElTag>
+          </div>
+        </ElPopover>
+      </div>
+      <div class="chat-input">
+        <ElInput
+                v-model="message"
+                placeholder="输入消息..."
+                @keyup.enter="send"
+                show-word-limit
+                type="textarea"
+                resize="none"
+                :rows="2"
+                maxlength="1000"
+                class="message-input"
+        />
+        <ElButton type="primary" @click="send">发送消息</ElButton>
+      </div>
+    </ElCard>
+    <div class="user-list">
+      <h4>在线用户</h4>
+      <div class="user-tags">
+        <ElTag v-for="user in onlineUsers" :key="user" type="info">{{ user }}</ElTag>
+      </div>
     </div>
   </div>
+
 </template>
 
 <style scoped>

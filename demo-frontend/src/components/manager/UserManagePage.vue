@@ -5,6 +5,7 @@ import {ref} from "vue";
 import {get, multipartPost, post, put} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
+import {userRules} from "@/net/rules.js";
 
 const tableData = ref([])
 const authItemName = "authorize";
@@ -27,24 +28,32 @@ const importVisible = ref(false)
 const dialogUpdateVisible = ref(false)
 const dialogDeleteVisible = ref(false)
 const form = ref([])
+const formRef = ref()
 const updateForm = ref([])
+const updateFormRef = ref()
 let deleteUid = 0
 
 const addUser = () => {
-  post('api/user/add', {
-    username: form.value.username,
-    realName: form.value.realName,
-    rid: form.value.rid,
-    gender: form.value.gender,
-    phone: form.value.phone,
-    address: form.value.address,
-    position: form.value.position,
-    hireDate: form.value.hireDate
-  }, (message) => {
-    ElMessage.success(message)
-    form.value = []
-    dialogNewVisible.value = false
-    getData()
+  formRef.value.validate((valid) => {
+    if (valid) {
+      post('api/user/add', {
+        username: form.value.username,
+        realName: form.value.realName,
+        rid: form.value.rid,
+        gender: form.value.gender,
+        phone: form.value.phone,
+        address: form.value.address,
+        position: form.value.position,
+        hireDate: form.value.hireDate
+      }, (message) => {
+        ElMessage.success(message)
+        form.value = []
+        dialogNewVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请正确填写用户信息')
+    }
   })
 }
 
@@ -56,20 +65,26 @@ const getUpdateData = (uid) => {
 }
 
 const update = () => {
-  put('api/user/update-manager', {
-    userId: updateForm.value.userId,
-    username: updateForm.value.username,
-    realName: updateForm.value.realName,
-    rid: updateForm.value.roleName,
-    gender: updateForm.value.gender,
-    phone: updateForm.value.phone,
-    address: updateForm.value.address,
-    position: updateForm.value.position,
-    hireDate: updateForm.value.hireDate
-  }, (message) => {
-    ElMessage.success(message)
-    dialogUpdateVisible.value = false
-    getData()
+  updateFormRef.value.validate((valid) => {
+    if (valid) {
+      put('api/user/update-manager', {
+        userId: updateForm.value.userId,
+        username: updateForm.value.username,
+        realName: updateForm.value.realName,
+        rid: updateForm.value.roleName,
+        gender: updateForm.value.gender,
+        phone: updateForm.value.phone,
+        address: updateForm.value.address,
+        position: updateForm.value.position,
+        hireDate: updateForm.value.hireDate
+      }, (message) => {
+        ElMessage.success(message)
+        dialogUpdateVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请正确填写用户信息')
+    }
   })
 }
 
@@ -286,17 +301,21 @@ getData()
               width="400"
               style="margin-top: 100px"
       >
-        <el-form :model="form" label-position="top">
+        <el-form :model="form"
+                 :rules="userRules"
+                 hide-required-asterisk
+                 ref="formRef"
+                 label-position="top">
           <el-row>
             <el-col :span="11">
-              <el-form-item label="用户名">
+              <el-form-item label="用户名" prop="username">
                 <el-input v-model="form.username" autocomplete="off"
                           placeholder="请输入用户名"/>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="性别">
+              <el-form-item label="性别" prop="gender">
                 <el-select v-model="form.gender" placeholder="请选择性别">
                   <el-option label="男" value="male"/>
                   <el-option label="女" value="female"/>
@@ -305,17 +324,17 @@ getData()
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="绑定邮箱">
+          <el-form-item label="绑定邮箱" prop="address">
             <el-input v-model="form.address"
                       placeholder="请输入邮箱地址"/>
           </el-form-item>
-          <el-form-item label="手机号码">
+          <el-form-item label="手机号码" prop="phone">
             <el-input v-model="form.phone"
                       placeholder="请输入手机号"/>
           </el-form-item>
           <el-row>
             <el-col :span="11">
-              <el-form-item label="真实姓名">
+              <el-form-item label="真实姓名" prop="realName">
                 <el-input v-model="form.realName"
                           autocomplete="off"
                           placeholder="请输入姓名"/>
@@ -323,7 +342,7 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="角色">
+              <el-form-item label="角色" prop="rid">
                 <el-select v-model="form.rid" placeholder="请选择角色">
                   <el-option label="物业人员" value="2"/>
                   <el-option label="业主" value="3"/>
@@ -331,9 +350,9 @@ getData()
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row>
+          <el-row v-if="form.rid === '1' || form.rid === '2'">
             <el-col :span="11">
-              <el-form-item label="职位(仅限物业人员)">
+              <el-form-item label="职位(仅限物业人员)" prop="position">
                 <el-input v-model="form.position"
                           autocomplete="off"
                           placeholder="请输入职位名称"/>
@@ -341,7 +360,7 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="入职时间(仅限物业人员)">
+              <el-form-item label="入职时间(仅限物业人员)" prop="hireDate">
                 <el-date-picker type="date"
                                 style="width: 100%;"
                                 v-model="form.hireDate"
@@ -406,14 +425,18 @@ getData()
       </el-dialog>
       <el-dialog
               v-model="dialogUpdateVisible"
-              title="修改管理员信息"
+              title="修改用户信息"
               width="400"
               style="margin-top: 100px"
       >
-        <el-form :model="updateForm" label-position="top">
+        <el-form :model="updateForm"
+                 :rules="userRules"
+                 hide-required-asterisk
+                 ref="updateFormRef"
+                 label-position="top">
           <el-row>
             <el-col :span="11">
-              <el-form-item label="用户名">
+              <el-form-item label="用户名" prop="username">
                 <el-input v-model="updateForm.username" autocomplete="off"
                           placeholder="请输入用户名"/>
               </el-form-item>
@@ -429,17 +452,17 @@ getData()
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="绑定邮箱">
+          <el-form-item label="绑定邮箱" prop="address">
             <el-input v-model="updateForm.address"
                       placeholder="请输入邮箱地址"/>
           </el-form-item>
-          <el-form-item label="手机号码">
+          <el-form-item label="手机号码" prop="phone">
             <el-input v-model="updateForm.phone"
                       placeholder="请输入手机号"/>
           </el-form-item>
           <el-row>
             <el-col :span="11">
-              <el-form-item label="真实姓名">
+              <el-form-item label="真实姓名" prop="realName">
                 <el-input v-model="updateForm.realName"
                           autocomplete="off"
                           placeholder="请输入姓名"/>
@@ -449,16 +472,16 @@ getData()
             <el-col :span="11">
               <el-form-item label="角色">
                 <el-select v-model="updateForm.roleName" placeholder="请选择角色">
-                  <el-option label="系统管理员" value="1"/>
+                  <el-option label="系统管理员" value="1" hidden="hidden"/>
                   <el-option label="物业人员" value="2"/>
                   <el-option label="业主" value="3"/>
                 </el-select>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row>
+          <el-row v-if="updateForm.roleName !== '3'">
             <el-col :span="11">
-              <el-form-item label="职位(仅限物业人员)">
+              <el-form-item label="职位(仅限物业人员)" prop="position">
                 <el-input v-model="updateForm.position"
                           autocomplete="off"
                           placeholder="请输入职位名称"/>
@@ -466,7 +489,7 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="入职时间(仅限物业人员)">
+              <el-form-item label="入职时间(仅限物业人员)" prop="hireDate">
                 <el-date-picker type="date"
                                 style="width: 100%;"
                                 v-model="updateForm.hireDate"

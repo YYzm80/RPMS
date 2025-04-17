@@ -13,7 +13,7 @@ public interface AccountMapper extends MyBaseMapper<Account> {
     @Select("select * from user where username = #{text} or address = #{text}")
     Account findAccountByNameOrEmail(String text);
 
-    @Select("select user.user_id, real_name from user left join property p on user.user_id = p.user_id where rid = 3  and p.user_id is null ")
+    @Select("select user.user_id, real_name from user left join property p on user.user_id = p.user_id where rid = 3 and p.user_id is null ")
     List<Account> findAccountsOwner();
 
     @Select("select property.user_id, real_name from user right join property on user.user_id = property.user_id where rid = 3")

@@ -77,7 +77,7 @@ public class StaticServiceImpl implements StaticService {
                 .eq("status", "completed")
                 .eq("handler_id", handlerId))));
         vo.setDailyWorkStatList(staticMapper.getDailyWorkStat());
-        List<PaymentTypeStat> stats = staticMapper.getPaymentTypeStat();
+        List<PaymentTypeStat> stats = staticMapper.getPaymentTypeYearStat();
         // 计算百分比
         BigDecimal total = stats.stream()
                 .map(PaymentTypeStat::getTotalAmount)

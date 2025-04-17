@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 /**
- * 收费类型统计实体（用于年度收费分类占比统计）
+ * 收费类型统计实体（用于年度/月度收费分类占比统计）
  */
 @Data
 @NoArgsConstructor

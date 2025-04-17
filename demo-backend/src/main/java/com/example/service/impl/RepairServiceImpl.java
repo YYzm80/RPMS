@@ -1,9 +1,12 @@
 package com.example.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.entity.dto.common.Property;
 import com.example.entity.dto.common.Repair;
 import com.example.entity.vo.response.RepairVO;
 import com.example.mapper.AccountMapper;
+import com.example.mapper.PropertyMapper;
 import com.example.mapper.RepairMapper;
 import com.example.service.RepairService;
 import jakarta.annotation.Resource;
@@ -16,9 +19,10 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
 
     @Resource
     private RepairMapper mapper;
-
     @Resource
     private AccountMapper accountMapper;
+    @Resource
+    private PropertyMapper propertyMapper;
 
     @Override
     public List<RepairVO> getRepairList() {
@@ -68,6 +72,8 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
             v.setSubmitterName(accountMapper.selectById(repair.getUserId()).getRealName());
             String status = repair.getStatus();
             v.setStatusDesc(status.equals("pending") ? "待定" : status.equals("processing") ? "处理中" : "已解决");
+            Property property = propertyMapper.selectOne(new QueryWrapper<Property>().eq("user_id", repair.getUserId()));
+            if (property != null) v.setFullAddress(property.getBuildingNumber() + "栋" + property.getRoomNumber() + "室");
             if (repair.getHandlerId() != null) v.setHandlerName(accountMapper.selectById(repair.getHandlerId()).getRealName());
         });
     }

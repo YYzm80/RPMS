@@ -5,12 +5,15 @@ import {Delete, Edit, Plus, Search, View} from "@element-plus/icons-vue";
 import router from "@/router";
 import {ElMessage} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
+import {descriptionRules} from "@/net/rules.js";
 
 const tableData = ref([])
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
 const form = ref([])
+const formRef = ref()
 const updateForm = ref([])
+const updateFormRef = ref()
 const repair = ref([])
 const dialogNewRepairVisible = ref(false)
 const dialogUpdateVisible = ref(false)
@@ -45,25 +48,37 @@ const getUpdateForm = (rid) => {
 }
 
 const newRepair = () => {
-  post('api/repair/add', {
-    description: form.value.description,
-    userId: user.uid,
-    submitTime: new Date()
-  }, (message) => {
-    ElMessage.success(message)
-    dialogNewRepairVisible.value = false
-    getData()
+  formRef.value.validate((valid) => {
+    if (valid) {
+      post('api/repair/add', {
+        description: form.value.description,
+        userId: user.uid,
+        submitTime: new Date()
+      }, (message) => {
+        ElMessage.success(message)
+        dialogNewRepairVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请填写报修内容')
+    }
   })
 }
 
 const updateRepair = () => {
-  put('api/repair/update', {
-    repairId: updateForm.value.repairId,
-    description: updateForm.value.description
-  }, (message) => {
-    ElMessage.success(message)
-    dialogUpdateVisible.value = false
-    getData()
+  updateFormRef.value.validate((valid) => {
+    if (valid) {
+      put('api/repair/update', {
+        repairId: updateForm.value.repairId,
+        description: updateForm.value.description
+      }, (message) => {
+        ElMessage.success(message)
+        dialogUpdateVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请填写报修内容')
+    }
   })
 }
 
@@ -192,13 +207,16 @@ getData()
             width="600"
             style="margin-top: 50px"
     >
-      <el-form :model="form" label-position="top">
+      <el-form :model="form"
+               :rules="descriptionRules"
+               ref="formRef"
+               label-position="top">
         <el-steps style="max-width: 500px" :active="0" finish-status="success" simple>
           <el-step title="报修申请"/>
           <el-step title="报修受理"/>
           <el-step title="报修解决"/>
         </el-steps>
-        <el-form-item label="报修详情">
+        <el-form-item label="报修详情" prop="description">
           <el-input v-model="form.description"
                     show-word-limit
                     maxlength="200"
@@ -226,13 +244,16 @@ getData()
             width="600"
             style="margin-top: 50px"
     >
-      <el-form :model="updateForm" label-position="top">
+      <el-form :model="updateForm"
+               :rules="descriptionRules"
+               ref="updateFormRef"
+               label-position="top">
         <el-steps style="max-width: 500px" :active="1" finish-status="success" simple>
           <el-step title="报修申请"/>
           <el-step title="报修受理"/>
           <el-step title="报修解决"/>
         </el-steps>
-        <el-form-item label="报修详情">
+        <el-form-item label="报修详情" prop="description">
           <el-input v-model="updateForm.description"
                     show-word-limit
                     maxlength="200"

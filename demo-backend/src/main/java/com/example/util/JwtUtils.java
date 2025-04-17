@@ -70,8 +70,7 @@ public class JwtUtils {
             if (this.isInvalidToken(verify.getId()))
                 return null;
             Date expiresAt = verify.getExpiresAt();
-            if(new Date().after(expiresAt)) {
-                // 移除在线用户
+            if (expiresAt.before(new Date())) {
                 OnlineUserUtils.removeOnlineUser(verify.getClaim("name").asString());
                 return null;
             } else return verify;

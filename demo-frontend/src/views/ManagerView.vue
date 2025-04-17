@@ -91,7 +91,7 @@ const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.get
                 <span>缴费管理</span>
               </el-menu-item>
             </el-sub-menu>
-            <el-menu-item index="5" @click="router.push('/index/term')">
+            <el-menu-item index="5" @click="router.push('/manager/report')">
               <el-icon>
                 <data-analysis/>
               </el-icon>

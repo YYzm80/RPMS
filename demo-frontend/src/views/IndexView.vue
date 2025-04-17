@@ -100,13 +100,13 @@ weather()
               <el-icon>
                 <ChatLineRound/>
               </el-icon>
-              <span>与DeepSeek对话</span>
+              <span>与物业AI小助手对话</span>
             </el-menu-item>
             <el-menu-item index="2-2" style="padding: 0 15px 0 25px;" @click="router.push('/index/online-chat')">
               <el-icon>
                 <Comment/>
               </el-icon>
-              <span>在线聊天室</span>
+              <span>社区在线聊天室</span>
             </el-menu-item>
           </el-sub-menu>
         </el-menu>
