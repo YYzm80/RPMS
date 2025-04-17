@@ -10,10 +10,10 @@ import {get} from "@/net";
 import router from "@/router";
 
 const urls = ref([
-  '@/assets/lunbo1.jpg',
-  '@/assets/lunbo2.jpg',
-  '@/assets/lunbo3.jpg',
-  '@/assets/lunbo4.jpg',
+  'lunbo1.jpg',
+  'lunbo2.jpg',
+  'lunbo3.jpg',
+  'lunbo4.jpg',
 ])
 
 const tableData = ref([])
