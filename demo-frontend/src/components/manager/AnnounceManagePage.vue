@@ -7,6 +7,7 @@ import {get, post, put} from "@/net";
 import {ElMessage} from "element-plus";
 import {Editor, Toolbar} from "@wangeditor/editor-for-vue";
 import {useSearchAndPagination} from "@/net/common";
+import {announcementRules} from "@/net/rules.js";
 
 const tableData = ref([])
 const authItemName = "authorize";
@@ -28,20 +29,29 @@ const dialogNewVisible = ref(false)
 const dialogUpdateVisible = ref(false)
 const dialogDeleteVisible = ref(false)
 const form = ref([])
+const formRef = ref()
 const updateForm = ref([])
+const updateFormRef = ref()
 let deleteAid = 0
 
 const addAnnounce = () => {
-  post('api/announce/add', {
-    title: form.value.title,
-    content: form.value.content,
-    publisherId: user.uid
-  }, (message) => {
-    ElMessage.success(message)
-    form.value = []
-    dialogNewVisible.value = false
-    getData()
+  formRef.value.validate((valid) => {
+    if (valid) {
+      post('api/announce/add', {
+        title: form.value.title,
+        content: form.value.content,
+        publisherId: user.uid
+      }, (message) => {
+        ElMessage.success(message)
+        form.value = []
+        dialogNewVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请正确填写公告信息')
+    }
   })
+
 }
 
 const getUpdateData = (aid) => {
@@ -52,16 +62,23 @@ const getUpdateData = (aid) => {
 }
 
 const update = () => {
-  put('api/announce/update', {
-    aid: updateForm.value.aid,
-    title: updateForm.value.title,
-    content: updateForm.value.content,
-    publisherId: user.uid
-  }, (message) => {
-    ElMessage.success(message)
-    dialogUpdateVisible.value = false
-    getData()
+  updateFormRef.value.validate((valid) => {
+    if (valid) {
+      put('api/announce/update', {
+        aid: updateForm.value.aid,
+        title: updateForm.value.title,
+        content: updateForm.value.content,
+        publisherId: user.uid
+      }, (message) => {
+        ElMessage.success(message)
+        dialogUpdateVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请正确填写公告信息')
+    }
   })
+
 }
 
 function openDelete(aid) {
@@ -70,12 +87,11 @@ function openDelete(aid) {
 }
 
 const deleteUser = () => {
-  post('api/announce/delete', deleteAid
-          , (message) => {
+  post('api/announce/delete', deleteAid, (message) => {
             ElMessage.success(message)
             dialogDeleteVisible.value = false
             getData()
-          })
+  })
 }
 
 const {
@@ -224,12 +240,16 @@ getData()
               width="1200"
               style="margin-top: 80px"
       >
-        <el-form :model="form" label-position="top">
-          <el-form-item label="公告标题">
+        <el-form :model="form"
+                 :rules="announcementRules"
+                 ref="formRef"
+                 hide-required-asterisk
+                 label-position="top">
+          <el-form-item label="公告标题" prop="title">
             <el-input v-model="form.title"
                       placeholder="请输入公告标题"/>
           </el-form-item>
-          <el-form-item label="公告内容">
+          <el-form-item label="公告内容" prop="content">
             <Toolbar style="border-bottom: 1px solid #ccc;width: 100%;" :editor="editorRef" :defaultConfig="toolbarConfig"
                      mode="default"/>
             <Editor style="height: 300px;width: 100%; overflow-y: hidden" v-model="form.content"
@@ -253,12 +273,16 @@ getData()
               width="1200"
               style="margin-top: 80px"
       >
-        <el-form :model="updateForm" label-position="top">
-          <el-form-item label="公告标题">
+        <el-form :model="updateForm"
+                 :rules="announcementRules"
+                 ref="updateFormRef"
+                 hide-required-asterisk
+                 label-position="top">
+          <el-form-item label="公告标题" prop="title">
             <el-input v-model="updateForm.title"
                       placeholder="请输入公告标题"/>
           </el-form-item>
-          <el-form-item label="公告内容">
+          <el-form-item label="公告内容" prop="content">
             <Toolbar style="border-bottom: 1px solid #ccc;width: 100%;" :editor="editorRef" :defaultConfig="toolbarConfig"
                      mode="default"/>
             <Editor style="height: 300px;width: 100%; overflow-y: hidden" v-model="updateForm.content"

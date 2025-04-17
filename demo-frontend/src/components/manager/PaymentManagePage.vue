@@ -5,6 +5,7 @@ import {ref} from "vue";
 import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
+import {paymentRules} from "@/net/rules.js";
 
 const tableData = ref([])
 const userList = ref([])
@@ -47,18 +48,26 @@ const dialogConfirmVisible = ref(false)
 const updateForm = ref([])
 const singleAmount = ref()
 const form = ref([])
+const formRef = ref()
 let deletePid = 0
 
 const addPayment = () => {
-  post(`api/payment/add?userIds=${form.value.userIds}`, {
-    amount: form.value.amount,
-    type: form.value.type,
-    operatorId: user.uid
-  }, (message) => {
-    ElMessage.success(message)
-    dialogNewVisible.value = false
-    getData()
+  formRef.value.validate((valid) => {
+    if (valid) {
+      post(`api/payment/add?userIds=${form.value.userIds}`, {
+        amount: form.value.amount,
+        type: form.value.type,
+        operatorId: user.uid
+      }, (message) => {
+        ElMessage.success(message)
+        dialogNewVisible.value = false
+        getData()
+      })
+    } else {
+      ElMessage.warning('请正确填写账单信息')
+    }
   })
+
 }
 
 const autoGeneratePayment = () => {
@@ -207,8 +216,12 @@ getData()
               width="400"
               style="margin-top: 100px"
       >
-        <el-form :model="form" label-position="top">
-          <el-form-item label="缴费人(业主)">
+        <el-form :model="form"
+                 :rules="paymentRules"
+                 ref="formRef"
+                 hide-required-asterisk
+                 label-position="top">
+          <el-form-item label="缴费人(业主)" prop="userIds">
             <el-select
                     v-model="form.userIds"
                     filterable
@@ -227,8 +240,8 @@ getData()
           </el-form-item>
           <el-row>
             <el-col :span="11">
-              <el-form-item label="金额(￥)">
-                <el-input v-model="form.amount"
+              <el-form-item label="金额(￥)" prop="amount">
+                <el-input v-model.number="form.amount"
                           autocomplete="off"
                           type="number"
                           min="0"
@@ -239,7 +252,7 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="类型">
+              <el-form-item label="类型" prop="type">
                 <el-input v-model="form.type"
                           autocomplete="off"
                           placeholder="请输入费用类型"/>

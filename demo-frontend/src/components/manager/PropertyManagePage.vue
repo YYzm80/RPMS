@@ -6,9 +6,11 @@ import {get, multipartPost, post} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
 import {imgUrl} from "@/stores/commonAPI";
+import {propertyRules} from "@/net/rules.js";
 
 const tableData = ref([])
 const userList = ref([])
+const userListHidden = ref([])
 
 const getData = () => {
   get('/api/property/all', (data) => {
@@ -27,6 +29,9 @@ const getUserList = () => {
   get('/api/user/all-owner', (data) => {
     userList.value = data
   })
+  get('/api/user/all-property', (data) => {
+    userListHidden.value = data
+  })
 }
 
 const getImgSrc = (picName) => {
@@ -38,32 +43,42 @@ const importVisible = ref(false)
 const dialogUpdateVisible = ref(false)
 const dialogDeleteVisible = ref(false)
 const form = ref([])
+const formRef = ref()
 const updateForm = ref([])
+const updateFormRef = ref()
 let deletePid = 0
 
 const addProperty = () => {
-  let formData = new FormData()
-  // console.log(form.value)
-  formData.append("file", fileList.value[0].raw)
-  if (form.value.userId !== undefined) {
-    formData.append("userId", form.value.userId)
-    formData.append("purchaseDate", form.value.purchaseDate)
-  }
-  formData.append("floorArea", form.value.floorArea)
-  formData.append("buildingNumber", form.value.buildingNumber)
-  formData.append("roomNumber", form.value.roomNumber)
+  formRef.value.validate((valid) => {
+    if (valid) {
+      let formData = new FormData()
+      // console.log(form.value)
+      formData.append("file", fileList.value[0].raw)
+      if (form.value.userId !== undefined) {
+        formData.append("userId", form.value.userId)
+        formData.append("purchaseDate", form.value.purchaseDate)
+      }
+      formData.append("floorArea", form.value.floorArea)
+      formData.append("buildingNumber", form.value.buildingNumber)
+      formData.append("roomNumber", form.value.roomNumber)
 
-  multipartPost('api/property/add', formData, (message) => {
-    ElMessage.success(message)
-    fileList.value = []
-    form.value = []
-    getData()
-    dialogNewVisible.value = false
+      multipartPost('api/property/add', formData, (message) => {
+        ElMessage.success(message)
+        fileList.value = []
+        form.value = []
+        getData()
+        dialogNewVisible.value = false
+      })
+    } else {
+      ElMessage.warning('请正确填写房产信息')
+    }
   })
 }
 
 const getUpdateData = (pid) => {
   get(`api/property/pid/${pid}`, (data) => {
+    data.buildingNumber = Number(data.buildingNumber);
+    data.roomNumber = Number(data.roomNumber);
     updateForm.value = data
     fileList.value = [{
       'url': getImgSrc(data.floorPlan),
@@ -73,27 +88,34 @@ const getUpdateData = (pid) => {
 }
 
 const update = () => {
-  let formData = new FormData()
-  // console.log(updateForm.value)
-  if (fileList.value[0] && fileList.value[0].raw) {
-    // 用户选择了新文件，将其添加到formData中
-    formData.append("file", fileList.value[0].raw)
-  }
-  if (updateForm.value.userId !== undefined && updateForm.value.userId !== null) {
-    formData.append("userId", updateForm.value.userId)
-    formData.append("purchaseDate", updateForm.value.purchaseDate)
-  }
-  formData.append("propertyId", updateForm.value.propertyId)
-  formData.append("floorArea", updateForm.value.floorArea)
-  formData.append("buildingNumber", updateForm.value.buildingNumber)
-  formData.append("roomNumber", updateForm.value.roomNumber)
-  multipartPost('api/property/update', formData, (message) => {
-    ElMessage.success(message)
-    fileList.value = []
-    updateForm.value = []
-    getData()
-    dialogUpdateVisible.value = false
+  updateFormRef.value.validate((valid) => {
+    if (valid) {
+      let formData = new FormData()
+      // console.log(updateForm.value)
+      if (fileList.value[0] && fileList.value[0].raw) {
+        // 用户选择了新文件，将其添加到formData中
+        formData.append("file", fileList.value[0].raw)
+      }
+      if (updateForm.value.userId !== undefined && updateForm.value.userId !== null) {
+        formData.append("userId", updateForm.value.userId)
+        formData.append("purchaseDate", updateForm.value.purchaseDate)
+      }
+      formData.append("propertyId", updateForm.value.propertyId)
+      formData.append("floorArea", updateForm.value.floorArea)
+      formData.append("buildingNumber", updateForm.value.buildingNumber)
+      formData.append("roomNumber", updateForm.value.roomNumber)
+      multipartPost('api/property/update', formData, (message) => {
+        ElMessage.success(message)
+        fileList.value = []
+        updateForm.value = []
+        getData()
+        dialogUpdateVisible.value = false
+      })
+    } else {
+      ElMessage.warning('请正确填写房产信息')
+    }
   })
+
 }
 
 function openDelete(pid) {
@@ -312,7 +334,11 @@ getData()
               width="400"
               style="margin-top: 100px"
       >
-        <el-form :model="form" label-position="top">
+        <el-form :model="form"
+                 :rules="propertyRules"
+                 ref="formRef"
+                 hide-required-asterisk
+                 label-position="top">
           <el-row>
             <el-col :span="11">
               <el-form-item label="所属人">
@@ -326,8 +352,8 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="房屋面积(㎡)">
-                <el-input v-model="form.floorArea"
+              <el-form-item label="房屋面积(㎡)" prop="floorArea">
+                <el-input v-model.number="form.floorArea"
                           autocomplete="off"
                           type="number"
                           min="0"
@@ -340,21 +366,21 @@ getData()
           </el-row>
           <el-row>
             <el-col :span="11">
-              <el-form-item label="楼号">
-                <el-input v-model="form.buildingNumber" autocomplete="off"
+              <el-form-item label="楼号" prop="buildingNumber">
+                <el-input v-model.number="form.buildingNumber" autocomplete="off"
                           placeholder="请输入楼号"/>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="房号">
-                <el-input v-model="form.roomNumber"
+              <el-form-item label="房号" prop="roomNumber">
+                <el-input v-model.number="form.roomNumber"
                           autocomplete="off"
                           placeholder="请输入房号"/>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="购置时间" v-if="form.userId !== null">
+          <el-form-item label="购置时间" v-if="form.userId !== null && form.userId !== undefined" prop="purchaseDate">
             <el-date-picker type="date"
                             style="width: 100%;"
                             v-model="form.purchaseDate"
@@ -443,22 +469,29 @@ getData()
               width="400"
               style="margin-top: 100px"
       >
-        <el-form :model="updateForm" label-position="top">
+        <el-form :model="updateForm"
+                 :rules="propertyRules"
+                 ref="updateFormRef"
+                 hide-required-asterisk
+                 label-position="top">
           <el-row>
             <el-col :span="11">
               <el-form-item label="所属人">
                 <el-select v-model="updateForm.userId" placeholder="请选择所属人" clearable>
                   <el-option v-for="item in userList"
-                             :key="item.userId"
                              :label="item.realName"
                              :value="item.userId"/>
+                  <el-option v-for="item in userListHidden"
+                             :label="item.realName"
+                             :value="item.userId"
+                             hidden="hidden"/>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="房屋面积(㎡)">
-                <el-input v-model="updateForm.floorArea"
+              <el-form-item label="房屋面积(㎡)" prop="floorArea">
+                <el-input v-model.number="updateForm.floorArea"
                           autocomplete="off"
                           type="number"
                           min="0"
@@ -471,21 +504,24 @@ getData()
           </el-row>
           <el-row>
             <el-col :span="11">
-              <el-form-item label="楼号">
-                <el-input v-model="updateForm.buildingNumber" autocomplete="off"
+              <el-form-item label="楼号" prop="buildingNumber">
+                <el-input v-model.number="updateForm.buildingNumber"
+                          type="number"
+                          autocomplete="off"
                           placeholder="请输入楼号"/>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="房号">
-                <el-input v-model="updateForm.roomNumber"
+              <el-form-item label="房号" prop="roomNumber">
+                <el-input v-model.number="updateForm.roomNumber"
+                          type="number"
                           autocomplete="off"
                           placeholder="请输入房号"/>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="购置时间" v-if="updateForm.userId !== null">
+          <el-form-item label="购置时间" v-if="updateForm.userId !== null && updateForm.userId !== undefined" prop="purchaseDate">
             <el-date-picker type="date"
                             style="width: 100%;"
                             v-model="updateForm.purchaseDate"

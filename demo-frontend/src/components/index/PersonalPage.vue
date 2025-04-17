@@ -4,8 +4,10 @@ import { Message } from "@element-plus/icons-vue";
 import { ref } from "vue";
 import { ElMessage } from "element-plus";
 import {get, put} from "@/net";
+import {userRules} from "@/net/rules.js";
 
 const updateForm = ref([]);
+const updateFormRef = ref();
 const edit = ref(false);
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
@@ -33,17 +35,24 @@ const getData = () => {
 }
 
 const update = () => {
-    put("api/user/update-personal", {
+  updateFormRef.value.validate((isValid) => {
+    if (isValid) {
+      put("api/user/update-personal", {
         userId: user.uid,
         username: updateForm.value.username,
         realName: updateForm.value.realName,
         gender: updateForm.value.gender,
         position: updateForm.value.position,
         phone: updateForm.value.phone
-    }, (message) => {
-      ElMessage.success(message)
-      changeEdit()
-    })
+      }, (message) => {
+        ElMessage.success(message)
+        changeEdit()
+      })
+    } else {
+      ElMessage.warning('请输入正确的信息')
+    }
+  })
+
 }
 
 getData();
@@ -86,10 +95,15 @@ getData();
         <div class="bottom-left">
           <div style="margin: 20px 20px">
             <p style="font-size: 20px;font-weight: bold">个人信息</p>
-            <el-form :model="updateForm" label-position="left" label-width="90px">
+            <el-form :model="updateForm"
+                     :rules="userRules"
+                     hide-required-asterisk
+                     ref="updateFormRef"
+                     label-position="left"
+                     label-width="90px">
               <el-row :gutter="50">
                 <el-col :span="12">
-                  <el-form-item label="昵称/用户名">
+                  <el-form-item label="昵称/用户名" prop="username">
                     <el-input v-model="updateForm.username"
                               autocomplete="off"
                               style="width: 150px;"
@@ -97,7 +111,7 @@ getData();
                   </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                  <el-form-item label="姓名" label-width="50px">
+                  <el-form-item label="姓名" label-width="50px" prop="realName">
                     <el-input
                         v-model="updateForm.realName"
                         autocomplete="off"
@@ -117,13 +131,13 @@ getData();
                   <el-option label="隐藏" value="other"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="职位" v-if="user.role !== 'owner'">
+              <el-form-item label="职位" prop="position" v-if="user.role !== 'owner'">
                 <el-input v-model="updateForm.position"
                           autocomplete="off"
                           style="width: 150px;"
                           :disabled="!edit"/>
               </el-form-item>
-              <el-form-item label="联系电话">
+              <el-form-item label="联系电话" prop="phone">
                 <el-input v-model="updateForm.phone"
                           autocomplete="off"
                           style="width: 200px;"
