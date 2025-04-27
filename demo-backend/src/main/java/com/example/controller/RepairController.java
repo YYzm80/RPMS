@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.entity.RestBean;
 import com.example.entity.dto.common.Repair;
+import com.example.entity.vo.request.repair.RepairReq;
 import com.example.entity.vo.response.RepairVO;
 import com.example.service.RepairService;
 import com.example.util.consts.Const;
@@ -11,6 +12,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -49,8 +51,12 @@ public class RepairController {
     @Operation(summary = "更新报修信息")
     @RolesAllowed({Const.ROLE_ADMIN, Const.ROLE_MANAGER, Const.ROLE_OWNER})
     @PutMapping("/update")
-    public RestBean<String> update(@RequestBody Repair repair) {
-        String s = service.updateRepair(repair);
+    public RestBean<String> update(@RequestBody Repair repair,
+                                   @RequestParam(value = "price", required = false) BigDecimal price) {
+        RepairReq req = new RepairReq();
+        req.setRepair(repair);
+        req.setPrice(price);
+        String s = service.updateRepair(req);
         return s == null ? RestBean.success("报修状态更新成功") : RestBean.failure(400, s);
     }
 
