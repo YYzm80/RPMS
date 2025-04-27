@@ -24,6 +24,7 @@ const getData = () => {
 
 const dialogUpdateVisible = ref(false)
 const updateForm = ref([])
+const price = ref()
 
 const getUpdateData = (rid) => {
   get(`api/repair/rid/${rid}`, (data) => {
@@ -46,7 +47,11 @@ const accept = () => {
 }
 
 const completed = () => {
-  put('api/repair/update', {
+  let req = ''
+  if (price.value !== undefined) {
+    req += `?price=${price.value}`
+  }
+  put('api/repair/update' + req, {
     repairId: updateForm.value.repairId,
     handlerId: user.uid,
     status: 'completed',
@@ -237,6 +242,16 @@ getData()
                       resize='none'
                       :disabled="updateForm.statusDesc === '已解决'"
                       placeholder="请输入报修处理结果"/>
+          </el-form-item>
+          <el-form-item label="报修产生费用(￥)" v-if="updateForm.statusDesc === '处理中'">
+            <el-input v-model="price"
+                      :disabled="updateForm.statusDesc === '已解决'"
+                      placeholder="请输入费用(无费用则不需要填写)"
+                      type="number"
+                      min="0"
+                      max="99999"
+                      step="0.01"
+                      autocomplete="off"/>
           </el-form-item>
         </el-form>
         <template #footer>
