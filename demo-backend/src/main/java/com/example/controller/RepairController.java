@@ -57,13 +57,7 @@ public class RepairController {
         req.setRepair(repair);
         req.setPrice(price);
         String s = service.updateRepair(req);
-        if (s == null) {
-            if (price != null && price.compareTo(BigDecimal.ZERO) > 0) {
-                return RestBean.success("报修状态更新成功，并成功推送报修账单");
-            }
-            return RestBean.success("报修状态更新成功");
-        }
-        return RestBean.failure(400, s);
+        return s == null ? RestBean.success("报修状态更新成功") : RestBean.failure(400, s);
     }
 
     @Operation(summary = "取消报修信息")

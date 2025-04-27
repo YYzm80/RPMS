@@ -2,16 +2,21 @@ package com.example.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.entity.dto.common.Payment;
 import com.example.entity.dto.common.Property;
 import com.example.entity.dto.common.Repair;
+import com.example.entity.vo.request.repair.RepairReq;
 import com.example.entity.vo.response.RepairVO;
 import com.example.mapper.AccountMapper;
+import com.example.mapper.PaymentMapper;
 import com.example.mapper.PropertyMapper;
 import com.example.mapper.RepairMapper;
 import com.example.service.RepairService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -23,6 +28,8 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
     private AccountMapper accountMapper;
     @Resource
     private PropertyMapper propertyMapper;
+    @Resource
+    private PaymentMapper paymentMapper;
 
     @Override
     public List<RepairVO> getRepairList() {
@@ -58,8 +65,22 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
     }
 
     @Override
-    public String updateRepair(Repair Repair) {
-        return mapper.updateById(Repair) > 0 ? null : "更新报修信息失败，请稍后再试";
+    public String updateRepair(RepairReq req) {
+        Repair repair = req.getRepair();
+        if (req.getPrice() != null && req.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            Payment payment = new Payment();
+            Long userId = mapper.selectById(repair.getRepairId()).getUserId();
+            payment.setUserId(userId);
+            payment.setPropertyId(propertyMapper.selectOne(new QueryWrapper<Property>()
+                    .eq("user_id", userId)).getPropertyId());
+            payment.setAmount(req.getPrice());
+            payment.setType("报修费");
+            payment.setStatus("unpaid");
+            payment.setOperatorId(repair.getHandlerId());
+            payment.setGenerateTime(new Date());
+            if (!(paymentMapper.insert(payment) > 0)) return "创建报修账单失败，请稍后再试";
+        }
+        return mapper.updateById(repair) > 0 ? null : "更新报修信息失败，请稍后再试";
     }
 
     @Override
