@@ -34,10 +34,10 @@ Plus处理业务逻辑，并通过JWT进行身份验证。项目还集成了Swag
 
 ### 项目运行效果：
 * 前台：
-![frontend.png](doc%2Ffrontend.png)
+  ![frontend.png](doc/frontend.png)
 
 * 后台：
-![backend.png](doc%2Fbackend.png)
+![backend.png](doc/backend.png)
 
 [//]: # (### 如何贡献：)
 
