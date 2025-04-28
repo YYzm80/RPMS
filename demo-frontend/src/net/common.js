@@ -1,4 +1,5 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watchEffect } from 'vue';
+import { useTransition } from '@vueuse/core';
 
 /**
  * 搜索和分页
@@ -69,5 +70,22 @@ export function useSearchAndPagination(tableData, pageSize, searchFields = ['typ
         updatePageData,
         handlePageChange,
     };
+}
+
+/**
+ * 动态过渡
+ * @param targetValue 目标值
+ * @param duration 过渡持续时间（毫秒）
+ * @returns {*}
+ */
+export function useDynamicTransition(targetValue, duration = 1500) {
+    const transitionValue = ref(0)
+    const transition = useTransition(transitionValue, { duration })
+
+    watchEffect(() => {
+        transitionValue.value = targetValue.value
+    })
+
+    return  computed(() => Math.round(transition.value))
 }
 

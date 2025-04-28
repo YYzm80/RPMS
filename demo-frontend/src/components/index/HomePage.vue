@@ -4,10 +4,12 @@ import {
   ArrowRightBold,
   CaretTop,
   Warning,
-  CaretBottom} from "@element-plus/icons-vue";
+  CaretBottom
+} from "@element-plus/icons-vue";
 import {ref} from "vue";
 import {get} from "@/net";
 import router from "@/router";
+import { useTransition } from '@vueuse/core'
 
 const urls = ref([
   'lunbo1.jpg',
@@ -17,12 +19,22 @@ const urls = ref([
 ])
 
 const tableData = ref([])
+let i = ref(0)
+let j = ref(0)
+const userCount = useTransition(i, {
+  duration: 1500,
+})
+const emptyPropertyCount = useTransition(j, {
+  duration: 1500,
+})
 const announcement = ref([])
 const dialogAnnounceVisible = ref(false)
 
 const getData = () => {
   get('api/static/getHomeData', (data) => {
     tableData.value = data
+    i.value = data.userCount
+    j.value = data.emptyPropertyCount
     // console.log(tableData.value)
   })
 }
@@ -79,7 +91,7 @@ getData()
         </el-card>
         <div style="display: flex;flex-direction: column;width: 200px;gap: 20px">
           <el-card style="width: 292px;height: 130px;margin-left: 60px;background-color: #e7ebf1" shadow="hover">
-            <el-statistic :value="tableData.userCount">
+            <el-statistic :value="userCount">
               <template #title>
                 <div style="display: inline-flex; align-items: center">
                   总入住人数
@@ -98,7 +110,8 @@ getData()
             <div class="statistic-footer">
               <div class="footer-item">
                 <span>比上个月</span>
-                <span class="green" v-if="tableData.lastMonthUserCount >= 0">{{ tableData.lastMonthUserCount }}
+                <span class="green" v-if="tableData.lastMonthUserCount >= 0">
+                  {{ tableData.lastMonthUserCount }}
                   <el-icon>
                     <CaretTop/>
                   </el-icon>
@@ -207,6 +220,11 @@ getData()
           </el-space>
         </div>
       </div>
+      <div class="footer">
+        <div class="footer-text">
+          Copyright © 2023 - present <strong> 住宅物业 </strong>
+        </div>
+      </div>
       <el-dialog
               v-model="dialogAnnounceVisible"
               :title="announcement.title"
@@ -312,18 +330,6 @@ getData()
   height: 111px;
 }
 
-.el-carousel__item:nth-child(2n) {
-  background-color: #99a9bf;
-}
-
-.el-carousel__item:nth-child(2n + 1) {
-  background-color: #d3dce6;
-}
-
-.el-statistic {
-  --el-statistic-content-font-size: 28px;
-}
-
 .statistic-footer {
   display: flex;
   justify-content: space-between;
@@ -344,5 +350,19 @@ getData()
   display: inline-flex;
   align-items: center;
   margin-left: 4px;
+}
+
+.footer {
+  margin: 130px 0 64px;
+  height: 80px;
+  width: 100%;
+  background-color: rgb(245, 247, 250);
+}
+
+.footer-text {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--el-text-color-regular);
 }
 </style>

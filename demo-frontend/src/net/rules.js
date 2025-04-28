@@ -34,7 +34,7 @@ export const userRules = {
         {required: true, message: '角色不能为空', trigger: 'blur'},
     ],
     position: [
-        {required: true, message: '姓名不能为空', trigger: ['blur', 'change']},
+        {required: true, message: '职位不能为空', trigger: ['blur', 'change']},
     ],
     hireDate: [
         {required: true, message: '入职日期不能为空', trigger: 'blur'},
