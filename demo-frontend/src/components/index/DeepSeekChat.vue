@@ -7,7 +7,7 @@ import VueMarkdown from 'vue3-markdown-it';
 const authItemName = "authorize"
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
 const messages = ref([])
-messages.value.push({content: '欢迎来到使用ai小助手！有什么能够帮您的吗？', sender: 'bot'})
+messages.value.push({content: '欢迎使用ai小助手！有什么能够帮您的吗？', sender: 'bot'})
 const newMessage = ref('')
 const loading = ref(false)
 const times = ref(0)
