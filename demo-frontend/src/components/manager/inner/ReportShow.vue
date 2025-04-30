@@ -171,7 +171,7 @@ getData()
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 .top-left, .top-right, .bottom-left, .bottom-right {
