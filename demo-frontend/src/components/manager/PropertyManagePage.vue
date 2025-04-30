@@ -1,6 +1,6 @@
 <script setup>
 
-import {Delete, Download, Edit, Plus, UploadFilled} from "@element-plus/icons-vue";
+import {Delete, Download, Edit, Plus, UploadFilled, Search, Refresh} from "@element-plus/icons-vue";
 import {ref} from "vue";
 import {blobGet, get, multipartPost, post} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
