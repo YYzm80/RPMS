@@ -1,12 +1,13 @@
 <script setup>
-import {ref, nextTick, onBeforeUnmount} from 'vue';
-import {ElInput, ElButton, ElCard, ElMessage, ElCollapse, ElCollapseItem} from 'element-plus';
+import {nextTick, onBeforeUnmount, ref} from 'vue';
+import {ElButton, ElCard, ElCollapse, ElCollapseItem, ElInput, ElMessage} from 'element-plus';
 import {get} from "@/net";
 import VueMarkdown from 'vue3-markdown-it';
 
 const authItemName = "authorize"
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName))
 const messages = ref([])
+messages.value.push({content: '欢迎来到使用ai小助手！有什么能够帮您的吗？', sender: 'bot'})
 const newMessage = ref('')
 const loading = ref(false)
 const times = ref(0)
@@ -65,7 +66,7 @@ onBeforeUnmount(() => {
             body-style="padding:0"
         >
           <div v-if="message.sender === 'bot'">
-            <ElCollapse v-model="activeNames" accordion>
+            <ElCollapse v-model="activeNames" accordion v-if="message.reasoning !== undefined">
               <ElCollapseItem title="思考过程" name="1">
                 <vue-markdown :source="message.reasoning"></vue-markdown>
               </ElCollapseItem>
