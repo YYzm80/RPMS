@@ -10,17 +10,23 @@ import com.example.filter.PropertyImportFilter;
 import com.example.listener.FilterableExcelReader;
 import com.example.service.DataService;
 import com.example.service.PropertyService;
+import com.example.util.ExcelUtil;
 import com.example.util.consts.Const;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/property")
 public class PropertyController {
@@ -44,6 +50,21 @@ public class PropertyController {
     @GetMapping("/pid/{pid}")
     public RestBean<PropertyVO> get(@PathVariable("pid") Long pid) {
         return RestBean.success(service.getPropertyVO(pid));
+    }
+
+    @Operation(summary = "下载房产信息excel表模版")
+    @GetMapping("/template")
+    public void template(HttpServletResponse response) {
+        String fileName = "导入房产信息模板";
+        String sheetName = "导入房产信息模板";
+        List<PropertyImportDTO> propertyList = new ArrayList<>();
+        propertyList.add(new PropertyImportDTO("2", "301", 58.3, "张三", new Date()));
+        propertyList.add(new PropertyImportDTO( "2", "302", 56.8, "李四", new Date()));
+        try {
+            ExcelUtil.writeExcel(response, propertyList, fileName, sheetName, PropertyImportDTO.class);
+        } catch (Exception e) {
+            log.error("文件模版生成失败", e);
+        }
     }
 
     @Operation(summary = "创建房产信息")

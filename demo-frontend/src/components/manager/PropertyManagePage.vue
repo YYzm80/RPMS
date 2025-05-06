@@ -1,8 +1,8 @@
 <script setup>
 
-import {Plus, Edit, Delete, Download, UploadFilled, Search, Refresh} from "@element-plus/icons-vue";
+import {Delete, Download, Edit, Plus, UploadFilled, Search, Refresh} from "@element-plus/icons-vue";
 import {ref} from "vue";
-import {get, multipartPost, post} from "@/net";
+import {blobGet, get, multipartPost, post} from "@/net";
 import {ElMessage, genFileId} from "element-plus";
 import {useSearchAndPagination} from "@/net/common";
 import {imgUrl} from "@/stores/commonAPI";
@@ -184,22 +184,39 @@ const handleChangeImg = function (file) {
   }
 }
 
+const downloadTemplate = () => {
+  blobGet('/api/property/template')
+          .then(res => {
+            const blob = new Blob([res.data], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = '房产信息导入模板.xlsx'
+            a.click()
+            window.URL.revokeObjectURL(url)
+          })
+}
 
 const add = () => {
   let formData = new FormData()
   loading.value = true
-  formData.append("file", fileList.value[0].raw)
-  multipartPost('api/property/import',
-          formData, (message) => {
-            ElMessage.success(message)
-            fileList.value = []
-            loading.value = false
-            importVisible.value = false
-            getData()
-          }, (message) => {
-            ElMessage.warning(message)
-            loading.value = false
-          })
+  if (fileList.value.length !== 0) {
+    formData.append("file", fileList.value[0].raw)
+    multipartPost('api/property/import',
+            formData, (message) => {
+              ElMessage.success(message)
+              fileList.value = []
+              loading.value = false
+              importVisible.value = false
+              getData()
+            }, (message) => {
+              ElMessage.warning(message)
+              loading.value = false
+            })
+  } else {
+    ElMessage.warning("请选择文件")
+    loading.value = false
+  }
 }
 
 const deleteUpload = (file) => {
@@ -443,6 +460,14 @@ getData()
             <div class="results_pdfFile_upload_text">上传excel文件，支持.xlsx格式</div>
           </div>
         </el-upload>
+        <div>
+          <el-link :underline="false" @click="downloadTemplate">
+            <el-icon style="margin-right: 3px">
+              <Download/>
+            </el-icon>
+            下载模板
+          </el-link>
+        </div>
         <div v-for="file in fileList" class="results_pdfFile">
           <div style="width: 400px;display: flex;flex-direction: row">
             <span style="width: 325px;overflow: hidden">{{ file.raw.name }}</span>

@@ -11,17 +11,23 @@ import com.example.listener.FilterableExcelReader;
 import com.example.service.DataService;
 import com.example.service.UserService;
 import com.example.util.ErrorRecorder;
+import com.example.util.ExcelUtil;
 import com.example.util.consts.Const;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -57,6 +63,21 @@ public class UserController {
     @GetMapping("/uid/{uid}")
     public RestBean<AccountVO> get(@PathVariable("uid") Integer uid) {
         return RestBean.success(service.getUserByUid(uid));
+    }
+
+    @Operation(summary = "下载用户excel表模版")
+    @GetMapping("/template")
+    public void template(HttpServletResponse response) {
+        String fileName = "导入用户模板";
+        String sheetName = "导入用户模板";
+        List<UserImportDTO> userList = new ArrayList<>();
+        userList.add(new UserImportDTO("Alice", "张三", "female", "16300000001", "847064370@qq.com", 3L, null, null));
+        userList.add(new UserImportDTO("Bob", "李四", "male", "16300000002", "666666@qq.com", 2L, "保安", new Date()));
+        try {
+            ExcelUtil.writeExcel(response, userList, fileName, sheetName, UserImportDTO.class);
+        } catch (Exception e) {
+            log.error("文件模版生成失败", e);
+        }
     }
 
     @Operation(summary = "添加用户")
