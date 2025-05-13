@@ -41,6 +41,11 @@ public class UserImportFilter implements ExcelDataFilter<UserImportDTO> {
             ErrorRecorder.addError("用户名已存在");
             return false;
         }
+        if (userService.getOne(new QueryWrapper<Account>()
+                .eq("phone", data.getPhone())) != null) {
+            ErrorRecorder.addError("手机号已存在");
+            return false;
+        }
 
         return true;
     }
