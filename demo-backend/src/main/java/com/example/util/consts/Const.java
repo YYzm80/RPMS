@@ -12,4 +12,10 @@ public class Const {
     public static final String ROLE_ADMIN = "admin";
     public static final String ROLE_MANAGER = "manager";
     public static final String ROLE_OWNER = "owner";
+
+    // 类型分类
+    public static final String TYPE_PAYMENT = "payment";
+    public static final String TYPE_REPAIR = "repair";
+    public static final String TYPE_COMPLIANT = "compliant";
+    public static final String TYPE_PROPERTY = "property";
 }
