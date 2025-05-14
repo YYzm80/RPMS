@@ -77,6 +77,22 @@ const router = createRouter({
             name: 'manager-announce',
             component: () => import('@/components/manager/AnnounceManagePage.vue')
         }, {
+            path: '/manager/property-type',
+            name: 'manager-property-type',
+            component: () => import('@/components/manager/PropertyTypeManagePage.vue')
+        }, {
+            path: '/manager/complaint-type',
+            name: 'manager-complaint-type',
+            component: () => import('@/components/manager/ComplaintTypeManagePage.vue')
+        }, {
+            path: '/manager/repair-type',
+            name: 'manager-repair-type',
+            component: () => import('@/components/manager/RepairTypeManagePage.vue')
+        }, {
+            path: '/manager/pay-type',
+            name: 'manager-pay-type',
+            component: () => import('@/components/manager/PayTypeManagePage.vue')
+        }, {
             path: '/manager/complaint',
             name: 'manager-complaint',
             component: () => import('@/components/manager/ComplaintManagePage.vue')

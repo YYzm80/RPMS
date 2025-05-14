@@ -64,6 +64,30 @@ const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.get
                 </el-icon>
                 <span>公告管理</span>
               </el-menu-item>
+              <el-menu-item index="3-3" @click="router.push('/manager/property-type')">
+                <el-icon>
+                  <setting/>
+                </el-icon>
+                <span>房产类型</span>
+              </el-menu-item>
+              <el-menu-item index="3-4" @click="router.push('/manager/complaint-type')">
+                <el-icon>
+                  <setting/>
+                </el-icon>
+                <span>投诉类型</span>
+              </el-menu-item>
+              <el-menu-item index="3-5" @click="router.push('/manager/repair-type')">
+                <el-icon>
+                  <setting/>
+                </el-icon>
+                <span>报修类型</span>
+              </el-menu-item>
+              <el-menu-item index="3-6" @click="router.push('/manager/pay-type')">
+                <el-icon>
+                  <setting/>
+                </el-icon>
+                <span>账单类型</span>
+              </el-menu-item>
             </el-sub-menu>
             <el-sub-menu index="4">
               <template #title>

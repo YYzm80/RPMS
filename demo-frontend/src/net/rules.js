@@ -81,3 +81,9 @@ export const paymentRules = {
         {required: true, message: '费用类型不能为空', trigger: 'blur'}
     ]
 }
+
+export const typeRules = {
+    description: [
+        {required: true, message: '类型名称不能为空', trigger: 'blur'},
+    ]
+}
