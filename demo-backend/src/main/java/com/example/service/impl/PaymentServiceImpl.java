@@ -6,11 +6,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
 import com.example.entity.dto.common.Payment;
 import com.example.entity.dto.common.Property;
+import com.example.entity.dto.common.Types;
 import com.example.entity.vo.request.payment.PaymentReq;
 import com.example.entity.vo.response.PaymentVO;
 import com.example.mapper.AccountMapper;
 import com.example.mapper.PaymentMapper;
 import com.example.mapper.PropertyMapper;
+import com.example.mapper.TypeMapper;
 import com.example.service.PaymentService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,9 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
 
     @Resource
     PropertyMapper propertyMapper;
+
+    @Resource
+    TypeMapper typeMapper;
 
     @Override
     public List<PaymentVO> getPaymentList() {
@@ -87,7 +92,8 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
                     Property property = propertyMapper.selectOne(new QueryWrapper<Property>().eq("user_id", userId));
                     p.setPropertyId(propertyMapper.selectById(property).getPropertyId());
                     p.setAmount(payment.getAmount());
-                    p.setType(payment.getType());
+                    p.setTypeId(payment.getTypeId());
+                    p.setType(typeMapper.selectById(payment.getTypeId()).getDescription());
                     p.setStatus("unpaid");
                     p.setOperatorId(payment.getOperatorId());
                     p.setGenerateTime(new Date());
@@ -128,6 +134,7 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
                     Property property = propertyMapper.selectOne(new QueryWrapper<Property>().eq("user_id", userId));
                     p.setPropertyId(propertyMapper.selectById(property).getPropertyId());
                     p.setAmount(BigDecimal.valueOf(singleAmount * property.getFloorArea()));
+                    p.setTypeId(typeMapper.selectOne(new QueryWrapper<Types>().eq("description", "物业费")).getTid());
                     p.setType("物业费");
                     p.setStatus("unpaid");
                     p.setOperatorId(payment.getOperatorId());
