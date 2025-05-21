@@ -8,6 +8,7 @@ import {useSearchAndPagination} from "@/net/common";
 import {contentRules} from "@/net/rules.js";
 
 const tableData = ref([])
+const typeList = ref([])
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
 const form = ref([])
@@ -29,7 +30,14 @@ const getData = () => {
       item.index = i
       i++
     })
+    getTypeList()
     initData
+  })
+}
+
+function getTypeList() {
+  get(`/api/type/all-active/complaint`, (data) => {
+    typeList.value = data
   })
 }
 
@@ -53,6 +61,7 @@ const newComplaint = () => {
       post('api/complaint/add', {
         content: form.value.content,
         userId: user.uid,
+        typeId: form.value.typeId,
         submitTime: new Date()
       }, (message) => {
         ElMessage.success(message)
@@ -71,6 +80,7 @@ const updateComplaint = () => {
     if (valid) {
       put('api/complaint/update', {
         cid: updateForm.value.cid,
+        typeId: updateForm.value.typeId,
         content: updateForm.value.content,
       }, (message) => {
         ElMessage.success(message)
@@ -158,6 +168,8 @@ getData()
         </el-table-column>
         <el-table-column prop="handlerName" label="处理人" width="180"
                          header-align="center" align="center"/>
+        <el-table-column prop="type" label="类型" width="180"
+                         header-align="center" align="center"/>
         <el-table-column prop="statusDesc" label="处理状态" width="180"
                          header-align="center" align="center">
           <template #default="scope">
@@ -207,7 +219,7 @@ getData()
             v-model="dialogNewComplaintVisible"
             title="申请投诉"
             width="600"
-            style="margin-top: 50px"
+            style="margin-top: 50px;text-align: left"
     >
       <el-form :model="form"
                :rules="contentRules"
@@ -218,6 +230,14 @@ getData()
           <el-step title="投诉受理"/>
           <el-step title="投诉解决"/>
         </el-steps>
+        <el-form-item label="投诉类型" prop="typeId">
+          <el-select v-model="form.typeId" placeholder="请选择投诉类型" style="width: 240px;">
+            <el-option v-for="item in typeList"
+                       :key="item.tid"
+                       :label="item.description"
+                       :value="item.tid"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="投诉详情" prop="content">
           <el-input v-model="form.content"
                     show-word-limit
@@ -244,7 +264,7 @@ getData()
             v-model="dialogUpdateVisible"
             title="申请投诉修改"
             width="600"
-            style="margin-top: 50px"
+            style="margin-top: 50px;text-align: left"
     >
       <el-form :model="updateForm"
                :rules="contentRules"
@@ -255,6 +275,14 @@ getData()
           <el-step title="投诉受理"/>
           <el-step title="投诉解决"/>
         </el-steps>
+        <el-form-item label="投诉类型" prop="typeId">
+          <el-select v-model="updateForm.typeId" placeholder="请选择投诉类型" style="width: 240px;">
+            <el-option v-for="item in typeList"
+                       :key="item.tid"
+                       :label="item.description"
+                       :value="item.tid"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="投诉详情" prop="content">
           <el-input v-model="updateForm.content"
                     show-word-limit
@@ -281,7 +309,7 @@ getData()
             v-model="dialogComplaintVisible"
             title="投诉处理进度"
             width="600"
-            style="margin-top: 50px"
+            style="margin-top: 50px;text-align: left"
     >
       <el-form :model="complaint" label-position="top">
         <el-steps style="max-width: 500px" :active="changeStep(complaint.statusDesc)" finish-status="success" simple>
@@ -302,14 +330,24 @@ getData()
                     resize='none'
                     disabled/>
         </el-form-item>
-        <el-form-item label="提交时间">
-          <el-date-picker type="date"
-                          style="width: 100%;"
-                          v-model="complaint.submitTime"
-                          disabled
-                          format="YYYY/MM/DD HH:mm:ss"
-                          value-format="YYYY-MM-DD HH:mm:ss"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="投诉类型">
+              <el-input v-model="complaint.type" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="2"></el-col>
+          <el-col :span="11">
+            <el-form-item label="提交时间">
+              <el-date-picker type="date"
+                              style="width: 100%;"
+                              v-model="complaint.submitTime"
+                              disabled
+                              format="YYYY/MM/DD HH:mm:ss"
+                              value-format="YYYY-MM-DD HH:mm:ss"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-row v-if="complaint.statusDesc !== '待定'">
           <el-col :span="11">
             <el-form-item label="处理人">
@@ -329,7 +367,7 @@ getData()
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="处理结果" v-if="complaint.statusDesc !== '待定'">
+        <el-form-item label="处理结果" v-if="complaint.statusDesc === '已解决'">
           <el-input v-model="complaint.handleResult"
                     show-word-limit
                     maxlength="200"

@@ -9,10 +9,12 @@ import java.util.Date;
 public class RepairVO {
     private Long repairId;
     private Long userId;
+    private Long typeId;
     private String submitterName;  // 提交人姓名
     private String fullAddress;
     private String description;
     private String handleResult;
+    private String type;
     private Long handlerId;
     private String handlerName;   // 处理人姓名
     private String statusDesc;   // "待定"/"处理中"/"已解决"

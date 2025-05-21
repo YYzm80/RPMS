@@ -92,6 +92,7 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
     private RepairVO convert(Repair repair) {
         return repair.asViewObject(RepairVO.class, v -> {
             v.setSubmitterName(accountMapper.selectById(repair.getUserId()).getRealName());
+            v.setType(typeMapper.selectById(repair.getTypeId()).getDescription());
             String status = repair.getStatus();
             v.setStatusDesc(status.equals("pending") ? "待定" : status.equals("processing") ? "处理中" : "已解决");
             Property property = propertyMapper.selectOne(new QueryWrapper<Property>().eq("user_id", repair.getUserId()));

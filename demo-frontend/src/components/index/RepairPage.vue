@@ -8,6 +8,7 @@ import {useSearchAndPagination} from "@/net/common";
 import {descriptionRules} from "@/net/rules.js";
 
 const tableData = ref([])
+const typeList = ref([])
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
 const form = ref([])
@@ -29,7 +30,14 @@ const getData = () => {
       item.index = i
       i++
     })
+    getTypeList()
     initData
+  })
+}
+
+function getTypeList() {
+  get(`/api/type/all-active/repair`, (data) => {
+    typeList.value = data
   })
 }
 
@@ -53,6 +61,7 @@ const newRepair = () => {
       post('api/repair/add', {
         description: form.value.description,
         userId: user.uid,
+        typeId: form.value.typeId,
         submitTime: new Date()
       }, (message) => {
         ElMessage.success(message)
@@ -70,6 +79,7 @@ const updateRepair = () => {
     if (valid) {
       put('api/repair/update', {
         repairId: updateForm.value.repairId,
+        typeId: updateForm.value.typeId,
         description: updateForm.value.description
       }, (message) => {
         ElMessage.success(message)
@@ -156,6 +166,8 @@ getData()
         </el-table-column>
         <el-table-column prop="handlerName" label="处理人" width="180"
                          header-align="center" align="center"/>
+        <el-table-column prop="type" label="类型" width="180"
+                         header-align="center" align="center"/>
         <el-table-column prop="statusDesc" label="处理状态" width="180"
                          header-align="center" align="center">
           <template #default="scope">
@@ -205,7 +217,7 @@ getData()
             v-model="dialogNewRepairVisible"
             title="申请报修"
             width="600"
-            style="margin-top: 50px"
+            style="margin-top: 50px;text-align: left"
     >
       <el-form :model="form"
                :rules="descriptionRules"
@@ -216,6 +228,14 @@ getData()
           <el-step title="报修受理"/>
           <el-step title="报修解决"/>
         </el-steps>
+        <el-form-item label="报修类型" prop="typeId">
+          <el-select v-model="form.typeId" placeholder="请选择报修类型" style="width: 240px;">
+            <el-option v-for="item in typeList"
+                       :key="item.tid"
+                       :label="item.description"
+                       :value="item.tid"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="报修详情" prop="description">
           <el-input v-model="form.description"
                     show-word-limit
@@ -242,7 +262,7 @@ getData()
             v-model="dialogUpdateVisible"
             title="申请报修修改"
             width="600"
-            style="margin-top: 50px"
+            style="margin-top: 50px;text-align: left"
     >
       <el-form :model="updateForm"
                :rules="descriptionRules"
@@ -253,6 +273,14 @@ getData()
           <el-step title="报修受理"/>
           <el-step title="报修解决"/>
         </el-steps>
+        <el-form-item label="报修类型" prop="typeId">
+          <el-select v-model="updateForm.typeId" placeholder="请选择报修类型" style="width: 240px;">
+            <el-option v-for="item in typeList"
+                       :key="item.tid"
+                       :label="item.description"
+                       :value="item.tid"/>
+          </el-select>
+        </el-form-item>
         <el-form-item label="报修详情" prop="description">
           <el-input v-model="updateForm.description"
                     show-word-limit
@@ -279,7 +307,7 @@ getData()
             v-model="dialogRepairVisible"
             title="报修处理进度"
             width="600"
-            style="margin-top: 50px"
+            style="margin-top: 50px;text-align: left"
     >
       <el-form :model="repair" label-position="top">
         <el-steps style="max-width: 500px" :active="changeStep(repair.statusDesc)" finish-status="success" simple>
@@ -300,14 +328,24 @@ getData()
                     resize='none'
                     disabled/>
         </el-form-item>
-        <el-form-item label="提交时间">
-          <el-date-picker type="date"
-                          style="width: 100%;"
-                          v-model="repair.submitTime"
-                          disabled
-                          format="YYYY/MM/DD HH:mm:ss"
-                          value-format="YYYY-MM-DD HH:mm:ss"/>
-        </el-form-item>
+        <el-row>
+          <el-col :span="11">
+            <el-form-item label="报修类型">
+              <el-input v-model="repair.type" disabled/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="2"></el-col>
+          <el-col :span="11">
+            <el-form-item label="提交时间">
+              <el-date-picker type="date"
+                              style="width: 100%;"
+                              v-model="repair.submitTime"
+                              disabled
+                              format="YYYY/MM/DD HH:mm:ss"
+                              value-format="YYYY-MM-DD HH:mm:ss"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-row v-if="repair.statusDesc !== '待定'">
           <el-col :span="11">
             <el-form-item label="处理人">
@@ -320,14 +358,14 @@ getData()
             <el-form-item label="处理时间">
               <el-date-picker type="date"
                               style="width: 100%;"
-                              v-model="repair.handleTime"
+                              v-model="repair.completionTime"
                               disabled
                               format="YYYY/MM/DD HH:mm:ss"
                               value-format="YYYY-MM-DD HH:mm:ss"/>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="处理结果" v-if="repair.statusDesc !== '待定'">
+        <el-form-item label="处理结果" v-if="repair.statusDesc === '已解决'">
           <el-input v-model="repair.handleResult"
                     show-word-limit
                     maxlength="200"

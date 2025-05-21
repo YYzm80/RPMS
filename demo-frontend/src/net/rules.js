@@ -1,10 +1,16 @@
 export const contentRules = {
+    typeId: [
+        {required: true, message: '类型不能为空', trigger: 'blur'},
+    ],
     content: [
         {required: true, message: '内容不能为空', trigger: ['blur', 'change']},
     ],
 }
 
 export const descriptionRules = {
+    typeId: [
+        {required: true, message: '类型不能为空', trigger: 'blur'},
+    ],
     description: [
         {required: true, message: '内容不能为空', trigger: ['blur', 'change']},
     ],

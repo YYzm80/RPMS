@@ -8,6 +8,7 @@ import com.example.entity.vo.response.ComplaintVO;
 import com.example.mapper.AccountMapper;
 import com.example.mapper.ComplaintMapper;
 import com.example.mapper.PropertyMapper;
+import com.example.mapper.TypeMapper;
 import com.example.service.ComplaintService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class ComplaintServiceImpl extends ServiceImpl<ComplaintMapper, Complaint
     private AccountMapper accountMapper;
     @Resource
     private PropertyMapper propertyMapper;
+    @Resource
+    private TypeMapper typeMapper;
 
     @Override
     public List<ComplaintVO> getComplaintList() {
@@ -69,6 +72,7 @@ public class ComplaintServiceImpl extends ServiceImpl<ComplaintMapper, Complaint
     private ComplaintVO convert(Complaint complaint) {
         return complaint.asViewObject(ComplaintVO.class, v -> {
             v.setSubmitterName(accountMapper.selectById(complaint.getUserId()).getRealName());
+            v.setType(typeMapper.selectById(complaint.getTypeId()).getDescription());
             String status = complaint.getStatus();
             v.setStatusDesc(status.equals("pending") ? "待定" : status.equals("processing") ? "受理中" : "已解决");
             Property property = propertyMapper.selectOne(new QueryWrapper<Property>().eq("user_id", complaint.getUserId()));

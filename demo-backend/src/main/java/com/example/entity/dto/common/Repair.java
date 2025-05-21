@@ -20,6 +20,7 @@ public class Repair implements Serializable, BaseData {
     @TableId(type = IdType.AUTO)
     private Long repairId;
     private Long userId;
+    private Long typeId;
     @Xss
     @NotBlank(message = "报修描述不能为空")
     private String description;
