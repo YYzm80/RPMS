@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.auth.Account;
 import com.example.entity.dto.common.Property;
+import com.example.entity.dto.common.Types;
 import com.example.entity.dto.in.PropertyImportDTO;
 import com.example.entity.vo.response.PropertyVO;
 import com.example.mapper.AccountMapper;
 import com.example.mapper.PropertyMapper;
+import com.example.mapper.TypeMapper;
 import com.example.service.DataService;
 import com.example.service.PropertyService;
 import com.example.util.consts.Const;
@@ -33,6 +35,8 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property> i
     private PropertyMapper mapper;
     @Resource
     private AccountMapper accountMapper;
+    @Resource
+    private TypeMapper typeMapper;
 
     @Override
     public List<PropertyVO> getPropertyList() {
@@ -136,6 +140,10 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property> i
                     } else {
                         property.setStatus("vacant");
                     }
+                    property.setTypeId(typeMapper
+                            .selectOne(new QueryWrapper<Types>()
+                                    .eq("description", dto.getType())
+                                    .eq("type", Const.TYPE_PROPERTY)).getTid());
                     property.setCreatedAt(new Date());
                     return property;
                 })
@@ -147,6 +155,7 @@ public class PropertyServiceImpl extends ServiceImpl<PropertyMapper, Property> i
     private PropertyVO convert(Property property, boolean isForm) {
         return property.asViewObject(PropertyVO.class, v -> {
             v.setFullAddress(property.getBuildingNumber() + "栋" + property.getRoomNumber() + "室");
+            v.setType(typeMapper.selectById(property.getTypeId()).getDescription());
             if (!isForm) {
                 v.setStatusDesc(property.getStatus().equals("occupied") ? "已入住" : "空置中");
                 if (property.getUserId() != null) v.setOwnerName(accountMapper.selectById(property.getUserId()).getRealName());

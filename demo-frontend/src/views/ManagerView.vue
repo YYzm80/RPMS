@@ -18,7 +18,7 @@ const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.get
 
 <template>
   <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex;flex-direction: row">
-    <div class="menu">
+    <el-scrollbar class="menu" height="100%">
       <el-row class="tac">
         <el-col style="font-size: 16px;text-align: center;margin: 20px 0;font-weight: bolder">
           <el-icon style="transform: translateY(7px);color: #6676f6;font-size: 25px;margin-right: 3px">
@@ -124,7 +124,7 @@ const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.get
           </el-menu>
         </el-col>
       </el-row>
-    </div>
+    </el-scrollbar>
     <div class="content">
       <div class="header">
         <el-row style="width: 100%;">

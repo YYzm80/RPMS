@@ -20,6 +20,7 @@ public class Property implements Serializable, BaseData {
     @TableId(type = IdType.AUTO)
     private Long propertyId;
     private Long userId;      // 业主ID
+    private Long typeId;
     @Xss
     @NotBlank(message = "楼号不能为空")
     private String buildingNumber;  // 楼号

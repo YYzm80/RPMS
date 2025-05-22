@@ -169,7 +169,13 @@ getData()
         <el-table-column prop="handlerName" label="处理人" width="180"
                          header-align="center" align="center"/>
         <el-table-column prop="type" label="类型" width="180"
-                         header-align="center" align="center"/>
+                         header-align="center" align="center">
+          <template #default="scope">
+            <el-tag type="info" size="large">
+              {{ scope.row.type }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="statusDesc" label="处理状态" width="180"
                          header-align="center" align="center">
           <template #default="scope">

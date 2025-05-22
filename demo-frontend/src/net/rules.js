@@ -60,6 +60,9 @@ export const propertyRules = {
         {required: true, message: '房号不能为空', trigger: 'blur'},
         {type: 'number', message: '房号必须为数字', trigger: ['blur', 'change']},
     ],
+    typeId: [
+        {required: true, message: '类型不能为空', trigger: 'blur'},
+    ],
     purchaseDate: [
         {required: true, message: '购买日期不能为空', trigger: 'blur'},
     ]
