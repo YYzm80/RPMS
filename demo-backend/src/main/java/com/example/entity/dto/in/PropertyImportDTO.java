@@ -35,7 +35,12 @@ public class PropertyImportDTO {
     @ColumnWidth(15)
     private String ownerName;
 
-    @ExcelProperty(index = 4, value = "购置时间")
+    @ExcelProperty(index = 4, value = "房产类型")
+    @NotBlank(message = "房产类型不能为空")
+    @ColumnWidth(15)
+    private String type;
+
+    @ExcelProperty(index = 5, value = "购置时间")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @DateTimeFormat("yyyy-MM-dd")
     @ColumnWidth(15)

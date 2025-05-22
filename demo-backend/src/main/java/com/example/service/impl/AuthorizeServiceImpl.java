@@ -30,16 +30,12 @@ public class AuthorizeServiceImpl extends ServiceImpl<AccountMapper, Account> im
 
     @Value("${spring.mail.username}")
     String from;
-
     @Resource
     AccountMapper mapper;
-
     @Resource
     RoleMapper roleMapper;
-
     @Resource
     MailSender mailSender;
-
     @Resource
     StringRedisTemplate template;
 

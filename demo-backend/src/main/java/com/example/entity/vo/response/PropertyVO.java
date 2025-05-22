@@ -9,10 +9,12 @@ import java.util.Date;
 public class PropertyVO {
     private Long propertyId;
     private Long userId;
+    private Long typeId;
     private String fullAddress;    // "A栋101室"
     private String ownerName;      // 关联查询业主姓名
     private String buildingNumber;
     private String roomNumber;
+    private String type;
     private Double floorArea;
     private String statusDesc;     // "已入住"/"空置中"
     private String floorPlan;   // 户型图访问URL

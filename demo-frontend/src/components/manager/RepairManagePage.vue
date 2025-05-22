@@ -152,6 +152,14 @@ getData()
         </el-table-column>
         <el-table-column prop="handlerName" label="处理人" width="180"
                          header-align="center" align="center"/>
+        <el-table-column prop="type" label="类型" width="180"
+                         header-align="center" align="center">
+          <template #default="scope">
+            <el-tag type="info" size="large">
+              {{ scope.row.type }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="statusDesc" label="处理状态" width="180"
                          header-align="center" align="center">
           <template #default="scope">
@@ -206,14 +214,24 @@ getData()
                       disabled
                       placeholder="请输入报修描述"/>
           </el-form-item>
-          <el-form-item label="提交时间">
-            <el-date-picker type="date"
-                            style="width: 100%;"
-                            v-model="updateForm.submitTime"
-                            disabled
-                            format="YYYY/MM/DD HH:mm:ss"
-                            value-format="YYYY-MM-DD HH:mm:ss"/>
-          </el-form-item>
+          <el-row v-if="updateForm.statusDesc !== '待定'">
+            <el-col :span="11">
+              <el-form-item label="报修类型">
+                <el-input v-model="updateForm.type" disabled/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span="11">
+              <el-form-item label="提交时间">
+                <el-date-picker type="date"
+                                style="width: 100%;"
+                                v-model="updateForm.submitTime"
+                                disabled
+                                format="YYYY/MM/DD HH:mm:ss"
+                                value-format="YYYY-MM-DD HH:mm:ss"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-row v-if="updateForm.statusDesc !== '待定'">
             <el-col :span="11">
               <el-form-item label="处理人">

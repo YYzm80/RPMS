@@ -20,6 +20,7 @@ public class Complaint implements Serializable, BaseData {
     @TableId(type = IdType.AUTO)
     private Long cid;
     private Long userId;    // 投诉人id
+    private Long typeId;
     @Xss
     @NotBlank(message = "投诉内容不能为空")
     private String content;

@@ -21,6 +21,7 @@ public class Payment implements Serializable, BaseData {
     private Long payId;
     private Long userId;
     private Long propertyId;
+    private Long typeId;
 
     private BigDecimal amount;
     @Xss

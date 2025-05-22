@@ -58,8 +58,8 @@ public class PropertyController {
         String fileName = "导入房产信息模板";
         String sheetName = "导入房产信息模板";
         List<PropertyImportDTO> propertyList = new ArrayList<>();
-        propertyList.add(new PropertyImportDTO("2", "301", 58.3, "张三", new Date()));
-        propertyList.add(new PropertyImportDTO( "2", "302", 56.8, "李四", new Date()));
+        propertyList.add(new PropertyImportDTO("2", "301", 58.3, "张三", "住宅", new Date()));
+        propertyList.add(new PropertyImportDTO( "2", "302", 56.8, "", "商业房", new Date()));
         try {
             ExcelUtil.writeExcel(response, propertyList, fileName, sheetName, PropertyImportDTO.class);
         } catch (Exception e) {

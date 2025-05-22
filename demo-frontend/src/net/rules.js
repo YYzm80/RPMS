@@ -1,10 +1,16 @@
 export const contentRules = {
+    typeId: [
+        {required: true, message: '类型不能为空', trigger: 'blur'},
+    ],
     content: [
         {required: true, message: '内容不能为空', trigger: ['blur', 'change']},
     ],
 }
 
 export const descriptionRules = {
+    typeId: [
+        {required: true, message: '类型不能为空', trigger: 'blur'},
+    ],
     description: [
         {required: true, message: '内容不能为空', trigger: ['blur', 'change']},
     ],
@@ -54,6 +60,9 @@ export const propertyRules = {
         {required: true, message: '房号不能为空', trigger: 'blur'},
         {type: 'number', message: '房号必须为数字', trigger: ['blur', 'change']},
     ],
+    typeId: [
+        {required: true, message: '类型不能为空', trigger: 'blur'},
+    ],
     purchaseDate: [
         {required: true, message: '购买日期不能为空', trigger: 'blur'},
     ]
@@ -79,5 +88,11 @@ export const paymentRules = {
     ],
     type: [
         {required: true, message: '费用类型不能为空', trigger: 'blur'}
+    ]
+}
+
+export const typeRules = {
+    description: [
+        {required: true, message: '类型名称不能为空', trigger: 'blur'},
     ]
 }

@@ -9,6 +9,7 @@ import {paymentRules} from "@/net/rules.js";
 
 const tableData = ref([])
 const userList = ref([])
+const typeList = ref([])
 const authItemName = "authorize";
 const user = JSON.parse(localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName));
 const {
@@ -31,6 +32,7 @@ const getData = () => {
       i++
     })
     getUserList()
+    getTypeList()
     initData
   })
 }
@@ -38,6 +40,12 @@ const getData = () => {
 const getUserList = () => {
   get('/api/user/all-property', (data) => {
     userList.value = data
+  })
+}
+
+const getTypeList = () => {
+  get('/api/type/all-active/payment', (data) => {
+    typeList.value = data
   })
 }
 
@@ -56,7 +64,7 @@ const addPayment = () => {
     if (valid) {
       post(`api/payment/add?userIds=${form.value.userIds}`, {
         amount: form.value.amount,
-        type: form.value.type,
+        typeId: form.value.tid,
         operatorId: user.uid
       }, (message) => {
         ElMessage.success(message)
@@ -252,10 +260,18 @@ getData()
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="11">
-              <el-form-item label="类型" prop="type">
-                <el-input v-model="form.type"
-                          autocomplete="off"
-                          placeholder="请输入费用类型"/>
+              <el-form-item label="类型" prop="tid">
+                <el-select
+                        v-model="form.tid"
+                        placeholder="请选择费用类型"
+                >
+                  <el-option
+                          v-for="t in typeList"
+                          :key="t.tid"
+                          :label="t.description"
+                          :value="t.tid"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
           </el-row>

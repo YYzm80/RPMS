@@ -5,12 +5,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.dto.common.Payment;
 import com.example.entity.dto.common.Property;
 import com.example.entity.dto.common.Repair;
+import com.example.entity.dto.common.Types;
 import com.example.entity.vo.request.repair.RepairReq;
 import com.example.entity.vo.response.RepairVO;
-import com.example.mapper.AccountMapper;
-import com.example.mapper.PaymentMapper;
-import com.example.mapper.PropertyMapper;
-import com.example.mapper.RepairMapper;
+import com.example.mapper.*;
 import com.example.service.RepairService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -30,6 +28,8 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
     private PropertyMapper propertyMapper;
     @Resource
     private PaymentMapper paymentMapper;
+    @Resource
+    private TypeMapper typeMapper;
 
     @Override
     public List<RepairVO> getRepairList() {
@@ -74,6 +74,7 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
             payment.setPropertyId(propertyMapper.selectOne(new QueryWrapper<Property>()
                     .eq("user_id", userId)).getPropertyId());
             payment.setAmount(req.getPrice());
+            payment.setTypeId(typeMapper.selectOne(new QueryWrapper<Types>().eq("type", "报修费")).getTid());
             payment.setType("报修费");
             payment.setStatus("unpaid");
             payment.setOperatorId(repair.getHandlerId());
@@ -91,6 +92,7 @@ public class RepairServiceImpl extends ServiceImpl<RepairMapper, Repair> impleme
     private RepairVO convert(Repair repair) {
         return repair.asViewObject(RepairVO.class, v -> {
             v.setSubmitterName(accountMapper.selectById(repair.getUserId()).getRealName());
+            v.setType(typeMapper.selectById(repair.getTypeId()).getDescription());
             String status = repair.getStatus();
             v.setStatusDesc(status.equals("pending") ? "待定" : status.equals("processing") ? "处理中" : "已解决");
             Property property = propertyMapper.selectOne(new QueryWrapper<Property>().eq("user_id", repair.getUserId()));

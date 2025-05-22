@@ -11,6 +11,7 @@ import {propertyRules} from "@/net/rules.js";
 const tableData = ref([])
 const userList = ref([])
 const userListHidden = ref([])
+const typeList = ref([])
 
 const getData = () => {
   get('/api/property/all', (data) => {
@@ -21,6 +22,7 @@ const getData = () => {
       i++
     })
     getUserList()
+    getTypeList()
     initData
   })
 }
@@ -31,6 +33,12 @@ const getUserList = () => {
   })
   get('/api/user/all-property', (data) => {
     userListHidden.value = data
+  })
+}
+
+const getTypeList = () => {
+  get('/api/type/all-active/property', (data) => {
+    typeList.value = data
   })
 }
 
@@ -61,6 +69,7 @@ const addProperty = () => {
       formData.append("floorArea", form.value.floorArea)
       formData.append("buildingNumber", form.value.buildingNumber)
       formData.append("roomNumber", form.value.roomNumber)
+      formData.append("typeId", form.value.typeId)
 
       multipartPost('api/property/add', formData, (message) => {
         ElMessage.success(message)
@@ -104,6 +113,8 @@ const update = () => {
       formData.append("floorArea", updateForm.value.floorArea)
       formData.append("buildingNumber", updateForm.value.buildingNumber)
       formData.append("roomNumber", updateForm.value.roomNumber)
+      formData.append("typeId", updateForm.value.typeId)
+
       multipartPost('api/property/update', formData, (message) => {
         ElMessage.success(message)
         fileList.value = []
@@ -304,7 +315,7 @@ getData()
       <el-table :data="pagedData" height="540" style="width: 100%" stripe>
         <el-table-column prop="index" label="序号" width="120"
                          header-align="center" align="center"/>
-        <el-table-column prop="ownerName" label="所属人" width="180"
+        <el-table-column prop="ownerName" label="所属人" width="160"
                          header-align="center" align="center"/>
         <el-table-column prop="fullAddress" label="楼栋信息" width="180"
                          header-align="center" align="center">
@@ -314,6 +325,14 @@ getData()
         </el-table-column>
         <el-table-column prop="floorArea" label="房间面积(㎡)" width="180"
                          header-align="center" align="center"/>
+        <el-table-column prop="type" label="类型" width="140"
+                         header-align="center" align="center">
+          <template #default="scope">
+            <el-tag type="info" size="large">
+              {{ scope.row.type }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="floorPlan" label="户型图" width="180"
                          header-align="center" align="center">
           <template #default="scope">
@@ -397,14 +416,29 @@ getData()
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="购置时间" v-if="form.userId !== null && form.userId !== undefined" prop="purchaseDate">
-            <el-date-picker type="date"
-                            style="width: 100%;"
-                            v-model="form.purchaseDate"
-                            format="YYYY/MM/DD"
-                            value-format="YYYY-MM-DD"
-                            placeholder="请选择购置时间"/>
-          </el-form-item>
+          <el-row>
+            <el-col :span="11">
+              <el-form-item label="房屋类型" prop="typeId">
+                <el-select v-model="form.typeId" placeholder="请选择房屋类型">
+                  <el-option v-for="item in typeList"
+                             :key="item.tid"
+                             :label="item.description"
+                             :value="item.tid"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span="11">
+              <el-form-item label="购置时间" v-if="form.userId !== null && form.userId !== undefined" prop="purchaseDate">
+                <el-date-picker type="date"
+                                style="width: 100%;"
+                                v-model="form.purchaseDate"
+                                format="YYYY/MM/DD"
+                                value-format="YYYY-MM-DD"
+                                placeholder="请选择购置时间"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item label="户型图">
             <el-upload
                     ref="upload"
@@ -546,14 +580,29 @@ getData()
               </el-form-item>
             </el-col>
           </el-row>
-          <el-form-item label="购置时间" v-if="updateForm.userId !== null && updateForm.userId !== undefined" prop="purchaseDate">
-            <el-date-picker type="date"
-                            style="width: 100%;"
-                            v-model="updateForm.purchaseDate"
-                            format="YYYY/MM/DD"
-                            value-format="YYYY-MM-DD"
-                            placeholder="请选择购置时间"/>
-          </el-form-item>
+          <el-row>
+            <el-col :span="11">
+              <el-form-item label="房屋类型" prop="typeId">
+                <el-select v-model="updateForm.typeId" placeholder="请选择房屋类型">
+                  <el-option v-for="item in typeList"
+                             :key="item.tid"
+                             :label="item.description"
+                             :value="item.tid"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span="11">
+              <el-form-item label="购置时间" v-if="updateForm.userId !== null && updateForm.userId !== undefined" prop="purchaseDate">
+                <el-date-picker type="date"
+                                style="width: 100%;"
+                                v-model="updateForm.purchaseDate"
+                                format="YYYY/MM/DD"
+                                value-format="YYYY-MM-DD"
+                                placeholder="请选择购置时间"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item label="户型图">
             <el-upload
                     ref="upload"
