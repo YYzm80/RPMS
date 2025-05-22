@@ -1,5 +1,5 @@
 FROM yyzm820/ubuntu-java:1.0
 COPY demo-backend/target/demo-backend-0.0.1-SNAPSHOT.jar app.jar
-RUN mkdir -p home/DPMS/uploaded
-VOLUME /home/DPMS/uploaded
+RUN mkdir -p home/RPMS/uploaded
+VOLUME /home/RPMS/uploaded
 CMD java -jar app.jar
