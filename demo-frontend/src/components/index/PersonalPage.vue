@@ -1,10 +1,11 @@
 <script setup>
 
-import { Message } from "@element-plus/icons-vue";
-import { ref } from "vue";
-import { ElMessage } from "element-plus";
+import {Message} from "@element-plus/icons-vue";
+import {ref} from "vue";
+import {ElMessage} from "element-plus";
 import {get, put} from "@/net";
 import {userRules} from "@/net/rules.js";
+import calendar from "@/net/calendar.js";
 
 const updateForm = ref([]);
 const updateFormRef = ref();
@@ -29,7 +30,7 @@ const getData = () => {
   get(`api/user/uid/${user.uid}`, (data) => {
     updateForm.value = data;
     // getPosition();
-    console.log(updateForm.value)
+    // console.log(updateForm.value)
   });
 
 }
@@ -52,7 +53,53 @@ const update = () => {
       ElMessage.warning('请输入正确的信息')
     }
   })
+}
 
+
+// 是否节假日
+function isFestival(slotDate, slotData) {
+  let solarDayArr = slotData.day.split("-");
+  let lunarDay = calendar.solar2lunar(
+          solarDayArr[0],
+          solarDayArr[1],
+          solarDayArr[2]
+  );
+
+  // 公历节日\农历节日\农历节气
+  let festAndTerm = [];
+  festAndTerm.push(lunarDay.festival == null ? "" : " " + lunarDay.festival);
+  festAndTerm.push(
+          lunarDay.lunarFestival == null ? "" : "" + lunarDay.lunarFestival
+  );
+  festAndTerm.push(lunarDay.Term == null ? "" : "" + lunarDay.Term);
+  festAndTerm = festAndTerm.join("");
+
+  return festAndTerm !== "";
+}
+
+
+// 公历转农历
+function solarToLunar(slotDate, slotData) {
+  let solarDayArr = slotData.day.split("-");
+  let lunarDay = calendar.solar2lunar(
+          solarDayArr[0],
+          solarDayArr[1],
+          solarDayArr[2]
+  );
+
+  // 农历日期
+  let lunarMD = lunarDay.IMonthCn + lunarDay.IDayCn;
+
+  // 公历节日\农历节日\农历节气
+  let festAndTerm = [];
+  festAndTerm.push(lunarDay.festival == null ? "" : " " + lunarDay.festival);
+  festAndTerm.push(
+          lunarDay.lunarFestival == null ? "" : "" + lunarDay.lunarFestival
+  );
+  festAndTerm.push(lunarDay.Term == null ? "" : "" + lunarDay.Term);
+  festAndTerm = festAndTerm.join("");
+
+  return festAndTerm === "" ? lunarMD : festAndTerm;
 }
 
 getData();
@@ -65,11 +112,11 @@ getData();
       <div class="top">
         <el-avatar :size="110" style="margin: 40px 50px">
           <!-- 使用 v-lazy 替换 v-loading 和 img 标签的组合 -->
-          <img v-lazy="getImgSrc(null)" alt="Avatar" />
+          <img v-lazy="getImgSrc(null)" alt="Avatar"/>
         </el-avatar>
         <div class="top-info">
-          <span style="font-size: 20px">{{user.username}}，你好!</span>
-          <span style="font-size: 13px;color: gray;margin-top: 5px">uid:{{user.uid}}</span>
+          <span style="font-size: 20px">{{ user.username }}，你好!</span>
+          <span style="font-size: 13px;color: gray;margin-top: 5px">uid:{{ user.uid }}</span>
           <el-tag v-if="user.role === 'admin'" style="margin-top: 5px;width: 100px;" effect="plain" type="warning">
             管理员
           </el-tag>
@@ -84,12 +131,13 @@ getData();
             <el-icon>
               <Message/>
             </el-icon>
-            邮箱地址：{{updateForm.address}}
+            邮箱地址：{{ updateForm.address }}
           </span>
         </div>
         <el-button type="success" style="margin: 40px 10px 0 310px" plain v-if="edit" @click="update">保存</el-button>
         <el-button type="danger" style="margin: 40px 0 0 0" plain v-if="edit" @click="changeEdit()">取消</el-button>
-        <el-button type="primary" style="margin: 40px 0 0 380px" plain v-if="!edit" @click="changeEdit()">编辑</el-button>
+        <el-button type="primary" style="margin: 40px 0 0 380px" plain v-if="!edit" @click="changeEdit()">编辑
+        </el-button>
       </div>
       <div class="bottom">
         <div class="bottom-left">
@@ -113,10 +161,10 @@ getData();
                 <el-col :span="12">
                   <el-form-item label="姓名" label-width="50px" prop="realName">
                     <el-input
-                        v-model="updateForm.realName"
-                        autocomplete="off"
-                        style="width: 150px;"
-                        :disabled="!edit"/>
+                            v-model="updateForm.realName"
+                            autocomplete="off"
+                            style="width: 150px;"
+                            :disabled="!edit"/>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -163,11 +211,20 @@ getData();
               </el-form-item>
             </el-form>
           </div>
-
         </div>
         <div class="bottom-right">
           <div>
-            <el-calendar style="margin-top: 20px"/>
+            <el-calendar v-model="value" style="margin-top: 20px">
+              <template slot="date-cell" #date-cell="{ date, data }">
+                <div>
+                  <div>{{ data.day.split("-")[2] }}</div>
+                  <div class="lunar"
+                       :class="{ festival: isFestival(date, data) }">
+                    {{ solarToLunar(date, data) }}
+                  </div>
+                </div>
+              </template>
+            </el-calendar>
           </div>
         </div>
       </div>
@@ -224,4 +281,19 @@ getData();
   height: 610px;
   width: 324px;
 }
+
+:deep(.el-calendar-day) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  height: 80px;
+}
+/**日期div的样式-农历*/
+.el-calendar-table .el-calendar-day > div .lunar {
+  padding-top: 10px;
+  text-align: center;
+  font-size: 9px;
+}
+
 </style>

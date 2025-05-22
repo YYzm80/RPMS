@@ -29,13 +29,10 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
 
     @Resource
     PaymentMapper mapper;
-
     @Resource
     AccountMapper accountMapper;
-
     @Resource
     PropertyMapper propertyMapper;
-
     @Resource
     TypeMapper typeMapper;
 
