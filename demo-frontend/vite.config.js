@@ -28,7 +28,7 @@ export default defineConfig({
                 rewrite: (path) => path.replace(/^\/local/, '')
             },
             '/network': {
-                target: 'http://192.168.43.155:8080',
+                target: 'http://127.0.0.1:8080',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/network/, '')
             }

@@ -1,21 +1,21 @@
 spring:
   profiles:
-    active: dev
+    active: dev # 指定环境
   mail:
-    host: smtp.163.com
-    username: 18223818435@163.com
-    password: RPQIGCSLHXFUFOIL
+    host: smtp.XX.com  #  邮箱服务器
+    username: XXX@XX.com # 发件人邮箱
+    password: XXXXXXXXXX  #  邮箱授权码
     port: 465
     properties:
-      from: 18223818435@163.com
+      from: XXX@XXX.com #  发件人邮箱地址，需对应邮箱开通smtp服务
       mail:
         smtp:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory
   security:
     jwt:
-      key: abcdefghk
-      expire: 7
+      key: abcdefghk  #  jwt密钥
+      expire: 7 #  jwt过期时间，单位：天
   mvc:
     format:
       date: yyyy-MM-dd
