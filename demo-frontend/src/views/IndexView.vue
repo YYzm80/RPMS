@@ -112,7 +112,7 @@ weather()
         </el-menu>
       </div>
       <div class="weather">
-        <div class="weather-item">
+        <div class="weather-item" v-if="weather_store.api.weather">
           <span class="weather-item-title">天气：</span>
           <span class="weather-item-content">{{ weather_store.api.weather.lives[0].weather }}
             <el-icon

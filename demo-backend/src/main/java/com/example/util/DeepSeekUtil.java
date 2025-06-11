@@ -39,7 +39,7 @@ public class DeepSeekUtil {
         sessionMap.remove(userId);
     }
 
-    private static DeepSeekResult handleGenerationResult(GenerationResult message, String userId) {
+    public static DeepSeekResult handleGenerationResult(GenerationResult message, String userId) {
         String reasoning = message.getOutput().getChoices().get(0).getMessage().getReasoningContent();
         String content = message.getOutput().getChoices().get(0).getMessage().getContent();
         StringBuilder reasoningContent = sessionMap.get(userId).getReasoningContent();
@@ -72,7 +72,7 @@ public class DeepSeekUtil {
         return result;
     }
 
-    private static GenerationParam buildGenerationParam(Message userMsg, String userId) {
+    public static GenerationParam buildGenerationParam(Message userMsg, String userId) {
         List<Message> messages = sessionMap.get(userId).getMessages();
         if (!messages.isEmpty()) {
             Message botMsg = Message.builder()
