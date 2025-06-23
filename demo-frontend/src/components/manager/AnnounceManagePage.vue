@@ -1,7 +1,7 @@
 <script setup>
 
 import '@wangeditor/editor/dist/css/style.css';
-import {Plus, Edit, Delete, Search, Refresh} from "@element-plus/icons-vue";
+import {Plus, Edit, Delete, Search, Refresh, MagicStick, QuestionFilled} from "@element-plus/icons-vue";
 import {onBeforeUnmount, ref, shallowRef} from "vue";
 import {get, post, put} from "@/net";
 import {ElMessage} from "element-plus";
@@ -32,6 +32,7 @@ const form = ref([])
 const formRef = ref()
 const updateForm = ref([])
 const updateFormRef = ref()
+const loading = ref(false)
 let deleteAid = 0
 
 const addAnnounce = () => {
@@ -51,7 +52,6 @@ const addAnnounce = () => {
       ElMessage.warning('请正确填写公告信息')
     }
   })
-
 }
 
 const getUpdateData = (aid) => {
@@ -88,9 +88,23 @@ function openDelete(aid) {
 
 const deleteUser = () => {
   post('api/announce/delete', deleteAid, (message) => {
-            ElMessage.success(message)
-            dialogDeleteVisible.value = false
-            getData()
+    ElMessage.success(message)
+    dialogDeleteVisible.value = false
+    getData()
+  })
+}
+
+const generateAnnounce = (title) => {
+  loading.value = true
+  if (title === '' || title === null || title === undefined) {
+    ElMessage.warning('请输入标题')
+    loading.value = false
+    return
+  }
+  get(`api/deepseek/generate/announce/${user.uid}/${title}`, (data) => {
+    form.value.content = data
+    loading.value = false
+    ElMessage.success('生成成功')
   })
 }
 
@@ -256,6 +270,16 @@ getData()
                     :defaultConfig="editorConfig" mode="default"
                     @onCreated="handleCreated" @customPaste="customPaste"/>
           </el-form-item>
+          <el-button type="primary" :icon="MagicStick" @click="generateAnnounce(form.title)" v-if="!loading"
+                     class="ge-button">
+            AI生成公告内容
+          </el-button>
+          <el-button type="primary" v-if="loading" :loading="true" class="load-button">
+            AI生成中，请稍候...
+          </el-button>
+          <el-tooltip content="点击此按钮，AI将根据标题自动生成公告内容。" placement="top">
+            <el-button type="text" :icon="QuestionFilled" style="margin-left: 10px; color: #666;"></el-button>
+          </el-tooltip>
         </el-form>
         <template #footer>
           <div class="dialog-footer">
@@ -283,7 +307,8 @@ getData()
                       placeholder="请输入公告标题"/>
           </el-form-item>
           <el-form-item label="公告内容" prop="content">
-            <Toolbar style="border-bottom: 1px solid #ccc;width: 100%;" :editor="editorRef" :defaultConfig="toolbarConfig"
+            <Toolbar style="border-bottom: 1px solid #ccc;width: 100%;" :editor="editorRef"
+                     :defaultConfig="toolbarConfig"
                      mode="default"/>
             <Editor style="height: 300px;width: 100%; overflow-y: hidden" v-model="updateForm.content"
                     :defaultConfig="editorConfig" mode="default"
@@ -341,5 +366,21 @@ getData()
   white-space: nowrap;
   width: 350px;
   color: rgba(133, 51, 0, 0.99);
+}
+
+.ge-button {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3);
+  font-weight: bold;
+}
+
+.load-button {
+  background: #888;
+  color: white;
+  border: none;
+  box-shadow: none;
+  cursor: wait;
 }
 </style>
