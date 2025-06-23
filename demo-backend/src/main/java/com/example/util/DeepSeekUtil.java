@@ -95,7 +95,7 @@ public class DeepSeekUtil {
                 .build();
     }
 
-    public static DeepSeekResult streamCallWithMessage(Generation gen, Message userMsg, DeepSeekSession session)
+    public static DeepSeekResult streamCallWithMessage(Generation gen, Message userMsg, DeepSeekSession session, boolean isNeedContext)
             throws NoApiKeyException, ApiException, InputRequiredException {
         GenerationParam param = buildGenerationParam(userMsg, session.getUserId());
 
@@ -106,7 +106,9 @@ public class DeepSeekUtil {
         Flowable<GenerationResult> result = gen.streamCall(param);
         result.blockingForEach(message -> handleGenerationResult(message, session.getUserId()));
         DeepSeekResult seekResult = handleGenerationResult(result.blockingFirst(), session.getUserId());
-        sessionMap.get(session.getUserId()).setFinalContent(new StringBuilder(seekResult.getContent()));
+        if (isNeedContext) {
+            sessionMap.get(session.getUserId()).setFinalContent(new StringBuilder(seekResult.getContent()));
+        }
         return seekResult;
     }
 

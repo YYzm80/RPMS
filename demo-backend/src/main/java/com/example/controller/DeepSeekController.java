@@ -49,7 +49,7 @@ public class DeepSeekController {
 
             Generation gen = new Generation();
             Message userMsg = Message.builder().role(Role.USER.getValue()).content(content).build();
-            res = DeepSeekUtil.streamCallWithMessage(gen, userMsg, session);
+            res = DeepSeekUtil.streamCallWithMessage(gen, userMsg, session, true);
         } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             log.error(e.getMessage());
         }
@@ -101,5 +101,32 @@ public class DeepSeekController {
     public RestBean<String> clear(@PathVariable("userId") String userId) {
         DeepSeekUtil.clearSession(userId);
         return RestBean.success("本次对话清除成功");
+    }
+
+    @Operation(summary = "AI生成公告（By Title）")
+    @GetMapping("/generate/announce/{userId}/{title}")
+    public RestBean<String> generateAnnounce(@PathVariable("userId") String userId, @PathVariable("title") String title) {
+        // 尝试获取令牌，如果获取不到则返回失败
+        if (!rateLimiter.tryAcquire()) {
+            log.warn("Request rate limit exceeded");
+            return null;
+        }
+
+        DeepSeekResult res = null;
+        try {
+            DeepSeekUtil.initSession(userId); // 初始化会话
+            DeepSeekSession session = DeepSeekUtil.getSession(userId);
+
+            Generation gen = new Generation();
+            Message userMsg = Message.builder().role(Role.USER.getValue()).content(Const.PROMPT_ANNOUNCEMENT + title).build();
+            res = DeepSeekUtil.streamCallWithMessage(gen, userMsg, session, false);
+        } catch (ApiException | NoApiKeyException | InputRequiredException e) {
+            log.error(e.getMessage());
+        }
+        if (res != null) {
+            return RestBean.success(res.getContent());
+        } else {
+            return RestBean.failure(400, "生成公告失败");
+        }
     }
 }

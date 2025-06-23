@@ -18,4 +18,8 @@ public class Const {
     public static final String TYPE_REPAIR = "repair";
     public static final String TYPE_COMPLIANT = "compliant";
     public static final String TYPE_PROPERTY = "property";
+
+    // AI prompt
+    public static final String PROMPT_ANNOUNCEMENT = "我现在需要你根据我写的公告标题来帮我生成一则在小区物业发布的公告，" +
+            "要求贴合标题，字数在100到300字以内，符合一般小区公告格式，且符合富文本格式，你的回答中只包含公告内容，不包含其它的，以下是标题：";
 }
