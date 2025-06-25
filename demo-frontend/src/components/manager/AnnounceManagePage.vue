@@ -274,7 +274,7 @@ getData()
                      class="ge-button">
             AI生成公告内容
           </el-button>
-          <el-button type="primary" v-if="loading" :loading="true" class="load-button">
+          <el-button type="primary" v-if="loading" :loading="true" class="load-button loading-glow">
             AI生成中，请稍候...
           </el-button>
           <el-tooltip content="点击此按钮，AI将根据标题自动生成公告内容。" placement="top">
@@ -382,5 +382,35 @@ getData()
   border: none;
   box-shadow: none;
   cursor: wait;
+}
+
+.loading-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-glow::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(79, 172, 254, 0.6) 0%, transparent 70%);
+  animation: glowMove 2s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes glowMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(20px, 20px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 </style>
