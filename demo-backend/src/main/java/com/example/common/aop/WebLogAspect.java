@@ -87,6 +87,8 @@ public class WebLogAspect {
                 // 合并日志信息
                 Map<String, Object> existingLogInfo = objectMapper.readValue(logDTO.getDetail(), Map.class);
                 existingLogInfo.putAll(logInfo);
+                // 控制台打印日志
+                log.info(existingLogInfo.toString());
                 logDTO.setDetail(objectMapper.writeValueAsString(existingLogInfo));
 
                 // 插入到数据库

@@ -22,10 +22,10 @@ export default defineConfig({
         port:8088,//端口号
         host:'0.0.0.0', // 允许所有IP访问
         proxy: {
-            '/local': {
+            '/api': {
                 target: 'http://localhost:8080',
                 changeOrigin: true,
-                rewrite: (path) => path.replace(/^\/local/, '')
+                rewrite: (path) => path.replace(/^\/api/, '')
             },
             '/network': {
                 target: 'http://127.0.0.1:8080',

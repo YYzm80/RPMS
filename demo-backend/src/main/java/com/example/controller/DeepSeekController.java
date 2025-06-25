@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.alibaba.dashscope.aigc.generation.Generation;
+import com.alibaba.dashscope.aigc.generation.GenerationResult;
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
@@ -10,13 +11,16 @@ import com.example.entity.RestBean;
 import com.example.entity.dto.common.DeepSeekSession;
 import com.example.entity.vo.response.DeepSeekResult;
 import com.example.util.DeepSeekUtil;
+import com.example.util.consts.Const;
 import com.google.common.util.concurrent.RateLimiter;
+import io.reactivex.Flowable;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -27,7 +31,7 @@ public class DeepSeekController {
     private static final RateLimiter rateLimiter = RateLimiter.create(7.0);
 
     @Operation(summary = "与DeepSeek对话接口")
-    @GetMapping("/chat/{userId}/{content}")
+    @GetMapping("/chatV1/{userId}/{content}")
     public RestBean<DeepSeekResult> chat(
             @PathVariable("userId") String userId,
             @PathVariable("content") String content) {
@@ -45,11 +49,51 @@ public class DeepSeekController {
 
             Generation gen = new Generation();
             Message userMsg = Message.builder().role(Role.USER.getValue()).content(content).build();
-            res = DeepSeekUtil.streamCallWithMessage(gen, userMsg, session);
+            res = DeepSeekUtil.streamCallWithMessage(gen, userMsg, session, true);
         } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             log.error(e.getMessage());
         }
         return RestBean.success(res);
+    }
+
+    @Operation(summary = "与DeepSeek对话接口(流式输出)")
+    @CrossOrigin(origins = Const.FRONT_PATH, allowedHeaders = "*", allowCredentials = "true")
+    @GetMapping(value = "/chatV2/{userId}/{content}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter chatStream(
+            @PathVariable("userId") String userId,
+            @PathVariable("content") String content) {
+        SseEmitter emitter = new SseEmitter(60_000L); // 设置超时时间
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                DeepSeekUtil.initSession(userId);
+                DeepSeekSession session = DeepSeekUtil.getSession(userId);
+
+                Generation gen = new Generation();
+                Message userMsg = Message.builder().role(Role.USER.getValue()).content(content).build();
+
+                // 流式调用
+                Flowable<GenerationResult> result = gen.streamCall(DeepSeekUtil.buildGenerationParam(userMsg, userId));
+
+                result.subscribe(
+                        generationResult -> {
+                            DeepSeekResult res = DeepSeekUtil.handleGenerationResult(generationResult, userId);
+                            emitter.send(res); // 发送单个 chunk 到前端
+                        },
+                        throwable -> {
+                            log.error("Error during streaming", throwable);
+                            emitter.completeWithError(throwable);
+                        },
+                        emitter::complete // 完成流
+                );
+
+                emitter.onCompletion(() -> log.info("Stream completed for user: {}", userId));
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        });
+
+        return emitter;
     }
 
     @Operation(summary = "清除会话接口")
@@ -57,5 +101,32 @@ public class DeepSeekController {
     public RestBean<String> clear(@PathVariable("userId") String userId) {
         DeepSeekUtil.clearSession(userId);
         return RestBean.success("本次对话清除成功");
+    }
+
+    @Operation(summary = "AI生成公告（By Title）")
+    @GetMapping("/generate/announce/{userId}/{title}")
+    public RestBean<String> generateAnnounce(@PathVariable("userId") String userId, @PathVariable("title") String title) {
+        // 尝试获取令牌，如果获取不到则返回失败
+        if (!rateLimiter.tryAcquire()) {
+            log.warn("Request rate limit exceeded");
+            return null;
+        }
+
+        DeepSeekResult res = null;
+        try {
+            DeepSeekUtil.initSession(userId); // 初始化会话
+            DeepSeekSession session = DeepSeekUtil.getSession(userId);
+
+            Generation gen = new Generation();
+            Message userMsg = Message.builder().role(Role.USER.getValue()).content(Const.PROMPT_ANNOUNCEMENT + title).build();
+            res = DeepSeekUtil.streamCallWithMessage(gen, userMsg, session, false);
+        } catch (ApiException | NoApiKeyException | InputRequiredException e) {
+            log.error(e.getMessage());
+        }
+        if (res != null) {
+            return RestBean.success(res.getContent());
+        } else {
+            return RestBean.failure(400, "生成公告失败");
+        }
     }
 }

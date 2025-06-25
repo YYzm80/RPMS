@@ -18,20 +18,64 @@ const sendMessage = () => {
     times.value = 0
     let time = setInterval(() => {times.value++;}, 1000)
     messages.value.push({text: newMessage.value, sender: 'user'})
-    get(`api/deepseek/chat/${user.uid}/${newMessage.value}`,
-      (res) => {
-        // console.log(res)
-        messages.value.push({reasoning: res.reasoning, content: res.content, sender: 'bot'}) // 使用marked解析Markdown
-        loading.value = false
-        clearInterval(time)
-        nextTick(() => {
-          const scrollbar = document.querySelector('.chat-messages .el-scrollbar__wrap')
-          if (scrollbar) {
-            scrollbar.scrollTop = scrollbar.scrollHeight
-          }
-        })
-      })
+
+    // TODO: AI流式输出(未完成)
+    // const url = 'http://localhost:8080/' + `api/deepseek/chatV2/${user.uid}/${encodeURIComponent(newMessage.value)}`
+    //
+    // fetch(url, {
+    //   method: 'GET'
+    // }).then(response => {
+    //   if (!response.ok) throw new Error('Network response was not ok')
+    //   const reader = response.body.getReader()
+    //   const decoder = new TextDecoder()
+    //   let botResponse = ''
+    //
+    //   function processText({done, value}) {
+    //     if (done) {
+    //       loading.value = false
+    //       clearInterval(time)
+    //       return
+    //     }
+    //     const chunk = decoder.decode(value, {stream: true})
+    //     botResponse += chunk
+    //     // 更新最后一条消息的内容
+    //     const lastMessage = messages.value[messages.value.length - 1]
+    //     if (lastMessage.sender === 'bot') {
+    //       lastMessage.content = botResponse
+    //     } else {
+    //       messages.value.push({content: botResponse, sender: 'bot'})
+    //     }
+    //     nextTick(() => {
+    //       const scrollbar = document.querySelector('.chat-messages .el-scrollbar__wrap')
+    //       if (scrollbar) scrollbar.scrollTop = scrollbar.scrollHeight
+    //     })
+    //     return reader.read().then(processText)
+    //   }
+    //
+    //   return reader.read().then(processText)
+    // }).catch(error => {
+    //   console.error('Stream error:', error)
+    //   ElMessage.error('AI 回复中断，请重试')
+    //   loading.value = false
+    //   clearInterval(time)
+    // })
+    //
+    // newMessage.value = ''
+    get(`api/deepseek/chatV1/${user.uid}/${newMessage.value}`,
+            (res) => {
+              // console.log(res)
+              messages.value.push({reasoning: res.reasoning, content: res.content, sender: 'bot'}) // 使用marked解析Markdown
+              loading.value = false
+              clearInterval(time)
+              nextTick(() => {
+                const scrollbar = document.querySelector('.chat-messages .el-scrollbar__wrap')
+                if (scrollbar) {
+                  scrollbar.scrollTop = scrollbar.scrollHeight
+                }
+              })
+            })
     newMessage.value = ''
+
     nextTick(() => {
       const scrollbar = document.querySelector('.chat-messages .el-scrollbar__wrap')
       if (scrollbar) {
@@ -59,11 +103,11 @@ onBeforeUnmount(() => {
     <div class="chat-messages">
       <el-scrollbar height="90%">
         <ElCard
-            v-for="(message, index) in messages"
-            :key="index"
-            :class="['message', message.sender]"
-            shadow="hover"
-            body-style="padding:0"
+                v-for="(message, index) in messages"
+                :key="index"
+                :class="['message', message.sender]"
+                shadow="hover"
+                body-style="padding:0"
         >
           <div v-if="message.sender === 'bot'">
             <ElCollapse v-model="activeNames" accordion v-if="message.reasoning !== undefined">
@@ -75,20 +119,20 @@ onBeforeUnmount(() => {
           </div>
           <vue-markdown v-else :source="message.text"></vue-markdown>
         </ElCard>
-        <el-text type="info" v-if="times !== 0">响应时间：{{times}}s</el-text>
+        <el-text type="info" v-if="times !== 0">响应时间：{{ times }}s</el-text>
       </el-scrollbar>
     </div>
     <div class="chat-input">
       <ElInput
-          v-model="newMessage"
-          placeholder="输入消息..."
-          @keyup.enter="sendMessage"
-          type="textarea"
-          resize="none"
-          :rows="2"
-          show-word-limit
-          maxlength="1000"
-          :disabled="loading"
+              v-model="newMessage"
+              placeholder="输入消息..."
+              @keyup.enter="sendMessage"
+              type="textarea"
+              resize="none"
+              :rows="2"
+              show-word-limit
+              maxlength="1000"
+              :disabled="loading"
       />
       <ElButton type="primary" @click="sendMessage" :loading="loading">发送</ElButton>
     </div>
